@@ -30,3 +30,22 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+/* new added css */
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background-color: black;
+  background: #000;  /* or any dark color */
+  color: #fff;      /* light text color */
+}
+
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Optional: Make all text inverted when cursor hovers over it */
+* {
+  mix-blend-mode: normal;
+}

@@ -1,0 +1,29 @@
+.cursor {
+    position: fixed;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference; /* Move the blend mode to the parent */
+    transition: transform 0.05s ease;
+}
+
+.cursorInvert {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;  /* Remove border radius for square shape */
+    background-color: #fff;
+    opacity: 1;
+}
+
+.cursorBorder {
+    display: none; /* Hide the border as it can interfere with the inversion effect */
+}
+
+/* Hide cursor on touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .cursor {
+        display: none;
+    }
+}
