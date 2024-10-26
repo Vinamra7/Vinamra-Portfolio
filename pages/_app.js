@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import gsap from 'gsap'
 import CustomCursor from './components/customCursor/CustomCursor'
 import TunnelBackground from './components/TunnelBackground'
-import LoadingScreen from './components/LoadingScreen'
+import LoadingScreen from './components/loading/LoadingScreen'
 
 function MyApp({ Component, pageProps }) {
   const [loading, setLoading] = useState(true);
