@@ -58,8 +58,7 @@ function useTextScramble(finalText) {
 }
 
 export default function Home() {
-  const scrambledText = useTextScramble('Vinamra Mishra');
-  const scrambledText2 = useTextScramble('Software Engineer');
+  const scrambledName = useTextScramble("Vinamra Mishra");
 
   return (
     <>
@@ -69,21 +68,24 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <p>
-          {scrambledText.content.split('').map((char, index) => (
-            <span key={index} style={{ color: scrambledText.colors[index] }}>
-              {char}
+      <main className="h-screen w-screen flex items-center justify-center">
+        <div className="border border-white/50 w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3">
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light flex items-baseline">
+            <span className="font-mono">Hi!</span>
+            <span className="font-mono">&nbsp;I'm</span>
+            <span className="font-mono">&nbsp;</span>
+            <span className="font-mono inline-flex">
+              {scrambledName.content.split('').map((char, index) => (
+                <span key={index} style={{ color: scrambledName.colors[index] }}>
+                  {char === ' ' ? '\u00A0' : char}
+                </span>
+              ))}
             </span>
-          ))}
-        </p>
-        <p className="text-4xl font-bold">
-          {scrambledText2.content.split('').map((char, index) => (
-            <span key={index} style={{ color: scrambledText2.colors[index] }}>
-              {char}
-            </span>
-          ))}
-        </p>
+          </p>
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light text-white">
+            a Software Developer from Bangalore, India
+          </p>
+        </div>
       </main>
     </>
   );
