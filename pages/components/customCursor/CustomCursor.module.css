@@ -4,7 +4,9 @@
     height: 14px;
     pointer-events: none;
     z-index: 9999;
-    mix-blend-mode: difference; /* Move the blend mode to the parent */
+    /* Limit the blend mode effect to just the cursor */
+    isolation: isolate;
+    mix-blend-mode: difference;
     transition: transform 0.05s ease;
 }
 

@@ -3,9 +3,14 @@ import { useState, useEffect } from 'react';
 
 // Text Scramble Hook
 function useTextScramble(finalText) {
-  const [text, setText] = useState('');
+  const [text, setText] = useState({
+    content: '',
+    colors: new Array(finalText.length).fill('#ffffff')
+  }); // Initialize with proper structure
+  
   const characters = 'abcdefghijklmnopqrstuvwxyz#@$%&*';
-  const colors = ['text-white', 'text-cyan-400', 'text-pink-500'];
+  // Added yellow to scramble colors
+  const scrambleColors = ['#22d3ee', '#ec4899', '#ffd700'];
 
   useEffect(() => {
     let iteration = 0;
@@ -13,22 +18,33 @@ function useTextScramble(finalText) {
 
     const scramble = () => {
       if (iteration >= finalText.length * 4) {
-        setText({ content: finalText, color: 'text-white' });
+        setText({
+          content: finalText,
+          colors: new Array(finalText.length).fill('#ffffff')
+        });
         clearInterval(interval);
         return;
       }
 
+      const newContent = finalText
+        .split('')
+        .map((char, index) => {
+          if (index < iteration / 4) {
+            return finalText[index];
+          }
+          return characters[Math.floor(Math.random() * characters.length)];
+        })
+        .join('');
+
+      const newColors = finalText.split('').map((_, index) => 
+        index < iteration / 4 
+          ? '#ffffff' 
+          : scrambleColors[Math.floor(Math.random() * scrambleColors.length)]
+      );
+
       setText({
-        content: finalText
-          .split('')
-          .map((char, index) => {
-            if (index < iteration / 4) {
-              return finalText[index];
-            }
-            return characters[Math.floor(Math.random() * characters.length)];
-          })
-          .join(''),
-        color: colors[Math.floor(Math.random() * colors.length)]
+        content: newContent,
+        colors: newColors
       });
 
       iteration += 1;
@@ -54,9 +70,19 @@ export default function Home() {
       </Head>
 
       <main>
-        <p className={`${scrambledText.color}`}>{scrambledText.content}</p>
-        <p className={`text-4xl font-bold ${scrambledText2.color}`}>
-          {scrambledText2.content}
+        <p>
+          {scrambledText.content.split('').map((char, index) => (
+            <span key={index} style={{ color: scrambledText.colors[index] }}>
+              {char}
+            </span>
+          ))}
+        </p>
+        <p className="text-4xl font-bold">
+          {scrambledText2.content.split('').map((char, index) => (
+            <span key={index} style={{ color: scrambledText2.colors[index] }}>
+              {char}
+            </span>
+          ))}
         </p>
       </main>
     </>
