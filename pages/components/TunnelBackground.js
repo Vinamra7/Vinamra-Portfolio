@@ -6,7 +6,7 @@ const TunnelBackground = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');  
     
     // Set canvas size
     const updateCanvasSize = () => {
@@ -92,8 +92,8 @@ const TunnelBackground = () => {
         position: 'absolute',
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100%',
+        width: '100vw',
+        height: '100vh',
         zIndex: -1,
         filter: 'blur(0.5px)', // Add subtle blur effect
       }}

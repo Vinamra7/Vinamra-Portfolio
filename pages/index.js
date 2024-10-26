@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
+import AboutMe from './components/AboutMe';
 
 // Text Scramble Hook
 function useTextScramble(finalText, startAnimation) {
@@ -88,59 +89,63 @@ export default function Home({ showContent }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="h-screen w-screen flex items-center justify-center">
-        <div className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3">
-          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light flex items-baseline">
-            <span className={`font-mono transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
-              Hi! I'm&nbsp;
-            </span>
-            <span className="font-mono inline-flex">
-              {scrambledName.content.split('').map((char, index) => (
-                <span key={index} style={{ color: scrambledName.colors[index] }}>
-                  {char === ' ' ? '\u00A0' : char}
-                </span>
-              ))}
-            </span>
-          </p>
-          
-          {/* Updated text container with whitespace-nowrap */}
-          <p className={`text-sm sm:text-base md:text-lg lg:text-xl font-light text-white transition-opacity duration-500 whitespace-nowrap ${showContent ? 'opacity-100' : 'opacity-0'}`}>
-            a Software Developer from Bangalore, India
-          </p>
-          
-          {/* Buttons container with opacity transition */}
-          <div className={`flex gap-8 mt-8 transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
-            <a 
-              href="https://www.linkedin.com/in/vinamra-mishra-10597420a/"
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group relative cursor-none"
-            >
-              <div className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
-                <div className="absolute right-0 h-full w-2 bg-[#ec4899] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="absolute bottom-0 w-full h-2 bg-[#22d3ee] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-              </div>
-              <button className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none">
-                LinkedIn
-              </button>
-            </a>
+      <main className="min-h-screen w-screen flex flex-col">
+        <section className="h-screen w-full flex items-center justify-center">
+          <div className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3">
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light flex items-baseline">
+              <span className={`font-mono transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+                Hi! I'm&nbsp;
+              </span>
+              <span className="font-mono inline-flex">
+                {scrambledName.content.split('').map((char, index) => (
+                  <span key={index} style={{ color: scrambledName.colors[index] }}>
+                    {char === ' ' ? '\u00A0' : char}
+                  </span>
+                ))}
+              </span>
+            </p>
+            
+            {/* Updated text container with whitespace-nowrap */}
+            <p className={`text-sm sm:text-base md:text-lg lg:text-xl font-light text-white transition-opacity duration-500 whitespace-nowrap ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+              a Software Developer from Bangalore, India
+            </p>
+            
+            {/* Buttons container with opacity transition */}
+            <div className={`flex gap-8 mt-8 transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+              <a 
+                href="https://www.linkedin.com/in/vinamra-mishra-10597420a/"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group relative cursor-none"
+              >
+                <div className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
+                  <div className="absolute right-0 h-full w-2 bg-[#ec4899] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                  <div className="absolute bottom-0 w-full h-2 bg-[#22d3ee] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                </div>
+                <button className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none">
+                  LinkedIn
+                </button>
+              </a>
 
-            <a 
-              href="https://github.com/Vinamra7"
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group relative cursor-none"
-            >
-              <div className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
-                <div className="absolute right-0 h-full w-2 bg-[#ec4899] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="absolute bottom-0 w-full h-2 bg-[#22d3ee] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-              </div>
-              <button className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none">
-                GitHub
-              </button>
-            </a>
+              <a 
+                href="https://github.com/Vinamra7"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group relative cursor-none"
+              >
+                <div className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
+                  <div className="absolute right-0 h-full w-2 bg-[#ec4899] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                  <div className="absolute bottom-0 w-full h-2 bg-[#22d3ee] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                </div>
+                <button className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none">
+                  GitHub
+                </button>
+              </a>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <AboutMe showContent={showContent} />
       </main>
     </>
   );
