@@ -1,35 +1,60 @@
 import Head from 'next/head';
+import { useState, useEffect } from 'react';
+
+// Text Scramble Hook
+function useTextScramble(finalText) {
+  const [text, setText] = useState('');
+  const characters = 'abcdefghijklmnopqrstuvwxyz#@$%&*';
+
+  useEffect(() => {
+    let iteration = 0;
+    let interval;
+
+    const scramble = () => {
+      if (iteration >= finalText.length * 4) {
+        setText(finalText);
+        clearInterval(interval);
+        return;
+      }
+
+      setText(
+        finalText
+          .split('')
+          .map((char, index) => {
+            if (index < iteration / 4) {
+              return finalText[index];
+            }
+            return characters[Math.floor(Math.random() * characters.length)];
+          })
+          .join('')
+      );
+
+      iteration += 1;
+    };
+
+    // Changed from 30 to 60 milliseconds
+    interval = setInterval(scramble, 45);
+    return () => clearInterval(interval);
+  }, [finalText]);
+
+  return text;
+}
 
 export default function Home() {
+  const scrambledText = useTextScramble('Vinamra Mishra');
+  const scrambledText2 = useTextScramble('Software Engineer');
+
   return (
     <>
       <Head>
-        <title>Your Portfolio</title>
+        <title>Vinamra's Portfolio</title>
         <meta name="description" content="Your portfolio description" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
-        {/*<h1 style={{color:'white'}}>Welcome to My Portfolio</h1>*/}
-          <p style={{color:'white', fontSize: '10em'}}>a
-          a<br/>
-          a b<br/>
-          a b c<br/>
-          a b c d<br/>
-          a b c d e<br/>
-          a b c d e f<br/>
-          a b c d e f g<br/>
-          a b c d e f g h<br/>
-          a b c d e f g h i<br/>
-          a b c d e f g h i j<br/>
-          a b c d e f g h i j k<br/>
-          a b c d e f g h i j k l<br/>
-          a b c d e f g h i j k l m<br/>
-          a b c d e f g h i j k l m n<br/>
-          a b c d e f g h i j k l m n o<br/>
-          a b c d e f g h i j k l m n o p<br/>
-          a b c d e f g h i j k l m n o p q<br/>
-          </p>
+        <h1 className="text-4xl font-bold">{scrambledText}</h1>
+        <h1 className="text-4xl font-bold">{scrambledText2}</h1>
       </main>
     </>
   );
