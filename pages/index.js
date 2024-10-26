@@ -70,16 +70,15 @@ export default function Home({ showContent }) {
   const [startAnimation, setStartAnimation] = useState(false);
   const scrambledName = useTextScramble("Vinamra Mishra", startAnimation);
 
-  // Start animation when showContent becomes true
   useEffect(() => {
     if (showContent) {
       const timer = setTimeout(() => {
         setStartAnimation(true);
-      }, 1000); // Start 1 second after content is shown
+      }, 300);
       
       return () => clearTimeout(timer);
     }
-  }, [showContent]);  // Depend on showContent
+  }, [showContent]);
 
   return (
     <>
@@ -92,9 +91,10 @@ export default function Home({ showContent }) {
       <main className="h-screen w-screen flex items-center justify-center">
         <div className="border border-white/50 w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3">
           <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light flex items-baseline">
-            <span className="font-mono">Hi!</span>
-            <span className="font-mono">&nbsp;I'm</span>
-            <span className="font-mono">&nbsp;</span>
+            {/* Changed div to span */}
+            <span className={`font-mono transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+              Hi! I'm&nbsp;
+            </span>
             <span className="font-mono inline-flex">
               {scrambledName.content.split('').map((char, index) => (
                 <span key={index} style={{ color: scrambledName.colors[index] }}>
@@ -103,12 +103,12 @@ export default function Home({ showContent }) {
               ))}
             </span>
           </p>
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light text-white">
+          <p className={`text-sm sm:text-base md:text-lg lg:text-xl font-light text-white transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
             a Software Developer from Bangalore, India
           </p>
           
-          {/* New buttons container */}
-          <div className="flex gap-8 mt-8">
+          {/* Buttons container with opacity transition */}
+          <div className={`flex gap-8 mt-8 transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
             <a 
               href="https://www.linkedin.com/in/vinamra-mishra-10597420a/"
               target="_blank" 

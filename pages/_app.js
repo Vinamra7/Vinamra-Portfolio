@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }) {
       const handleLoadingComplete = () => {
         gsap.to('.loading-screen', {
           opacity: 0,
-          duration: 1,
+          duration: 0.5, // Reduced from 1 to 0.5 for faster fade out
           onComplete: () => {
             setLoading(false);
             setShowContent(true);
@@ -24,7 +24,7 @@ function MyApp({ Component, pageProps }) {
 
       const timer = setTimeout(() => {
         handleLoadingComplete();
-      }, 2000); // Changed from 3000 to 2000
+      }, 2000);
 
       return () => clearTimeout(timer);
     }
@@ -38,7 +38,7 @@ function MyApp({ Component, pageProps }) {
         </div>
       )}
       
-      <div className={`main-content ${showContent ? 'opacity-100' : 'opacity-0'} transition-opacity duration-1000`}>
+      <div className={`main-content ${showContent ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}>
         <TunnelBackground />
         <CustomCursor />
         <Component {...pageProps} showContent={showContent} />
