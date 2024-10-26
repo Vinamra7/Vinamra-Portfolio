@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 function useTextScramble(finalText) {
   const [text, setText] = useState('');
   const characters = 'abcdefghijklmnopqrstuvwxyz#@$%&*';
+  const colors = ['text-white', 'text-cyan-400', 'text-pink-500'];
 
   useEffect(() => {
     let iteration = 0;
@@ -12,13 +13,13 @@ function useTextScramble(finalText) {
 
     const scramble = () => {
       if (iteration >= finalText.length * 4) {
-        setText(finalText);
+        setText({ content: finalText, color: 'text-white' });
         clearInterval(interval);
         return;
       }
 
-      setText(
-        finalText
+      setText({
+        content: finalText
           .split('')
           .map((char, index) => {
             if (index < iteration / 4) {
@@ -26,14 +27,14 @@ function useTextScramble(finalText) {
             }
             return characters[Math.floor(Math.random() * characters.length)];
           })
-          .join('')
-      );
+          .join(''),
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
 
       iteration += 1;
     };
 
-    // Changed from 30 to 60 milliseconds
-    interval = setInterval(scramble, 45);
+    interval = setInterval(scramble, 60);
     return () => clearInterval(interval);
   }, [finalText]);
 
@@ -53,8 +54,10 @@ export default function Home() {
       </Head>
 
       <main>
-        <h1 className="text-4xl font-bold">{scrambledText}</h1>
-        <h1 className="text-4xl font-bold">{scrambledText2}</h1>
+        <p className={`${scrambledText.color}`}>{scrambledText.content}</p>
+        <p className={`text-4xl font-bold ${scrambledText2.color}`}>
+          {scrambledText2.content}
+        </p>
       </main>
     </>
   );
