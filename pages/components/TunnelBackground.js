@@ -17,7 +17,7 @@ const TunnelBackground = () => {
 
     // Your tunnel effect constants
     const tunnelSegments = 8;
-    const speed = 0.0006;
+    const speed = 0.006;
     let offset = 0;
 
     // Copy all your existing functions here

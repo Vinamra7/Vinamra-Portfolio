@@ -85,6 +85,39 @@ export default function Home() {
           <p className="text-sm sm:text-base md:text-lg lg:text-xl font-light text-white">
             a Software Developer from Bangalore, India
           </p>
+          
+          {/* New buttons container */}
+          <div className="flex gap-8 mt-8">
+            <a 
+              href="https://www.linkedin.com/in/vinamra-mishra-10597420a/"
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group relative cursor-none"
+            >
+              <div className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
+                <div className="absolute right-0 h-full w-2 bg-[#ec4899] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="absolute bottom-0 w-full h-2 bg-[#22d3ee] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+              </div>
+              <button className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none">
+                LinkedIn
+              </button>
+            </a>
+
+            <a 
+              href="https://github.com/Vinamra7"
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group relative cursor-none"
+            >
+              <div className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
+                <div className="absolute right-0 h-full w-2 bg-[#ec4899] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="absolute bottom-0 w-full h-2 bg-[#22d3ee] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+              </div>
+              <button className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none">
+                GitHub
+              </button>
+            </a>
+          </div>
         </div>
       </main>
     </>
