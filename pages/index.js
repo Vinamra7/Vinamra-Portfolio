@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 
 // Text Scramble Hook
-function useTextScramble(finalText) {
+function useTextScramble(finalText, startAnimation) {
   const [text, setText] = useState({
     content: '',
     colors: new Array(finalText.length).fill('#ffffff')
@@ -13,6 +13,15 @@ function useTextScramble(finalText) {
   const scrambleColors = ['#22d3ee', '#ec4899', '#ffd700'];
 
   useEffect(() => {
+    // Only start animation if startAnimation is true
+    if (!startAnimation) {
+      setText({
+        content: '',
+        colors: new Array(finalText.length).fill('#ffffff')
+      });
+      return;
+    }
+
     let iteration = 0;
     let interval;
 
@@ -52,13 +61,25 @@ function useTextScramble(finalText) {
 
     interval = setInterval(scramble, 60);
     return () => clearInterval(interval);
-  }, [finalText]);
+  }, [finalText, startAnimation]); // Add startAnimation to dependencies
 
   return text;
 }
 
-export default function Home() {
-  const scrambledName = useTextScramble("Vinamra Mishra");
+export default function Home({ showContent }) {
+  const [startAnimation, setStartAnimation] = useState(false);
+  const scrambledName = useTextScramble("Vinamra Mishra", startAnimation);
+
+  // Start animation when showContent becomes true
+  useEffect(() => {
+    if (showContent) {
+      const timer = setTimeout(() => {
+        setStartAnimation(true);
+      }, 1000); // Start 1 second after content is shown
+      
+      return () => clearTimeout(timer);
+    }
+  }, [showContent]);  // Depend on showContent
 
   return (
     <>
