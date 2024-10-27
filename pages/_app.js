@@ -2,7 +2,6 @@ import '../styles/global.css'
 import { useState, useEffect } from 'react'
 import gsap from 'gsap'
 import CustomCursor from './components/customCursor/CustomCursor'
-import TunnelBackground from './components/TunnelBackground'
 import LoadingScreen from './components/loading/LoadingScreen'
 
 function MyApp({ Component, pageProps }) {
@@ -39,7 +38,6 @@ function MyApp({ Component, pageProps }) {
       )}
       
       <div className={`main-content ${showContent ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}>
-        <TunnelBackground />
         <CustomCursor />
         <Component {...pageProps} showContent={showContent} />
       </div>

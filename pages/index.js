@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
 import AboutMe from './components/AboutMe';
 import HomeSection from "./components/HomeSection";
 
@@ -9,7 +8,7 @@ export default function Home({ showContent }) {
     <>
       <Head>
         <title>Vinamra's Portfolio</title>
-        <meta name="description" content="Your portfolio description" />
+        <meta name="description" content="Vinamra Mishra's Portfolio" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="min-h-screen w-screen flex flex-col">

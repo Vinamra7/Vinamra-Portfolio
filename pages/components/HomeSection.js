@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import TunnelBackground from "./TunnelBackground";
 
 // Text Scramble Hook
 function useTextScramble(finalText, startAnimation) {
@@ -80,7 +81,9 @@ export default function HomeSection({showContent}){
     }, [showContent]);
 
 
-    return <section className="h-screen w-full flex items-center justify-center">
+    return <>
+    <TunnelBackground />
+    <section className="h-screen w-full flex items-center justify-center">
         <div
             className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3">
             <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light flex items-baseline">
@@ -145,4 +148,5 @@ export default function HomeSection({showContent}){
             </div>
         </div>
     </section>
+    </>
 }
