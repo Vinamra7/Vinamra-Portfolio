@@ -80,10 +80,17 @@ export default function HomeSection({showContent}){
         }
     }, [showContent]);
 
+    // Add scroll handler
+    const handleScrollClick = () => {
+        window.scrollTo({
+            top: window.innerHeight,
+            behavior: 'smooth'
+        });
+    };
 
     return <>
     <TunnelBackground />
-    <section className="h-screen w-full flex items-center justify-center">
+    <section className="h-screen w-full flex items-center justify-center relative">
         <div
             className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3">
             <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light flex items-baseline">
@@ -146,6 +153,33 @@ export default function HomeSection({showContent}){
                     </button>
                 </a>
             </div>
+
+            {/* Scroll Button */}
+            <button 
+                onClick={handleScrollClick}
+                className={`
+                    absolute bottom-8 left-1/2 -translate-x-1/2
+                    flex items-center
+                    transition-opacity duration-500 cursor-none
+                    border-2 border-white/50
+                    ${showContent ? 'opacity-100' : 'opacity-0'}
+                `}
+            >
+                <div className="border-r-2 border-white/50 p-4">
+                    <svg 
+                        className="w-6 h-6 text-white animate-bounce" 
+                        fill="none" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth="2" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                    >
+                        <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </div>
+                <span className="text-white/80 px-4">Scroll Down</span>
+            </button>
         </div>
     </section>
     </>
