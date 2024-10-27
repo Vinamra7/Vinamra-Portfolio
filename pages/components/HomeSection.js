@@ -160,14 +160,17 @@ export default function HomeSection({showContent}){
                 className={`
                     absolute bottom-8 left-1/2 -translate-x-1/2
                     flex items-center
-                    transition-opacity duration-500 cursor-none
-                    border-2 border-white/50
+                    transition-all duration-300 cursor-none
+                    border border-white/50
+                    hover:border-white hover:bg-white
+                    hover:transform hover:scale-105
+                    group text-sm
                     ${showContent ? 'opacity-100' : 'opacity-0'}
                 `}
             >
-                <div className="border-r-2 border-white/50 p-4">
+                <div className="border-r border-white/50 p-3 group-hover:border-black">
                     <svg 
-                        className="w-6 h-6 text-white animate-bounce" 
+                        className="w-5 h-5 text-white transition-colors duration-300 group-hover:text-black animate-bounce" 
                         fill="none" 
                         strokeLinecap="round" 
                         strokeLinejoin="round" 
@@ -178,7 +181,9 @@ export default function HomeSection({showContent}){
                         <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                     </svg>
                 </div>
-                <span className="text-white/80 px-4">Scroll Down</span>
+                <span className="text-white/80 px-4 transition-colors duration-300 group-hover:text-black">
+                    Scroll Down
+                </span>
             </button>
         </div>
     </section>
