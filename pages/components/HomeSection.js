@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import TunnelBackground from "./TunnelBackground";
+import ThreeScene from "./background/ThreeScene";
 
 // Text Scramble Hook
 function useTextScramble(finalText, startAnimation) {
@@ -89,7 +90,7 @@ export default function HomeSection({showContent}){
     };
 
     return <>
-    <TunnelBackground />
+    <ThreeScene />
     <section className="h-screen w-full flex items-center justify-center relative">
         <div
             className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3 bg-transparent">
@@ -155,7 +156,7 @@ export default function HomeSection({showContent}){
             </div>
 
             {/* Scroll Button */}
-            <button 
+            <button
                 onClick={handleScrollClick}
                 className={`
                     absolute bottom-8 left-1/2 -translate-x-1/2
@@ -169,13 +170,13 @@ export default function HomeSection({showContent}){
                 `}
             >
                 <div className="border-r border-white/50 p-3 group-hover:border-black">
-                    <svg 
-                        className="w-5 h-5 text-white transition-colors duration-300 group-hover:text-black animate-bounce" 
-                        fill="none" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth="2" 
-                        viewBox="0 0 24 24" 
+                    <svg
+                        className="w-5 h-5 text-white transition-colors duration-300 group-hover:text-black animate-bounce"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
                         stroke="currentColor"
                     >
                         <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
