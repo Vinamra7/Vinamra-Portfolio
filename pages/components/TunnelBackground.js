@@ -22,7 +22,7 @@ const TunnelBackground = () => {
 
     const drawTunnel = () => {
       // Darker trailing effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      ctx.fillStyle = 'rgba(17, 21, 28, 0.15)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       for (let i = 0; i < tunnelSegments; i++) {

@@ -92,7 +92,7 @@ export default function HomeSection({showContent}){
     <TunnelBackground />
     <section className="h-screen w-full flex items-center justify-center relative">
         <div
-            className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3">
+            className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3 bg-transparent">
             <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light flex items-baseline">
               <span
                   className={`font-mono transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>

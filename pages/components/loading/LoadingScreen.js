@@ -16,7 +16,7 @@ const LoadingScreen = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center">
+    <div className="fixed inset-0 bg-[#11151C] flex flex-col items-center justify-center">
       <div className="w-16 h-16">
         <LoadingCube />
       </div>
