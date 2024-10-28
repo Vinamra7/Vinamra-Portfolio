@@ -60,9 +60,6 @@ const ThreeScene = () => {
                 hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
             });
 
-        // Add the HDR to the scene
-        scene.environment = hdrEquirect;
-
         // Add some fog to the scene for moodyness
         scene.fog = new THREE.Fog(0x11151c, 1, 100);
         scene.fog = new THREE.FogExp2(0x11151c, 0.4);
@@ -267,7 +264,7 @@ const ThreeScene = () => {
         };
     }, []);
 
-    return <canvas id="canvas" ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
+    return <canvas id="canvas" ref={canvasRef} style={{ width: "100%", height: "100%", position: "fixed" }} />;
 };
 
 export default ThreeScene;
