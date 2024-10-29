@@ -11,7 +11,7 @@ function useTextScramble(finalText, startAnimation) {
 
     const characters = 'abcdefghijklmnopqrstuvwxyz#@$%&*';
     // Added yellow to scramble colors
-    const scrambleColors = ['#22d3ee', '#ec4899', '#ffd700'];
+    const scrambleColors = ['#22d3ee', '#A88E9D', '#697D95'];
 
     useEffect(() => {
         // Only start animation if startAnimation is true
