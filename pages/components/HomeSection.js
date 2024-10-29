@@ -125,12 +125,12 @@ export default function HomeSection({showContent}){
                     <div
                         className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
                         <div
-                            className="absolute right-0 h-full w-2 bg-[#ec4899] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            className="absolute right-0 h-full w-2 bg-[#A88E9D] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div
-                            className="absolute bottom-0 w-full h-2 bg-[#22d3ee] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            className="absolute bottom-0 w-full h-2 bg-[#697D95] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                     </div>
                     <button
-                        className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none">
+                        className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none opacity-70">
                         LinkedIn
                     </button>
                 </a>
@@ -144,12 +144,12 @@ export default function HomeSection({showContent}){
                     <div
                         className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
                         <div
-                            className="absolute right-0 h-full w-2 bg-[#ec4899] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            className="absolute right-0 h-full w-2 bg-[#A88E9D] origin-right skew-y-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                         <div
-                            className="absolute bottom-0 w-full h-2 bg-[#22d3ee] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                            className="absolute bottom-0 w-full h-2 bg-[#697D95] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                     </div>
                     <button
-                        className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none">
+                        className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none opacity-70">
                         GitHub
                     </button>
                 </a>
