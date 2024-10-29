@@ -11,11 +11,11 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-const ThreeScene = () => {
+const ThreeScene = ({ showContent }) => {
     const canvasRef = useRef(null);
 
     useEffect(() => {
-        if (typeof window === "undefined") return;
+        if (typeof window === "undefined" || !showContent) return;
 
         // Create a renderer
         const renderer = new THREE.WebGLRenderer({
@@ -262,9 +262,15 @@ const ThreeScene = () => {
             renderer.dispose();
             composer.dispose();
         };
-    }, []);
+    }, [showContent]);
 
-    return <canvas id="canvas" ref={canvasRef} style={{ width: "100%", height: "100%", position: "fixed" }} />;
+    return <canvas id="canvas" ref={canvasRef} style={{ 
+        width: "100%", 
+        height: "100%", 
+        position: "fixed",
+        opacity: showContent ? 1 : 0,
+        transition: 'opacity 0.5s ease-in-out'
+    }} />;
 };
 
 export default ThreeScene;
