@@ -1,29 +1,62 @@
 .container {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  min-height: 100vh;
-  width: 100%;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #000000;
+  background-color: transparent;
   backdrop-filter: blur(4px);
   transition: all 1000ms ease-in-out;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
 .content {
+  position: relative;
   width: clamp(300px, 60vw, 800px);
-  margin: auto;
+  margin: 0 auto;
+  z-index: 1;
+  transform: scale(0.8);
+  transition: transform 1000ms ease-in-out;
+  pointer-events: none;
+}
+
+.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.visible .content {
+  transform: scale(1);
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hidden .content {
+  transform: scale(0.8);
 }
 
 .titleBox {
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.75rem 1.25rem;
-  background-color: rgba(0, 0, 0, 0.95);
   border-bottom: none;
   transform: translateX(-10vw);
+  pointer-events: auto;
 }
 
 .title {
@@ -35,8 +68,8 @@
 .descriptionBox {
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.25rem;
-  background-color: rgba(0, 0, 0, 0.95);
   transform: translateX(-10vw);
+  pointer-events: auto;
 }
 
 .descriptionContent {
@@ -54,16 +87,6 @@
   margin-bottom: 0;
 }
 
-.visible {
-  transform: translate(-50%, -50%) scale(1);
-  opacity: 1;
-}
-
-.hidden {
-  transform: translate(-50%, -50%) scale(0);
-  opacity: 0;
-}
-
 .fadeIn {
   opacity: 1;
 }
@@ -73,11 +96,11 @@
   .content {
     width: 80vw;
   }
-  
+
   .title {
     font-size: clamp(1rem, 2vw, 1.25rem);
   }
-  
+
   .descriptionContent {
     font-size: clamp(0.75rem, 2vw, 0.875rem);
   }
@@ -87,7 +110,7 @@
   .title {
     font-size: clamp(1rem, 2vw, 1.5rem);
   }
-  
+
   .descriptionContent {
     font-size: clamp(0.75rem, 2vw, 1rem);
   }

@@ -1,8 +1,12 @@
 import styles from './AboutMe.module.css';
+import AboutBack from './AboutBack';
 
 export default function AboutMe({ showContent }) {
   return (
     <section className={`${styles.container} ${showContent ? styles.visible : styles.hidden}`}>
+      <div className={styles.background}>
+        <AboutBack />
+      </div>
       <div className={styles.content}>
         <div className={styles.titleBox}>
           <h2 className={`${styles.title} ${showContent ? styles.fadeIn : ''}`}>

@@ -2,6 +2,7 @@ import Head from 'next/head';
 import AboutMe from './components/about/AboutMe';
 import HomeSection from "./components/HomeSection";
 import { useEffect, useState } from 'react';
+import AboutBack from './components/about/AboutBack';
 
 export default function Home({ showContent }) {
   const [showAbout, setShowAbout] = useState(false);
@@ -11,8 +12,11 @@ export default function Home({ showContent }) {
       const scrollPosition = window.scrollY;
       const windowHeight = window.innerHeight;
       
-      // Show AboutMe when scrolled more than 10% of viewport height
-      setShowAbout(scrollPosition > windowHeight * 0.1);
+      // Calculate a threshold for when to start showing AboutMe
+      const threshold = windowHeight * 0.5; // Show when scrolled halfway
+      
+      // Use scrollPosition relative to threshold to determine visibility
+      setShowAbout(scrollPosition > threshold);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -28,7 +32,7 @@ export default function Home({ showContent }) {
       </Head>
       <main className="relative">
         {/* HomeSection container */}
-        <section className="fixed inset-0">
+        <section className={`fixed inset-0 transition-opacity duration-1000 ${showAbout ? 'opacity-0' : 'opacity-100'}`}>
           <HomeSection showContent={showContent} />
         </section>
 

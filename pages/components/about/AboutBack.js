@@ -1,27 +1,30 @@
+'use client'
+
 import { Vector3 } from 'three'
 import { useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, SpotLight, useDepthBuffer } from '@react-three/drei'
 
-export default function AboutBack(){
+export default function AboutBack() {
     return (
         <Canvas
             shadows
             dpr={[1, 2]}
             camera={{ position: [-2, 2, 6], fov: 50, near: 1, far: 20 }}
             gl={{
-                clearColor: '#2c3e50',
+                clearColor: '#11151C',
                 alpha: false,
                 antialias: true
             }}
         >
-            <color attach="background" args={['#2c3e50']} />
-            <fog attach="fog" args={['#2c3e50', 5, 20]} />
+            <color attach="background" args={['#11151C']} />
+            <fog attach="fog" args={['#11151C', 5, 20]} />
             <ambientLight intensity={0.015} />
             <Scene />
         </Canvas>
     )
 }
+
 function Scene() {
     const depthBuffer = useDepthBuffer({ frames: 1 })
     const { nodes, materials } = useGLTF('https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/low_poly_astro.glb')
