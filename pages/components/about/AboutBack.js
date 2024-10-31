@@ -48,7 +48,7 @@ function Scene() {
     return (
         <>
             <MovingSpot color="#0c8cbf" position={[3, 3, 2]} />
-            <MovingSpot color="#b00c3f" position={[1, 3, 0]} />
+            <MovingSpot color="#697D95" position={[1, 3, 0]} />
 
             <mesh
                 ref={astronautRef}
@@ -110,10 +110,10 @@ function MovingSpot({ vec = new Vector3(), ...props }) {
             shadow-bias={-0.0001}
             {...props}
         >
-            <mesh position={[0, 0, 0]}>
+            {/* <mesh position={[0, 0, 0]}>
                 <sphereGeometry args={[0.1, 16, 16]} />
                 <meshBasicMaterial color={props.color} />
-            </mesh>
+            </mesh> */}
         </SpotLight>
     )
 }
