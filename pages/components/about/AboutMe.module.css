@@ -11,11 +11,12 @@
   background-color: #11151C;
   backdrop-filter: blur(4px);
   transition: all 1000ms ease-in-out;
+  margin-left: 5vw;
 }
 
 .content {
   width: clamp(300px, 60vw, 800px);
-  margin: auto;
+  margin: auto auto auto 5vw;
 }
 
 .titleBox {

@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import AboutMe from './components/AboutMe';
+import AboutMe from './components/about/AboutMe';
 import HomeSection from "./components/HomeSection";
 import { useEffect, useState } from 'react';
 
