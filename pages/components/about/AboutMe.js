@@ -3,19 +3,40 @@ import AboutBack from './AboutBack';
 
 export default function AboutMe({ showContent }) {
   return (
-    <section className={`${styles.container} ${showContent ? styles.visible : styles.hidden}`}>
-      <div className={styles.background}>
+    <section 
+      className={`${styles.container} ${showContent ? styles.visible : styles.hidden}`}
+      style={{ pointerEvents: 'none' }}
+    >
+      <div 
+        className={styles.background}
+        style={{ pointerEvents: 'auto' }}
+      >
         <AboutBack />
       </div>
-      <div className={styles.content}>
-        <div className={styles.titleBox}>
-          <h2 className={`${styles.title} ${showContent ? styles.fadeIn : ''}`}>
+      <div 
+        className={styles.content} 
+        style={{ pointerEvents: 'none' }}
+      >
+        <div 
+          className={styles.titleBox}
+          style={{ pointerEvents: 'none' }}
+        >
+          <h2 
+            className={`${styles.title} ${showContent ? styles.fadeIn : ''}`}
+            style={{ pointerEvents: 'none' }}
+          >
             About Me
           </h2>
         </div>
         
-        <div className={`${styles.descriptionBox} ${showContent ? styles.fadeIn : ''}`}>
-          <div className={styles.descriptionContent}>
+        <div 
+          className={`${styles.descriptionBox} ${showContent ? styles.fadeIn : ''}`}
+          style={{ pointerEvents: 'none' }}
+        >
+          <div 
+            className={styles.descriptionContent}
+            style={{ pointerEvents: 'none' }}
+          >
             <p>
               I'm a passionate Software Developer based in Bangalore, with expertise in building modern web applications 
               and solving complex problems.
