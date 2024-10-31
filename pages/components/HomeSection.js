@@ -120,7 +120,7 @@ export default function HomeSection({showContent}){
                         href="https://www.linkedin.com/in/vinamra-mishra-10597420a/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group relative cursor-none"
+                        className="group relative"
                     >
                         <div
                             className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
@@ -130,7 +130,7 @@ export default function HomeSection({showContent}){
                                 className="absolute bottom-0 w-full h-2 bg-[#697D95] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                         </div>
                         <button
-                            className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none opacity-70">
+                            className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black opacity-70">
                             LinkedIn
                         </button>
                     </a>
@@ -139,7 +139,7 @@ export default function HomeSection({showContent}){
                         href="https://github.com/Vinamra7"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group relative cursor-none"
+                        className="group relative"
                     >
                         <div
                             className="absolute inset-0 translate-x-2 translate-y-2 group-hover:translate-x-3 group-hover:translate-y-3 transition-transform duration-200">
@@ -149,7 +149,7 @@ export default function HomeSection({showContent}){
                                 className="absolute bottom-0 w-full h-2 bg-[#697D95] origin-bottom skew-x-[45deg] opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                         </div>
                         <button
-                            className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black cursor-none opacity-70">
+                            className="px-6 py-2 border border-white/50 bg-transparent text-white relative transition-all duration-200 group-hover:bg-white group-hover:text-black opacity-70">
                             GitHub
                         </button>
                     </a>
@@ -161,7 +161,7 @@ export default function HomeSection({showContent}){
                     className={`
                         absolute bottom-8 left-1/2 -translate-x-1/2
                         flex items-center
-                        transition-all duration-300 cursor-none
+                        transition-all duration-300
                         border border-white/50
                         hover:border-white hover:bg-white
                         hover:transform hover:scale-105

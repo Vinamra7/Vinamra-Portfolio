@@ -70,3 +70,19 @@ main {
 html {
   scroll-behavior: smooth;
 }
+
+/* Add these cursor styles */
+button,
+a,
+[role="button"] {
+  cursor: none !important; /* Force no default cursor */
+}
+
+body {
+  cursor: none !important; /* Force no default cursor */
+}
+
+/* If you want to ensure no default cursor anywhere */
+* {
+  cursor: none !important;
+}

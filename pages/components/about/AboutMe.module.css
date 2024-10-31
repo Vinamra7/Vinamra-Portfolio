@@ -12,6 +12,7 @@
   transition: all 1000ms ease-in-out;
   opacity: 0;
   pointer-events: none;
+  z-index: 50;
 }
 
 .background {
@@ -30,7 +31,7 @@
   z-index: 1;
   transform: scale(0.8);
   transition: transform 1000ms ease-in-out;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .visible {
@@ -40,15 +41,24 @@
 
 .visible .content {
   transform: scale(1);
+  pointer-events: auto;
 }
 
 .hidden {
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
 }
 
 .hidden .content {
   transform: scale(0.8);
+}
+
+.hidden .titleBox,
+.hidden .descriptionBox,
+.hidden .descriptionContent {
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .titleBox {
@@ -57,6 +67,7 @@
   border-bottom: none;
   transform: translateX(-10vw);
   pointer-events: auto;
+  cursor: text;
 }
 
 .title {
@@ -70,6 +81,7 @@
   padding: 1.25rem;
   transform: translateX(-10vw);
   pointer-events: auto;
+  cursor: text;
 }
 
 .descriptionContent {
@@ -77,6 +89,7 @@
   font-weight: 300;
   font-size: clamp(0.75rem, 2.5vw, 1rem);
   line-height: 1.6;
+  pointer-events: auto;
 }
 
 .descriptionContent p {
