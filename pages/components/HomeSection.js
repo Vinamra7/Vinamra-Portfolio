@@ -91,9 +91,9 @@ export default function HomeSection({showContent}){
 
     return <>
         <ThreeScene showContent={showContent} />
-        <section className="h-screen w-full flex items-center justify-center relative">
+        <section className="h-screen w-full flex items-center justify-center absolute pointer-events-none">
             <div
-                className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3 bg-transparent">
+                className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3 bg-transparent pointer-events-auto">
                 <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light flex items-baseline">
                   <span
                       className={`font-mono transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
@@ -166,6 +166,7 @@ export default function HomeSection({showContent}){
                         hover:border-white hover:bg-white
                         hover:transform hover:scale-105
                         group text-sm
+                        pointer-events-auto
                         ${showContent ? 'opacity-100' : 'opacity-0'}
                     `}
                 >
