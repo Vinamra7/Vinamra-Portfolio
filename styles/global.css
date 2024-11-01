@@ -86,3 +86,14 @@ body {
 * {
   cursor: none !important;
 }
+
+::selection {
+  background-color: #9bd1fe; /* Change this to any color you want */
+  color: #000000; /* This is the text color when selected */
+}
+
+/* For Firefox */
+::-moz-selection {
+  background-color: #9bd1fe;
+  color: #000000;
+}
