@@ -5,6 +5,15 @@ import { useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, SpotLight } from '@react-three/drei'
 
+if (typeof window !== 'undefined') {
+    window.mouseX = 0
+    window.mouseY = 0
+    window.addEventListener('mousemove', (e) => {
+        window.mouseX = e.clientX
+        window.mouseY = e.clientY
+    })
+}
+
 export default function AboutBack() {
     return (
         <Canvas
@@ -82,12 +91,16 @@ function MovingSpot({ vec = new Vector3(), ...props }) {
     const light = useRef()
     const viewport = useThree((state) => state.viewport)
 
-    useFrame((state) => {
+    useFrame(() => {
         if (light.current && light.current.target) {
+            // Get global mouse position instead of using Three.js mouse state
+            const mouseX = (window.mouseX || 0) / window.innerWidth * 2 - 1
+            const mouseY = -((window.mouseY || 0) / window.innerHeight) * 2 + 1
+
             light.current.target.position.lerp(
                 vec.set(
-                    (state.mouse.x * viewport.width) / 2,
-                    (state.mouse.y * viewport.height) / 2,
+                    (mouseX * viewport.width) / 2,
+                    (mouseY * viewport.height) / 2,
                     0
                 ),
                 0.1
@@ -105,15 +118,10 @@ function MovingSpot({ vec = new Vector3(), ...props }) {
             angle={0.35}
             attenuation={5}
             anglePower={4}
-            intensity={1} // Reduced spotlight intensity to balance with ambient light
+            intensity={1}
             shadow-mapSize={[512, 512]}
             shadow-bias={-0.0001}
             {...props}
-        >
-            {/* <mesh position={[0, 0, 0]}>
-                <sphereGeometry args={[0.1, 16, 16]} />
-                <meshBasicMaterial color={props.color} />
-            </mesh> */}
-        </SpotLight>
+        />
     )
 }
