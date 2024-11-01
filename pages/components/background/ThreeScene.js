@@ -47,6 +47,8 @@ const ThreeScene = ({ showContent }) => {
         controls.enabled = true;
         controls.dampingFactor = 1;
         controls.enablePan = false;
+        controls.enableZoom = false;
+        controls.enableRotate = true;
 
         // Limit the angel that the camera can move
         const angleLimit = Math.PI / 7;
