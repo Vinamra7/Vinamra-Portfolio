@@ -113,6 +113,40 @@
   opacity: 1;
 }
 
+.visible .typingAnimation {
+  display: block;
+  position: relative;
+  clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+}
+
+.visible .line1 {
+  animation: typing 2s ease forwards;
+}
+
+.visible .line2 {
+  animation: typing 2s ease forwards;
+  animation-delay: 2s;
+}
+
+.visible .line3 {
+  animation: typing 2s ease forwards;
+  animation-delay: 4s;
+}
+
+.visible .line4 {
+  animation: typing 2s ease forwards;
+  animation-delay: 6s;
+}
+
+@keyframes typing {
+  from {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+  }
+  to {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
 /* Media Queries */
 @media (max-width: 768px) {
   .content {

@@ -31,17 +31,17 @@ export default function AboutMe({ showContent }) {
           <div 
             className={styles.descriptionContent}
           >
-            <p>
+            <p className={`${styles.typingAnimation} ${styles.line1}`}>
               I'm a passionate Software Developer based in Bangalore, with expertise in building modern web applications 
               and solving complex problems.
             </p>
-            
-            <p>
+            <p className={`${styles.typingAnimation} ${styles.line2}`}>
               My journey in software development started with a curiosity for creating things that live on the internet. 
+            </p>
+            <p className={`${styles.typingAnimation} ${styles.line3}`}>
               Today, I specialize in building high-performance applications with clean, elegant, and efficient code.
             </p>
-            
-            <p>
+            <p className={`${styles.typingAnimation} ${styles.line4}`}>
               When I'm not coding, you can find me exploring new technologies, contributing to open-source projects, 
               or sharing my knowledge with the developer community.
             </p>
