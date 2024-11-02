@@ -270,8 +270,12 @@ const ThreeScene = ({ showContent }) => {
         width: "100%", 
         height: "100%", 
         position: "fixed",
+        top: 0,
+        left: 0,
+        zIndex: 0,
         opacity: showContent ? 1 : 0,
-        transition: 'opacity 0.5s ease-in-out'
+        transition: 'opacity 0.5s ease-in-out',
+        pointerEvents: 'auto'
     }} />;
 };
 

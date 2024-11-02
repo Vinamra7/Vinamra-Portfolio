@@ -2,7 +2,7 @@ import Head from 'next/head';
 import AboutMe from './components/about/AboutMe';
 import HomeSection from "./components/HomeSection";
 import { useEffect, useState } from 'react';
-import AboutBack from './components/about/AboutBack';
+import Projects from './components/projects/Projects';
 
 export default function Home({ showContent }) {
   const [showAbout, setShowAbout] = useState(false);
@@ -31,16 +31,22 @@ export default function Home({ showContent }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="relative">
-        {/* HomeSection container */}
-        <section className={`fixed inset-0 transition-opacity duration-1000 ${showAbout ? 'opacity-0' : 'opacity-100'}`}>
-          <HomeSection showContent={showContent} />
-        </section>
+        {/* First viewport - Home */}
+        <div className="h-screen relative">
+          <section className={`fixed inset-0 transition-opacity duration-1000 ${showAbout ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}>
+            <HomeSection showContent={showContent} />
+          </section>
+        </div>
 
-        {/* AboutMe section */}
-        <AboutMe showContent={showAbout} />
+        {/* Second viewport - About */}
+        <div className="h-screen relative">
+          <section className={`fixed inset-0 transition-opacity duration-1000 ${showAbout ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+            <AboutMe showContent={showAbout} />
+          </section>
+        </div>
 
-        {/* Scrollable space */}
-        <div className="h-[200vh]"></div>
+        {/* Third viewport - Projects */}
+        <Projects />
       </main>
     </>
   );
