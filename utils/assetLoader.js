@@ -33,12 +33,29 @@ class AssetLoader {
 
   async loadAssets(onProgress) {
     return new Promise((resolve, reject) => {
+      // Set up loading manager callbacks first
+      this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+        const progress = (itemsLoaded / itemsTotal) * 100;
+        if (onProgress) onProgress(progress);
+      };
+
+      this.loadingManager.onLoad = () => {
+        // Add a small delay to ensure everything is properly initialized
+        setTimeout(() => {
+          resolve(this.assets);
+        }, 100);
+      };
+
+      this.loadingManager.onError = (url) => {
+        console.error('Error loading:', url);
+        reject(new Error(`Failed to load ${url}`));
+      };
+
       // Load HDR
       this.rgbeLoader.load(
         "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/GRADIENT_01_01_comp.hdr",
         (hdr) => {
           this.assets.hdrs.gradient = hdr;
-          this.updateProgress(onProgress);
         },
         undefined,
         reject
@@ -49,7 +66,6 @@ class AssetLoader {
         "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/surf_imp_02.jpg",
         (texture) => {
           this.assets.textures.surfaceImperfection = texture;
-          this.updateProgress(onProgress);
         },
         undefined,
         reject
@@ -60,7 +76,6 @@ class AssetLoader {
         "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/ml-dpt-21-1K_normal.jpeg",
         (texture) => {
           this.assets.textures.displacement = texture;
-          this.updateProgress(onProgress);
         },
         undefined,
         reject
@@ -71,10 +86,6 @@ class AssetLoader {
         "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/two_hands_01.fbx",
         (model) => {
           this.assets.models.hands = model;
-          this.updateProgress(onProgress);
-          if (this.loadedAssets === this.totalAssets) {
-            resolve(this.assets);
-          }
         },
         undefined,
         reject

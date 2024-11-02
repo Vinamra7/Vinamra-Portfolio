@@ -20,7 +20,7 @@ const LoadingScreen = ({ progress }) => {
         <LoadingCube />
       </div>
       <div className="text-white text-2xl mt-8 font-mono min-w-[120px] text-center">
-        Loading{dots}
+        {progress === 100 ? 'Ready' : `Loading${dots}`}
       </div>
       <div className="mt-4 text-white/50 text-sm">
         {Math.round(progress)}%
