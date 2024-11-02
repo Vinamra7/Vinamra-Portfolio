@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import CustomCursor from './components/customCursor/CustomCursor'
 import LoadingScreen from './components/loading/LoadingScreen'
 import AssetLoader from '../utils/assetLoader'
+import { Analytics } from '@vercel/analytics/react'
 
 const LOADING_TIMEOUT = 30000; // 30 seconds
 
@@ -69,6 +70,7 @@ function MyApp({ Component, pageProps }) {
         <CustomCursor />
         <Component {...pageProps} showContent={showContent} />
       </div>
+      <Analytics />
     </>
   )
 }
