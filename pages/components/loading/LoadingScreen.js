@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import LoadingCube from './LoadingCube';
 
-const LoadingScreen = () => {
+const LoadingScreen = ({ progress }) => {
   const [dots, setDots] = useState('');
 
   useEffect(() => {
-    // Animate loading dots
     const dotsInterval = setInterval(() => {
       setDots(prev => prev.length >= 3 ? '' : prev + '.');
     }, 500);
@@ -22,6 +21,9 @@ const LoadingScreen = () => {
       </div>
       <div className="text-white text-2xl mt-8 font-mono min-w-[120px] text-center">
         Loading{dots}
+      </div>
+      <div className="mt-4 text-white/50 text-sm">
+        {Math.round(progress)}%
       </div>
     </div>
   );

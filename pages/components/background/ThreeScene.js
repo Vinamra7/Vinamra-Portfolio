@@ -10,9 +10,11 @@ import { AfterimagePass } from "three/examples/jsm/postprocessing/AfterimagePass
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import AssetLoader from '../../../utils/assetLoader';
 
 const ThreeScene = ({ showContent }) => {
     const canvasRef = useRef(null);
+    const assets = AssetLoader.getLoadedAssets();
 
     useEffect(() => {
         if (typeof window === "undefined" || !showContent) return;
@@ -55,25 +57,20 @@ const ThreeScene = ({ showContent }) => {
         controls.minPolarAngle = Math.PI / 2 - angleLimit;
         controls.maxPolarAngle = Math.PI / 2 + angleLimit;
 
-        // Add a gradient HDR background
-        const hdrEquirect = new RGBELoader()
-            .setPath("")
-            .load("https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/GRADIENT_01_01_comp.hdr", function () {
-                hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
-            });
+        // Use preloaded HDR
+        const hdrEquirect = assets.hdrs.gradient;
+        hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
 
         // Add some fog to the scene for moodyness
         scene.fog = new THREE.Fog(0x11151c, 1, 100);
         scene.fog = new THREE.FogExp2(0x11151c, 0.4);
 
-        // Load a texture for the 3d model
-        const surfaceImperfection = new THREE.TextureLoader().load(
-            "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/surf_imp_02.jpg"
-        );
+        // Use preloaded texture
+        const surfaceImperfection = assets.textures.surfaceImperfection;
         surfaceImperfection.wrapT = THREE.RepeatWrapping;
         surfaceImperfection.wrapS = THREE.RepeatWrapping;
 
-        // Create a new MeshPhysicalMaterial for the 3d model
+        // Create material using preloaded assets
         const hands_mat = new THREE.MeshPhysicalMaterial({
             color: 0x606060,
             roughness: 0.2,
@@ -83,21 +80,16 @@ const ThreeScene = ({ showContent }) => {
             envMapIntensity: 1.5
         });
 
-        // Load the 3d model as FBX
-        const fbxloader = new FBXLoader();
-        fbxloader.load(
-            "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/two_hands_01.fbx",
-            function (object) {
-                object.traverse(function (child) {
-                    if (child.isMesh) {
-                        child.material = hands_mat;
-                    }
-                });
-                object.position.set(0, 0, 0);
-                object.scale.setScalar(0.05);
-                scene.add(object);
+        // Use preloaded model
+        const object = assets.models.hands;
+        object.traverse(function (child) {
+            if (child.isMesh) {
+                child.material = hands_mat;
             }
-        );
+        });
+        object.position.set(0, 0, 0);
+        object.scale.setScalar(0.05);
+        scene.add(object);
 
         // POST PROCESSING
         const renderScene = new RenderPass(scene, camera);
@@ -154,12 +146,8 @@ const ThreeScene = ({ showContent }) => {
             `
         };
 
-        const displacementTexture = new THREE.TextureLoader().load(
-            "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/ml-dpt-21-1K_normal.jpeg",
-            function (texture) {
-                texture.minFilter = THREE.NearestFilter;
-            }
-        );
+        const displacementTexture = assets.textures.displacement;
+        displacementTexture.minFilter = THREE.NearestFilter;
 
         const displacementPass = new ShaderPass(displacementShader);
         displacementPass.uniforms["displacement"].value = displacementTexture;
