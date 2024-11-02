@@ -57,8 +57,8 @@ const ThreeScene = ({ showContent }) => {
 
         // Add a gradient HDR background
         const hdrEquirect = new RGBELoader()
-            .setPath("https://miroleon.github.io/daily-assets/")
-            .load("GRADIENT_01_01_comp.hdr", function () {
+            .setPath("")
+            .load("https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/GRADIENT_01_01_comp.hdr", function () {
                 hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
             });
 
@@ -68,7 +68,7 @@ const ThreeScene = ({ showContent }) => {
 
         // Load a texture for the 3d model
         const surfaceImperfection = new THREE.TextureLoader().load(
-            "https://miroleon.github.io/daily-assets/surf_imp_02.jpg"
+            "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/surf_imp_02.jpg"
         );
         surfaceImperfection.wrapT = THREE.RepeatWrapping;
         surfaceImperfection.wrapS = THREE.RepeatWrapping;
@@ -86,7 +86,7 @@ const ThreeScene = ({ showContent }) => {
         // Load the 3d model as FBX
         const fbxloader = new FBXLoader();
         fbxloader.load(
-            "https://miroleon.github.io/daily-assets/two_hands_01.fbx",
+            "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/two_hands_01.fbx",
             function (object) {
                 object.traverse(function (child) {
                     if (child.isMesh) {
@@ -155,7 +155,7 @@ const ThreeScene = ({ showContent }) => {
         };
 
         const displacementTexture = new THREE.TextureLoader().load(
-            "https://raw.githubusercontent.com/miroleon/displacement_texture_freebie/main/assets/1K/jpeg/normal/ml-dpt-21-1K_normal.jpeg",
+            "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/ml-dpt-21-1K_normal.jpeg",
             function (texture) {
                 texture.minFilter = THREE.NearestFilter;
             }
