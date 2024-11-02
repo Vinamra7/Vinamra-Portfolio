@@ -97,3 +97,28 @@ body {
   background-color: #9bd1fe;
   color: #000000;
 }
+
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #11151C;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #697D95;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A88E9D;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #697D95 #11151C;
+}
