@@ -76,3 +76,4 @@ function MyApp({ Component, pageProps }) {
 }
 
 export default MyApp
+// vercel toolbar removed
