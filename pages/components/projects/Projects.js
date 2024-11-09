@@ -1,8 +1,12 @@
 import styles from './Projects.module.css';
+import ProjectBack from './ProjectBack';
 
 export default function Projects() {
   return (
     <section className={styles.container}>
+      <div className={styles.background}>
+        <ProjectBack />
+      </div>
       <div className={styles.content}>
         <h2 className={styles.title}>Projects</h2>
         <div className={styles.projectGrid}>

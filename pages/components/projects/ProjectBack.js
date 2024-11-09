@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { AccumulativeShadows, RandomizedLight, Center, Environment, OrbitControls } from '@react-three/drei';
-import { useControls } from 'leva'; // Re-add the import
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import styles from './ProjectBack.module.css';
 
 function ProjectBack() {
     const [roughness, setRoughness] = useState(1);
@@ -12,13 +12,13 @@ function ProjectBack() {
     const [isOpen, setIsOpen] = useState(false);
     const CollapsiblePanel = ({title, children}) =>{
         return (
-            <div className={`collapsible-panel ${isOpen ? 'open' : 'closed'}`}>
-                <div className="panel-header" onClick={() => setIsOpen(!isOpen)}>
+            <div className={`${styles['collapsible-panel']} ${isOpen ? styles.open : styles.closed}`}>
+                <div className={styles['panel-header']} onClick={() => setIsOpen(!isOpen)}>
                     {isOpen ? <FaChevronRight /> : <FaChevronLeft />}
                     {isOpen && <span>{title}</span>}
                 </div>
                 {isOpen && (
-                    <div className="panel-content">
+                    <div className={styles['panel-content']}>
                         {children}
                     </div>
                 )}
@@ -27,10 +27,10 @@ function ProjectBack() {
     }
 
     return (
-        <div className="app-container">
+        <div className={styles['app-container']}>
             <CollapsiblePanel title="Settings">
-                <div className="settings-container">
-                    <div className="setting-item">
+                <div className={styles['settings-container']}>
+                    <div className={styles['setting-item']}>
                         <label htmlFor="roughness">Roughness</label>
                         <input
                             type="range"
@@ -43,7 +43,7 @@ function ProjectBack() {
                         />
                     </div>
 
-                    <div className="setting-item">
+                    <div className={styles['setting-item']}>
                         <label htmlFor="blur">Blur</label>
                         <input
                             type="range"
@@ -56,7 +56,7 @@ function ProjectBack() {
                         />
                     </div>
 
-                    <div className="setting-item">
+                    <div className={styles['setting-item']}>
                         <label htmlFor="preset">Preset</label>
                         <select
                             id="preset"
