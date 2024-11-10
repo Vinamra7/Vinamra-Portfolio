@@ -13,12 +13,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: -1;
+  z-index: 1;
 }
 
 .content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 64rem;
   margin: 0 auto;
 }
@@ -41,11 +41,9 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.5rem;
   padding: 1.5rem;
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.05),
-    rgba(255, 255, 255, 0.02)
-  );
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.05),
+      rgba(255, 255, 255, 0.02));
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -53,11 +51,9 @@
 .projectCard:hover {
   transform: translateY(-5px);
   border-color: rgba(255, 255, 255, 0.3);
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 255, 255, 0.05)
-  );
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.05));
 }
 
 .projectTitle {
@@ -114,8 +110,8 @@
   .container {
     padding: 3rem 1rem;
   }
-  
+
   .projectGrid {
     grid-template-columns: 1fr;
   }
-} 
+}
