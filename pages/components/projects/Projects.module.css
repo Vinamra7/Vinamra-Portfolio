@@ -1,75 +1,84 @@
 .container {
-  min-height: 100vh;
-  margin-top: 100vh;
-  background-color: transparent;
   position: relative;
-  z-index: 60;
-  padding: 4rem 2rem;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s ease-out, transform 1s ease-out;
+}
+
+.container.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .background {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 
 .content {
   position: relative;
-  z-index: 2;
-  max-width: 64rem;
-  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out 0.2s, transform 1s ease-out 0.2s;
+}
+
+.content.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .title {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  font-weight: 200;
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  font-size: 3rem;
+  font-weight: bold;
   margin-bottom: 2rem;
+  text-align: center;
+  color: #ffffff;
 }
 
 .projectGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
 .projectCard {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  background: linear-gradient(to bottom,
-      rgba(255, 255, 255, 0.05),
-      rgba(255, 255, 255, 0.02));
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .projectCard:hover {
   transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.3);
-  background: linear-gradient(to bottom,
-      rgba(255, 255, 255, 0.08),
-      rgba(255, 255, 255, 0.05));
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .projectTitle {
-  font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  font-size: 1.5rem;
+  font-weight: bold;
   margin-bottom: 1rem;
-  font-weight: 400;
+  color: #ffffff;
 }
 
 .projectDescription {
-  color: rgba(255, 255, 255, 0.85);
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-  font-size: 0.9rem;
-  line-height: 1.6;
+  color: #e0e0e0;
   margin-bottom: 1.5rem;
+  line-height: 1.6;
 }
 
 .techStack {
@@ -80,12 +89,11 @@
 }
 
 .techStack span {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  font-size: 0.875rem;
+  color: #ffffff;
 }
 
 .projectLinks {
@@ -94,24 +102,14 @@
 }
 
 .projectLinks a {
-  color: #7dd3fc;
-  font-size: 0.9rem;
+  color: #ffffff;
   text-decoration: none;
-  transition: color 0.2s ease;
-  text-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  transition: background-color 0.3s ease;
 }
 
 .projectLinks a:hover {
-  color: #38bdf8;
-}
-
-/* Media Queries */
-@media (max-width: 768px) {
-  .container {
-    padding: 3rem 1rem;
-  }
-
-  .projectGrid {
-    grid-template-columns: 1fr;
-  }
+  background: rgba(255, 255, 255, 0.1);
 }

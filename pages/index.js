@@ -6,17 +6,20 @@ import Projects from './components/projects/Projects';
 
 export default function Home({ showContent }) {
   const [showAbout, setShowAbout] = useState(false);
+  const [showProjects, setShowProjects] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       const windowHeight = window.innerHeight;
-      
-      // Calculate a threshold for when to start showing AboutMe
-      const threshold = windowHeight * 0.5; // Show when scrolled halfway
-      
-      // Use scrollPosition relative to threshold to determine visibility
-      setShowAbout(scrollPosition > threshold);
+
+      // Calculate thresholds for transitions
+      const aboutThreshold = windowHeight * 0.2; // Show About even earlier
+      const projectThreshold = windowHeight * 2.0; // Show Projects later
+
+      // Update section visibility based on scroll position
+      setShowAbout(scrollPosition > aboutThreshold && scrollPosition < projectThreshold);
+      setShowProjects(scrollPosition > projectThreshold);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -33,20 +36,35 @@ export default function Home({ showContent }) {
       <main className="relative">
         {/* First viewport - Home */}
         <div className="h-screen relative">
-          <section className={`fixed inset-0 transition-opacity duration-1000 ${showAbout ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}>
+          <section className={`fixed inset-0 transition-opacity duration-1000 ${showAbout || showProjects ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'
+            }`}>
             <HomeSection showContent={showContent} />
           </section>
         </div>
 
         {/* Second viewport - About */}
         <div className="h-screen relative">
-          <section className={`fixed inset-0 transition-opacity duration-1000 ${showAbout ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+          <section className={`fixed inset-0 transition-all duration-1000 ${showAbout ? 'opacity-100 pointer-events-auto translate-y-0' :
+            showProjects ? 'opacity-0 pointer-events-none -translate-y-full' :
+              'opacity-0 pointer-events-none translate-y-full'
+            }`}>
             <AboutMe showContent={showAbout} />
           </section>
         </div>
 
         {/* Third viewport - Projects */}
-        <Projects />
+        <div className="h-screen relative">
+          <section className={`fixed inset-0 transition-all duration-1000 ${showProjects ? 'opacity-100 pointer-events-auto translate-y-0' :
+            'opacity-0 pointer-events-none translate-y-full'
+            }`}>
+            <Projects showContent={showProjects} />
+          </section>
+        </div>
+
+        {/* Spacer divs for scroll height - adjusted for longer About section visibility */}
+        <div className="h-screen"></div>
+        <div className="h-screen"></div>
+        <div className="h-screen"></div>
       </main>
     </>
   );

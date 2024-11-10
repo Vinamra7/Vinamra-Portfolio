@@ -1,13 +1,25 @@
 import styles from './Projects.module.css';
 import ProjectBack from './ProjectBack';
+import { useEffect, useState } from 'react';
 
-export default function Projects() {
+export default function Projects({ showContent }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (showContent) {
+      const timer = setTimeout(() => setIsVisible(true), 200);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [showContent]);
+
   return (
-    <section className={styles.container}>
+    <section className={`${styles.container} ${isVisible ? styles.visible : ''}`}>
       <div className={styles.background}>
         <ProjectBack />
       </div>
-      <div className={styles.content}>
+      <div className={`${styles.content} ${isVisible ? styles.visible : ''}`}>
         <h2 className={styles.title}>Projects</h2>
         <div className={styles.projectGrid}>
           {/* Project Card 1 */}
@@ -47,4 +59,4 @@ export default function Projects() {
       </div>
     </section>
   );
-} 
+}
