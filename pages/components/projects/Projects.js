@@ -3,16 +3,23 @@ import styles from './Projects.module.css';
 // Sample project data
 const projects = [
   {
-    title: 'Project 1',
-    description: 'Description of project 1',
-    imageUrl: '/images/project1.jpg',
+    title: 'Quantum Encryption Platform',
+    description: 'A cutting-edge web application implementing quantum-resistant encryption algorithms for secure communication.',
+    imageUrl: '/vid/encryption.webm',
+    technologies: ['React', 'Node.js', 'Quantum Cryptography']
   },
   {
-    title: 'Project 2',
-    description: 'Description of project 2',
-    imageUrl: '/images/project2.jpg',
+    title: 'AI-Powered Black Hole Simulator',
+    description: 'An interactive 3D simulation exploring gravitational physics and black hole dynamics using advanced WebGL rendering.',
+    imageUrl: '/vid/blackhole.webm',
+    technologies: ['Three.js', 'WebGL', 'Physics Simulation']
   },
-  // Add more projects as needed
+  {
+    title: 'Decentralized Portfolio Tracker',
+    description: 'A blockchain-integrated portfolio management platform with real-time crypto asset tracking and predictive analytics.',
+    imageUrl: '/vid/cards-video.webm',
+    technologies: ['Solidity', 'Web3.js', 'React', 'Blockchain']
+  }
 ];
 
 export default function Projects() {
@@ -24,11 +31,20 @@ export default function Projects() {
       </video>
       <div className={styles.content}>
         <h1>Projects</h1>
-        <p>Explore our projects.</p>
+        <p>Innovative solutions at the intersection of technology and creativity</p>
         <div className={styles.projectsGrid}>
           {projects.map((project, index) => (
             <div key={index} className={styles.projectCard}>
-              <img src={project.imageUrl} alt={project.title} className={styles.projectImage} />
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className={styles.projectImage}
+              >
+                <source src={project.imageUrl} type="video/webm" />
+                Your browser does not support the video tag.
+              </video>
               <h2>{project.title}</h2>
               <p>{project.description}</p>
             </div>
