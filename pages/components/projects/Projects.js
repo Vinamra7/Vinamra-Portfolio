@@ -1,4 +1,5 @@
 import styles from './Projects.module.css';
+import { useRef } from 'react';
 
 // Sample project data
 const projects = [
@@ -35,16 +36,7 @@ export default function Projects() {
         <div className={styles.projectsGrid}>
           {projects.map((project, index) => (
             <div key={index} className={styles.projectCard}>
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className={styles.projectImage}
-              >
-                <source src={project.imageUrl} type="video/webm" />
-                Your browser does not support the video tag.
-              </video>
+              <VideoPlayer src={project.imageUrl} />
               <h2>{project.title}</h2>
               <p>{project.description}</p>
             </div>
@@ -52,5 +44,36 @@ export default function Projects() {
         </div>
       </div>
     </div>
+  );
+}
+
+function VideoPlayer({ src }) {
+  const videoRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+  };
+
+  return (
+    <video
+      ref={videoRef}
+      loop
+      muted
+      playsInline
+      className={styles.projectImage}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <source src={src} type="video/webm" />
+      Your browser does not support the video tag.
+    </video>
   );
 }
