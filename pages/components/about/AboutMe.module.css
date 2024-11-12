@@ -62,7 +62,7 @@
 }
 
 .titleBox {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   padding: 0.75rem 1.25rem;
   border-bottom: none;
   transform: translateX(-10vw);
@@ -81,7 +81,7 @@
 }
 
 .descriptionBox {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   padding: 1.25rem;
   transform: translateX(-10vw);
   pointer-events: auto;
@@ -141,6 +141,7 @@
   from {
     clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
   }
+
   to {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   }

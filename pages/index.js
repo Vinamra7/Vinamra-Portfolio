@@ -14,8 +14,8 @@ export default function Home({ showContent }) {
       const windowHeight = window.innerHeight;
 
       // Calculate thresholds for transitions
-      const aboutThreshold = windowHeight * 0.2; // Show About even earlier
-      const projectThreshold = windowHeight * 2.0; // Show Projects later
+      const aboutThreshold = windowHeight * 0.2; // Show About early
+      const projectThreshold = windowHeight * 2.5; // Increased threshold to give About more time
 
       // Update section visibility based on scroll position
       setShowAbout(scrollPosition > aboutThreshold && scrollPosition < projectThreshold);
@@ -64,7 +64,7 @@ export default function Home({ showContent }) {
         {/* Spacer divs for scroll height - adjusted for longer About section visibility */}
         <div className="h-screen"></div>
         <div className="h-screen"></div>
-        <div className="h-screen"></div>
+        <div className="h-[50vh]"></div> {/* Reduced last spacer to control total scroll length */}
       </main>
     </>
   );
