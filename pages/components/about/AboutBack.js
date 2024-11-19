@@ -17,7 +17,7 @@ if (typeof window !== 'undefined') {
 export default function AboutBack() {
     return (
         <Canvas
-            shadows="soft"
+            shadows
             dpr={[1, 2]}
             camera={{ position: [-2, 2, 6], fov: 50, near: 1, far: 20 }}
             gl={{
@@ -31,11 +31,11 @@ export default function AboutBack() {
         >
             <color attach="background" args={['#11151C']} />
             <fog attach="fog" args={['#11151C', 5, 20]} />
-            {/* Increased ambient light intensity */}
-            <ambientLight intensity={0.05} />
-            {/* Added hemisphere light for better ambient lighting */}
+            {/* Reduced ambient light intensity for better spotlight visibility */}
+            <ambientLight intensity={0.02} />
+            {/* Adjusted hemisphere light */}
             <hemisphereLight
-                intensity={0.1}
+                intensity={0.05}
                 groundColor="#11151C"
                 color="#ffffff"
             />
@@ -56,8 +56,30 @@ function Scene() {
 
     return (
         <>
-            <MovingSpot color="#0c8cbf" position={[3, 3, 2]} />
-            <MovingSpot color="#697D95" position={[1, 3, 0]} />
+            <MovingSpot 
+                color="#0c8cbf" 
+                position={[5, 4, 2]} 
+                castShadow
+                intensity={2.5}
+                distance={12}
+                angle={0.6}
+                penumbra={0.5}
+                decay={1.5}
+                shadow-mapSize={[512, 512]}
+                shadow-bias={-0.001}
+            />
+            <MovingSpot 
+                color="#697D95" 
+                position={[3, 4, 0]} 
+                castShadow
+                intensity={2}
+                distance={12}
+                angle={0.6}
+                penumbra={0.5}
+                decay={1.5}
+                shadow-mapSize={[512, 512]}
+                shadow-bias={-0.001}
+            />
 
             <mesh
                 ref={astronautRef}
@@ -70,17 +92,20 @@ function Scene() {
                 dispose={null}
             />
 
+            {/* Add a floor to receive shadows */}
             <mesh
                 receiveShadow
                 position={[0, -2.1, 0]}
                 rotation-x={-Math.PI / 2}
             >
-                <planeGeometry args={[50, 50]} />
+                <planeGeometry args={[20, 20]} />
                 <meshStandardMaterial
-                    color="#11151C"
-                    roughness={0.9}
-                    metalness={0.1}
+                    color="#141923"
+                    roughness={0.5}
+                    metalness={0.3}
                     depthWrite={true}
+                    transparent={true}
+                    opacity={0.6}
                 />
             </mesh>
         </>

@@ -4,21 +4,21 @@ import { useRef } from 'react';
 // Sample project data
 const projects = [
   {
-    title: 'Quantum Encryption Platform',
-    description: 'A cutting-edge web application implementing quantum-resistant encryption algorithms for secure communication.',
-    imageUrl: '/vid/encryption.webm',
-    technologies: ['React', 'Node.js', 'Quantum Cryptography']
-  },
-  {
     title: 'AI-Powered Black Hole Simulator',
     description: 'An interactive 3D simulation exploring gravitational physics and black hole dynamics using advanced WebGL rendering.',
-    imageUrl: '/vid/blackhole.webm',
+    imageUrl: '',
     technologies: ['Three.js', 'WebGL', 'Physics Simulation']
+  },
+  {
+    title: 'Quantum Encryption Platform',
+    description: 'A cutting-edge web application implementing quantum-resistant encryption algorithms for secure communication.',
+    imageUrl: '/vid/data.mp4',
+    technologies: ['React', 'Node.js', 'Quantum Cryptography']
   },
   {
     title: 'Decentralized Portfolio Tracker',
     description: 'A blockchain-integrated portfolio management platform with real-time crypto asset tracking and predictive analytics.',
-    imageUrl: '/vid/cards-video.webm',
+    imageUrl: '/vid/space1.mp4',
     technologies: ['Solidity', 'Web3.js', 'React', 'Blockchain']
   }
 ];
@@ -27,7 +27,7 @@ export default function Projects() {
   return (
     <div className={styles.backgroundVideoContainer}>
       <video autoPlay loop muted playsInline className={styles.backgroundVideo}>
-        <source src="/vid/cards-video.webm" type="video/webm" />
+        <source src="/vid/encryption.webm" type="video/webm" />
         Your browser does not support the video tag.
       </video>
       <div className={styles.content}>
