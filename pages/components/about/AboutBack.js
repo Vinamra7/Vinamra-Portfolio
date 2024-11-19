@@ -58,7 +58,7 @@ function Scene() {
         <>
             <MovingSpot 
                 color="#0c8cbf" 
-                position={[5, 4, 2]} 
+                position={[5, 4, 3]} 
                 castShadow
                 intensity={2.5}
                 distance={12}
@@ -70,7 +70,7 @@ function Scene() {
             />
             <MovingSpot 
                 color="#697D95" 
-                position={[3, 4, 0]} 
+                position={[3, 4, 1]} 
                 castShadow
                 intensity={2}
                 distance={12}
@@ -93,7 +93,7 @@ function Scene() {
             />
 
             {/* Add a floor to receive shadows */}
-            <mesh
+            {/* <mesh
                 receiveShadow
                 position={[0, -2.1, 0]}
                 rotation-x={-Math.PI / 2}
@@ -107,7 +107,7 @@ function Scene() {
                     transparent={true}
                     opacity={0.6}
                 />
-            </mesh>
+            </mesh> */}
         </>
     )
 }
