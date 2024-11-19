@@ -57,7 +57,7 @@ function Scene() {
     return (
         <>
             <MovingSpot 
-                color="#0c8cbf" 
+                color="#697D95" 
                 position={[5, 4, 3]} 
                 castShadow
                 intensity={3.5}
@@ -69,8 +69,8 @@ function Scene() {
                 shadow-bias={-0.001}
             />
             <MovingSpot 
-                color="#697D95" 
-                position={[3, 4, 1]} 
+                color="#0c8cbf" 
+                position={[1.5, 4, 1]} 
                 castShadow
                 intensity={3}
                 distance={12}
@@ -83,8 +83,9 @@ function Scene() {
 
             <mesh
                 ref={astronautRef}
-                position={[4, -2, 0]}
-                rotation={[0, -Math.PI/2, 0]}
+                position={[5, -3.5, 0]}
+                rotation={[-0.095, -Math.PI/2, 0]}
+                scale={1.5}
                 castShadow
                 receiveShadow
                 geometry={nodes.char_Cube001.geometry}
