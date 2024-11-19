@@ -50,9 +50,9 @@ function Scene() {
 
     // Create a modified material with adjusted properties
     const enhancedMaterial = materials['Material.002'].clone()
-    enhancedMaterial.roughness = 0.7
-    enhancedMaterial.metalness = 0.3
-    enhancedMaterial.envMapIntensity = 1.5
+    enhancedMaterial.roughness = 0.4
+    enhancedMaterial.metalness = 0.6
+    enhancedMaterial.envMapIntensity = 2.0
 
     return (
         <>
@@ -60,11 +60,11 @@ function Scene() {
                 color="#0c8cbf" 
                 position={[5, 4, 3]} 
                 castShadow
-                intensity={2.5}
+                intensity={3.5}
                 distance={12}
                 angle={0.6}
-                penumbra={0.5}
-                decay={1.5}
+                penumbra={0.4}
+                decay={1.2}
                 shadow-mapSize={[512, 512]}
                 shadow-bias={-0.001}
             />
@@ -72,11 +72,11 @@ function Scene() {
                 color="#697D95" 
                 position={[3, 4, 1]} 
                 castShadow
-                intensity={2}
+                intensity={3}
                 distance={12}
                 angle={0.6}
-                penumbra={0.5}
-                decay={1.5}
+                penumbra={0.4}
+                decay={1.2}
                 shadow-mapSize={[512, 512]}
                 shadow-bias={-0.001}
             />
