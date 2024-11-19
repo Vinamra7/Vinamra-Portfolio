@@ -33,6 +33,7 @@ export default function Projects() {
         loop 
         muted 
         playsInline 
+        preload="none" loading="lazy"
         className={`${styles.backgroundVideo} ${isHoveringProject ? styles.colorized : ''}`}
       >
         <source src="/vid/encryption.webm" type="video/webm" />
@@ -69,7 +70,8 @@ function VideoPlayer({ src }) {
       loop
       muted
       playsInline
-      autoPlay
+      autoPlay 
+      preload="none" loading="lazy"
       className={styles.projectImage}
     >
       <source src={src} type="video/webm" />
