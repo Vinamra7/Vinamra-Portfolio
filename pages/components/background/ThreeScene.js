@@ -20,12 +20,13 @@ const ThreeScene = ({ showContent }) => {
         // Create a renderer
         const renderer = new THREE.WebGLRenderer({
             canvas: document.getElementById("canvas"),
-            antialias: true
+            antialias: true,
+            powerPreference: "high-performance" // Prefer high performance GPU
         });
 
         // Set a default background color
         renderer.setClearColor(0x11151c);
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio at 2
         renderer.setSize(window.innerWidth, window.innerHeight);
 
         // Create a new Three.js scene
@@ -83,6 +84,10 @@ const ThreeScene = ({ showContent }) => {
         object.traverse(function (child) {
             if (child.isMesh) {
                 child.material = hands_mat;
+                // Optimize geometry
+                if (child.geometry) {
+                    child.geometry.computeBoundingSphere();
+                }
             }
         });
         object.position.set(0, 0, 0);
@@ -171,7 +176,16 @@ const ThreeScene = ({ showContent }) => {
         }
 
         let theta = 0;
-        function update() {
+        let lastTime = 0;
+        const targetFPS = 60;
+        const frameInterval = 1000 / targetFPS;
+
+        function update(currentTime) {
+            const deltaTime = currentTime - lastTime;
+
+            if (deltaTime < frameInterval) return; // Skip frame if too soon
+
+            lastTime = currentTime - (deltaTime % frameInterval);
             theta += 0.005;
 
             let targetPosition = new THREE.Vector3(
@@ -225,36 +239,42 @@ const ThreeScene = ({ showContent }) => {
             transitionProgress = 0;
         });
 
+        let resizeTimeout;
         function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+
+            resizeTimeout = setTimeout(() => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                composer.setSize(window.innerWidth, window.innerHeight);
+            }, 250);
         }
 
         window.addEventListener("resize", onWindowResize);
 
-        function animate() {
+        function animate(currentTime) {
             requestAnimationFrame(animate);
             controls.update();
+            update(currentTime);
             composer.render();
-            update();
         }
 
-        animate();
+        animate(0);
 
         return () => {
             window.removeEventListener("resize", onWindowResize);
-            controls.removeEventListener("start", () => {});
-            controls.removeEventListener("end", () => {});
+            controls.removeEventListener("start", () => { });
+            controls.removeEventListener("end", () => { });
+            if (resizeTimeout) clearTimeout(resizeTimeout);
             renderer.dispose();
             composer.dispose();
         };
     }, [showContent]);
 
-    return <canvas id="canvas" ref={canvasRef} style={{ 
-        width: "100%", 
-        height: "100%", 
+    return <canvas id="canvas" ref={canvasRef} style={{
+        width: "100%",
+        height: "100%",
         position: "fixed",
         top: 0,
         left: 0,
