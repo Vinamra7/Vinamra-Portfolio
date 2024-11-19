@@ -1,12 +1,12 @@
 import styles from './Projects.module.css';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 // Sample project data
 const projects = [
   {
     title: 'AI-Powered Black Hole Simulator',
     description: 'An interactive 3D simulation exploring gravitational physics and black hole dynamics using advanced WebGL rendering.',
-    imageUrl: '',
+    imageUrl: '/vid/data.mp4',
     technologies: ['Three.js', 'WebGL', 'Physics Simulation']
   },
   {
@@ -24,9 +24,17 @@ const projects = [
 ];
 
 export default function Projects() {
+  const [isHoveringProject, setIsHoveringProject] = useState(false);
+
   return (
     <div className={styles.backgroundVideoContainer}>
-      <video autoPlay loop muted playsInline className={styles.backgroundVideo}>
+      <video 
+        autoPlay 
+        loop 
+        muted 
+        playsInline 
+        className={`${styles.backgroundVideo} ${isHoveringProject ? styles.colorized : ''}`}
+      >
         <source src="/vid/encryption.webm" type="video/webm" />
         Your browser does not support the video tag.
       </video>
@@ -35,7 +43,12 @@ export default function Projects() {
         <p>Innovative solutions at the intersection of technology and creativity</p>
         <div className={styles.projectsGrid}>
           {projects.map((project, index) => (
-            <div key={index} className={styles.projectCard}>
+            <div 
+              key={index} 
+              className={styles.projectCard}
+              onMouseEnter={() => setIsHoveringProject(true)}
+              onMouseLeave={() => setIsHoveringProject(false)}
+            >
               <VideoPlayer src={project.imageUrl} />
               <h2>{project.title}</h2>
               <p>{project.description}</p>
@@ -50,27 +63,14 @@ export default function Projects() {
 function VideoPlayer({ src }) {
   const videoRef = useRef(null);
 
-  const handleMouseEnter = () => {
-    if (videoRef.current) {
-      videoRef.current.play();
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (videoRef.current) {
-      videoRef.current.pause();
-    }
-  };
-
   return (
     <video
       ref={videoRef}
       loop
       muted
       playsInline
+      autoPlay
       className={styles.projectImage}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <source src={src} type="video/webm" />
       Your browser does not support the video tag.

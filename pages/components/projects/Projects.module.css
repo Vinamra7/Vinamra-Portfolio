@@ -15,12 +15,16 @@
 
 .backgroundVideo {
    position: absolute;
-   /*top: 0;*/
-   /*left: 0;*/
    width: 120%;
    height: 120%;
    object-fit: cover;
    z-index: 0;
+   filter: grayscale(100%);
+   transition: filter 0.5s ease-in-out;
+}
+
+.backgroundVideo.colorized {
+   filter: grayscale(0%);
 }
 
 .content {
@@ -96,6 +100,12 @@
    object-fit: cover;
    margin-bottom: 1rem;
    border: 1px solid rgba(255, 255, 255, 0.1);
+   filter: grayscale(100%);
+   transition: filter 0.3s ease-in-out;
+}
+
+.projectImage:hover {
+   filter: grayscale(0%);
 }
 
 .projectCard h2 {
