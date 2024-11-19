@@ -1,7 +1,6 @@
 import styles from './Projects.module.css';
 import { useRef, useState, useEffect } from 'react';
 
-// Sample project data
 const projects = [
   {
     title: 'AI-Powered Black Hole Simulator',
@@ -23,33 +22,172 @@ const projects = [
   }
 ];
 
+function VideoPlayer({ src, isVisible }) {
+  const videoRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const observerRef = useRef(null);
+
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '100px',
+      threshold: 0.1
+    };
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !isLoaded && !hasError) {
+          const video = videoRef.current;
+          if (video) {
+            video.load();
+          }
+        }
+      });
+    }, options);
+
+    if (videoRef.current) {
+      observerRef.current.observe(videoRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [isLoaded, hasError]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleCanPlay = () => {
+      setIsLoaded(true);
+    };
+
+    const handleError = () => {
+      setHasError(true);
+      setIsLoaded(true); // Still mark as loaded to remove loading state
+    };
+
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('error', handleError);
+
+    return () => {
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('error', handleError);
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !isLoaded || hasError) return;
+
+    if (isVisible && isHovered) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay was prevented, do nothing
+        });
+      }
+    } else {
+      video.pause();
+    }
+  }, [isVisible, isHovered, isLoaded, hasError]);
+
+  return (
+    <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={styles.videoWrapper}
+    >
+      {!hasError ? (
+        <video
+          ref={videoRef}
+          loop
+          muted
+          playsInline
+          className={`${styles.projectImage} ${isLoaded ? styles.loaded : ''}`}
+        >
+          <source src={src} type="video/mp4" />
+        </video>
+      ) : (
+        <div className={styles.fallbackImage} />
+      )}
+      {!isLoaded && <div className={styles.videoPlaceholder} />}
+    </div>
+  );
+}
+
 export default function Projects({ showContent }) {
   const [isHoveringProject, setIsHoveringProject] = useState(false);
   const backgroundVideoRef = useRef(null);
+  const [isBackgroundVideoLoaded, setIsBackgroundVideoLoaded] = useState(false);
+  const [hasBackgroundError, setHasBackgroundError] = useState(false);
 
-  // Only play background video when section is visible
   useEffect(() => {
     const video = backgroundVideoRef.current;
-    if (showContent && video) {
-      video.play().catch(() => { });
-    } else if (!showContent && video) {
+    if (!video) return;
+
+    const handleCanPlay = () => {
+      setIsBackgroundVideoLoaded(true);
+    };
+
+    const handleError = () => {
+      setHasBackgroundError(true);
+      setIsBackgroundVideoLoaded(true); // Remove loading state
+    };
+
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('error', handleError);
+
+    if (showContent && !isBackgroundVideoLoaded && !hasBackgroundError) {
+      // Defer loading slightly to prioritize main content
+      const timer = setTimeout(() => {
+        video.load();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+
+    return () => {
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('error', handleError);
+    };
+  }, [showContent, isBackgroundVideoLoaded, hasBackgroundError]);
+
+  useEffect(() => {
+    const video = backgroundVideoRef.current;
+    if (!video || !isBackgroundVideoLoaded || hasBackgroundError) return;
+
+    if (showContent) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay was prevented, do nothing
+        });
+      }
+    } else {
       video.pause();
     }
-  }, [showContent]);
+  }, [showContent, isBackgroundVideoLoaded, hasBackgroundError]);
 
   return (
     <div className={styles.backgroundVideoContainer}>
-      <video
-        ref={backgroundVideoRef}
-        loop
-        muted
-        playsInline
-        preload="none"
-        className={`${styles.backgroundVideo} ${isHoveringProject ? styles.colorized : ''}`}
-      >
-        <source src="/vid/encryption.webm" type="video/webm" />
-        Your browser does not support the video tag.
-      </video>
+      {!hasBackgroundError ? (
+        <video
+          ref={backgroundVideoRef}
+          loop
+          muted
+          playsInline
+          className={`${styles.backgroundVideo} ${isHoveringProject ? styles.colorized : ''} ${isBackgroundVideoLoaded ? styles.loaded : ''}`}
+        >
+          <source src="/vid/encryption.webm" type="video/webm" />
+        </video>
+      ) : (
+        <div className={styles.fallbackBackground} />
+      )}
+      {!isBackgroundVideoLoaded && <div className={styles.backgroundPlaceholder} />}
       <div className={styles.content}>
         <h1>Projects</h1>
         <p>Innovative solutions at the intersection of technology and creativity</p>
@@ -68,42 +206,6 @@ export default function Projects({ showContent }) {
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-function VideoPlayer({ src, isVisible }) {
-  const videoRef = useRef(null);
-  const [isHovered, setIsHovered] = useState(false);
-
-  // Control video playback based on visibility and hover
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (isVisible && isHovered) {
-      video.play().catch(() => { });
-    } else {
-      video.pause();
-    }
-  }, [isVisible, isHovered]);
-
-  return (
-    <div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <video
-        ref={videoRef}
-        loop
-        muted
-        playsInline
-        preload="none"
-        className={styles.projectImage}
-      >
-        <source src={src} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
     </div>
   );
 }
