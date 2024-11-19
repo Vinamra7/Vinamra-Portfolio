@@ -1,9 +1,9 @@
 'use client'
 
 import { Vector3 } from 'three'
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useGLTF, SpotLight } from '@react-three/drei'
+import { useGLTF, SpotLight, useTexture, Sparkles } from '@react-three/drei'
 
 if (typeof window !== 'undefined') {
     window.mouseX = 0
@@ -31,9 +31,7 @@ export default function AboutBack() {
         >
             <color attach="background" args={['#11151C']} />
             <fog attach="fog" args={['#11151C', 5, 20]} />
-            {/* Reduced ambient light intensity for better spotlight visibility */}
             <ambientLight intensity={0.02} />
-            {/* Adjusted hemisphere light */}
             <hemisphereLight
                 intensity={0.05}
                 groundColor="#11151C"
@@ -48,17 +46,29 @@ function Scene() {
     const { nodes, materials } = useGLTF('https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/low_poly_astro.glb')
     const astronautRef = useRef()
 
-    // Create a modified material with adjusted properties
-    const enhancedMaterial = materials['Material.002'].clone()
-    enhancedMaterial.roughness = 0.4
-    enhancedMaterial.metalness = 0.6
-    enhancedMaterial.envMapIntensity = 2.0
+    // Enhanced material with better properties
+    const enhancedMaterial = useMemo(() => {
+        const material = materials['Material.002'].clone()
+        material.roughness = 0.4
+        material.metalness = 0.6
+        material.envMapIntensity = 2.0
+        return material
+    }, [materials])
+
+    // Floating animation
+    useFrame((state) => {
+        if (astronautRef.current) {
+            const t = state.clock.getElapsedTime()
+            astronautRef.current.position.y = -3.5 + Math.sin(t * 0.5) * 0.1
+            astronautRef.current.rotation.z = Math.sin(t * 0.3) * 0.02
+        }
+    })
 
     return (
         <>
-            <MovingSpot 
-                color="#697D95" 
-                position={[5, 4, 3]} 
+            <MovingSpot
+                color="#697D95"
+                position={[5, 4, 3]}
                 castShadow
                 intensity={3.5}
                 distance={12}
@@ -68,9 +78,9 @@ function Scene() {
                 shadow-mapSize={[512, 512]}
                 shadow-bias={-0.001}
             />
-            <MovingSpot 
-                color="#0c8cbf" 
-                position={[1.5, 4, 1]} 
+            <MovingSpot
+                color="#0c8cbf"
+                position={[1.5, 4, 1]}
                 castShadow
                 intensity={3}
                 distance={12}
@@ -81,6 +91,7 @@ function Scene() {
                 shadow-bias={-0.001}
             />
 
+            {/* Astronaut with floating animation */}
             <mesh
                 ref={astronautRef}
                 position={[5, -3.5, 0]}
@@ -93,22 +104,32 @@ function Scene() {
                 dispose={null}
             />
 
-            {/* Add a floor to receive shadows */}
-            {/* <mesh
-                receiveShadow
-                position={[0, -2.1, 0]}
-                rotation-x={-Math.PI / 2}
-            >
-                <planeGeometry args={[20, 20]} />
-                <meshStandardMaterial
-                    color="#141923"
-                    roughness={0.5}
-                    metalness={0.3}
-                    depthWrite={true}
-                    transparent={true}
-                    opacity={0.6}
-                />
-            </mesh> */}
+            {/* Subtle ground reflection */}
+            {/*<mesh*/}
+            {/*    receiveShadow*/}
+            {/*    position={[5, -3.6, 0]}*/}
+            {/*    rotation-x={-Math.PI / 2}*/}
+            {/*>*/}
+            {/*    <planeGeometry args={[4, 4]} />*/}
+            {/*    <meshStandardMaterial*/}
+            {/*        color="#141923"*/}
+            {/*        roughness={0.8}*/}
+            {/*        metalness={0.2}*/}
+            {/*        transparent*/}
+            {/*        opacity={0.3}*/}
+            {/*    />*/}
+            {/*</mesh>*/}
+
+            {/* Particle effect around feet */}
+            <Sparkles
+                position={[5, -3.3, 0]}
+                count={20}
+                scale={[2, 0.5, 2]}
+                size={0.4}
+                speed={0.2}
+                opacity={0.2}
+                color="#0c8cbf"
+            />
         </>
     )
 }
@@ -119,7 +140,6 @@ function MovingSpot({ vec = new Vector3(), ...props }) {
 
     useFrame(() => {
         if (light.current && light.current.target) {
-            // Get global mouse position instead of using Three.js mouse state
             const mouseX = (window.mouseX || 0) / window.innerWidth * 2 - 1
             const mouseY = -((window.mouseY || 0) / window.innerHeight) * 2 + 1
 
