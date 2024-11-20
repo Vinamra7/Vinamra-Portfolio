@@ -20,7 +20,7 @@ const ProjectsBackground = ({ showContent }) => {
          canvas: canvasRef.current,
          antialias: true
       });
-      renderer.setClearColor(0x11151c);
+      renderer.setClearColor(0x11151c); // Dark blue background
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -32,7 +32,7 @@ const ProjectsBackground = ({ showContent }) => {
       hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
       scene.environment = hdrEquirect;
 
-      scene.fog = new THREE.FogExp2(0x11151c, 0.00375);
+      scene.fog = new THREE.FogExp2(0x11151c, 0.00375); // Match fog color to background
 
       // Setup camera
       const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -40,7 +40,7 @@ const ProjectsBackground = ({ showContent }) => {
 
       // Create materials
       const wallMaterial = new THREE.MeshPhysicalMaterial({
-         color: 0xff7700,
+         color: 0x87CEFA, // Light blue color
          envMapIntensity: 0.5
       });
 
@@ -65,8 +65,8 @@ const ProjectsBackground = ({ showContent }) => {
          1.5, 0.4, 0.85
       );
       bloomPass.threshold = 0.1;
-      bloomPass.strength = 1.5;
-      bloomPass.radius = 1;
+      bloomPass.strength = 1.5; // Increased strength for better glow
+      bloomPass.radius = 0.8; // Adjusted radius for smoother glow
       composer.addPass(bloomPass);
 
       // Handle window resize
