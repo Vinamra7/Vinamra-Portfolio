@@ -3,7 +3,7 @@
 import { Vector3 } from 'three'
 import { useRef, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useGLTF, SpotLight, useTexture, Sparkles } from '@react-three/drei'
+import { useGLTF, SpotLight, Sparkles } from '@react-three/drei'
 
 if (typeof window !== 'undefined') {
     window.mouseX = 0
@@ -95,7 +95,7 @@ function Scene() {
             <mesh
                 ref={astronautRef}
                 position={[5, -3.5, 0]}
-                rotation={[-0.095, -Math.PI/2, 0]}
+                rotation={[-0.095, -Math.PI / 2, 0]}
                 scale={1.5}
                 castShadow
                 receiveShadow

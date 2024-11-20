@@ -1,5 +1,4 @@
-import {useEffect, useState} from "react";
-import TunnelBackground from "./TunnelBackground";
+import { useEffect, useState } from "react";
 import ThreeScene from "./background/ThreeScene";
 
 // Text Scramble Hook
@@ -67,7 +66,7 @@ function useTextScramble(finalText, startAnimation) {
     return text;
 }
 
-export default function HomeSection({showContent}){
+export default function HomeSection({ showContent }) {
     const [startAnimation, setStartAnimation] = useState(false);
     const scrambledName = useTextScramble("Vinamra Mishra", startAnimation);
 
@@ -94,17 +93,17 @@ export default function HomeSection({showContent}){
         <section className="h-screen w-full flex items-center justify-center absolute" style={{ pointerEvents: 'none' }}>
             <div className="border border-white/50 w-[90vw] md:w-[40vw] h-[40vh] flex flex-col items-center justify-center gap-3 bg-transparent" style={{ pointerEvents: 'auto' }}>
                 <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-light flex items-baseline">
-                  <span
-                      className={`font-mono transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
-                    Hi! I'm&nbsp;
-                  </span>
+                    <span
+                        className={`font-mono transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+                        Hi! I'm&nbsp;
+                    </span>
                     <span className="font-mono inline-flex">
-                    {scrambledName.content.split('').map((char, index) => (
-                        <span key={index} style={{color: scrambledName.colors[index]}}>
-                        {char === ' ' ? '\u00A0' : char}
-                      </span>
-                    ))}
-                  </span>
+                        {scrambledName.content.split('').map((char, index) => (
+                            <span key={index} style={{ color: scrambledName.colors[index] }}>
+                                {char === ' ' ? '\u00A0' : char}
+                            </span>
+                        ))}
+                    </span>
                 </p>
 
                 {/* Updated text container with whitespace-nowrap */}

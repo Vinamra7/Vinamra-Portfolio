@@ -116,7 +116,8 @@
    border: 1px solid rgba(255, 255, 255, 0.2);
    color: rgba(255, 255, 255, 0.9);
    padding: 0.25rem 0.75rem;
-   border-radius: 4px;
+   border-radius: 0;
+   /* Changed from 4px to 0 to remove rounded edges */
    font-size: 0.8rem;
    transition: all 0.3s ease;
 }
