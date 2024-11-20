@@ -36,6 +36,7 @@
    text-align: center;
    width: 100%;
    backdrop-filter: blur(8px);
+   background-color: rgba(0, 0, 0, 0.3);
 }
 
 .content>p {
@@ -48,6 +49,7 @@
    text-align: center;
    width: 100%;
    backdrop-filter: blur(8px);
+   background-color: rgba(0, 0, 0, 0.3);
 }
 
 .projectsGrid {
