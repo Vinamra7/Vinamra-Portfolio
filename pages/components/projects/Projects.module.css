@@ -13,60 +13,6 @@
    z-index: 50;
 }
 
-.backgroundVideo {
-   position: absolute;
-   width: 120%;
-   height: 120%;
-   object-fit: cover;
-   z-index: 0;
-   filter: grayscale(100%);
-   transition: filter 0.5s ease-in-out, opacity 0.5s ease-in-out;
-   opacity: 0;
-   transform: scale(1.01);
-   /* Slight scale to prevent white edges during filter transition */
-   will-change: transform, filter, opacity;
-}
-
-.backgroundVideo.loaded {
-   opacity: 1;
-}
-
-.backgroundPlaceholder {
-   position: absolute;
-   width: 120%;
-   height: 120%;
-   background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
-   z-index: 0;
-   animation: gradientShift 8s ease infinite;
-}
-
-.fallbackBackground {
-   position: absolute;
-   width: 120%;
-   height: 120%;
-   background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
-   z-index: 0;
-   animation: gradientShift 8s ease infinite;
-}
-
-@keyframes gradientShift {
-   0% {
-      background-position: 0% 50%;
-   }
-
-   50% {
-      background-position: 100% 50%;
-   }
-
-   100% {
-      background-position: 0% 50%;
-   }
-}
-
-.backgroundVideo.colorized {
-   filter: grayscale(0%);
-}
-
 .content {
    position: relative;
    width: clamp(300px, 80vw, 1200px);
@@ -116,7 +62,7 @@
 
 .projectCard {
    border: 2px solid rgba(255, 255, 255, 0.2);
-   padding: 1.25rem;
+   padding: 1.5rem;
    width: 100%;
    max-width: 350px;
    background-color: rgba(0, 0, 0, 0.3);
@@ -127,6 +73,9 @@
    z-index: 2;
    justify-self: center;
    will-change: transform;
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
 }
 
 .projectCard:hover {
@@ -134,77 +83,14 @@
    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-.videoWrapper {
-   position: relative;
-   width: 100%;
-   height: 200px;
-   margin-bottom: 1rem;
-   border-radius: 4px;
-   overflow: hidden;
-   background-color: rgba(0, 0, 0, 0.2);
-}
-
-.projectImage {
-   width: 100%;
-   height: 100%;
-   object-fit: cover;
-   border: 1px solid rgba(255, 255, 255, 0.1);
-   filter: grayscale(100%);
-   transition: filter 0.3s ease-out, opacity 0.3s ease-out;
-   opacity: 0;
-   will-change: filter, opacity;
-   transform: scale(1.01);
-   /* Slight scale to prevent white edges during filter transition */
-}
-
-.projectImage.loaded {
-   opacity: 1;
-}
-
-.projectImage:hover {
-   filter: grayscale(0%);
-}
-
-.videoPlaceholder {
-   position: absolute;
-   top: 0;
-   left: 0;
-   width: 100%;
-   height: 100%;
-   background: linear-gradient(45deg, #2a2a2a, #3a3a3a);
-   border-radius: 4px;
-   animation: shimmer 2s infinite linear;
-   background-size: 200% 100%;
-}
-
-.fallbackImage {
-   position: absolute;
-   top: 0;
-   left: 0;
-   width: 100%;
-   height: 100%;
-   background: linear-gradient(45deg, #2a2a2a, #3a3a3a);
-   border-radius: 4px;
-   animation: gradientShift 8s ease infinite;
-   background-size: 200% 200%;
-}
-
-@keyframes shimmer {
-   0% {
-      background-position: -200% 0;
-   }
-
-   100% {
-      background-position: 200% 0;
-   }
-}
-
 .projectCard h2 {
    color: white;
    font-size: 1.25rem;
-   margin-bottom: 0.5rem;
    font-weight: 300;
    text-align: center;
+   margin: 0;
+   padding-bottom: 0.5rem;
+   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .projectCard p {
@@ -212,6 +98,31 @@
    font-size: 0.9rem;
    line-height: 1.6;
    text-align: center;
+   margin: 0;
+}
+
+.techStack {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 0.5rem;
+   justify-content: center;
+   margin-top: auto;
+}
+
+.techBadge {
+   background-color: rgba(255, 255, 255, 0.1);
+   border: 1px solid rgba(255, 255, 255, 0.2);
+   color: rgba(255, 255, 255, 0.9);
+   padding: 0.25rem 0.75rem;
+   border-radius: 4px;
+   font-size: 0.8rem;
+   transition: all 0.3s ease;
+}
+
+.techBadge:hover {
+   background-color: rgba(255, 255, 255, 0.2);
+   border-color: rgba(255, 255, 255, 0.3);
+   transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
@@ -238,16 +149,9 @@
 /* Reduce motion preferences */
 @media (prefers-reduced-motion: reduce) {
 
-   .backgroundVideo,
-   .projectImage,
-   .projectCard {
+   .projectCard,
+   .techBadge {
       transition: none !important;
-      animation: none !important;
-   }
-
-   .videoPlaceholder,
-   .fallbackImage,
-   .fallbackBackground {
       animation: none !important;
    }
 }
