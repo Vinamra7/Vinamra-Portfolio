@@ -7,14 +7,27 @@ import AssetLoader from '../utils/assetLoader'
 import { Analytics } from '@vercel/analytics/react'
 
 const LOADING_TIMEOUT = 30000; // 30 seconds
+const MOBILE_BREAKPOINT = 768; // Standard tablet/mobile breakpoint
 
 function MyApp({ Component, pageProps }) {
   const [loading, setLoading] = useState(true);
   const [showContent, setShowContent] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Check if device is mobile
+      const checkMobile = () => {
+        setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+      };
+
+      // Initial check
+      checkMobile();
+
+      // Add resize listener
+      window.addEventListener('resize', checkMobile);
+
       const initializeApp = async () => {
         try {
           // Create a timeout promise
@@ -29,7 +42,7 @@ function MyApp({ Component, pageProps }) {
             }),
             timeoutPromise
           ]);
-          
+
           // Add a small delay to ensure all assets are properly initialized
           setTimeout(() => {
             // Fade out loading screen
@@ -55,8 +68,24 @@ function MyApp({ Component, pageProps }) {
       };
 
       initializeApp();
+
+      // Cleanup resize listener
+      return () => window.removeEventListener('resize', checkMobile);
     }
   }, []);
+
+  if (isMobile) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-black text-white p-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">⚠️ Desktop View Only</h1>
+          <p className="text-lg">
+            This portfolio is optimized for desktop viewing. Please visit on a laptop or desktop computer for the best experience.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -65,7 +94,7 @@ function MyApp({ Component, pageProps }) {
           <LoadingScreen progress={loadingProgress} />
         </div>
       )}
-      
+
       <div className={`main-content ${showContent ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}>
         <CustomCursor />
         <Component {...pageProps} showContent={showContent} />
@@ -76,4 +105,3 @@ function MyApp({ Component, pageProps }) {
 }
 
 export default MyApp
-// vercel toolbar removed
