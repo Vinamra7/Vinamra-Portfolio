@@ -2,12 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import AssetLoader from '../../../utils/assetLoader';
 
 const ProjectsBackground = ({ showContent }) => {
@@ -44,26 +42,6 @@ const ProjectsBackground = ({ showContent }) => {
       const wallMaterial = new THREE.MeshPhysicalMaterial({
          color: 0xff7700,
          envMapIntensity: 0.5
-      });
-
-      const humanMaterial = new THREE.MeshStandardMaterial({
-         color: 0x000000
-      });
-
-      // Load walking human model
-      new FBXLoader().load('/assets/human_walk_04.fbx', (human) => {
-         const mixer = new THREE.AnimationMixer(human);
-         const clipAction = mixer.clipAction(human.animations[0]);
-         clipAction.loop = THREE.LoopRepeat;
-         clipAction.play();
-
-         human.traverse((child) => {
-            if (child.isMesh) child.material = humanMaterial;
-         });
-
-         human.position.set(0, 1.5, -100);
-         human.scale.setScalar(0.09);
-         scene.add(human);
       });
 
       // Create expanding wall
