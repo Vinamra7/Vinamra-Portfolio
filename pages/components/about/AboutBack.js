@@ -1,7 +1,7 @@
 'use client'
 
 import { Vector3 } from 'three'
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useState, useEffect } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, SpotLight, Sparkles } from '@react-three/drei'
 
@@ -14,12 +14,45 @@ if (typeof window !== 'undefined') {
     })
 }
 
+function useWindowSize() {
+    const [size, setSize] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+        function updateSize() {
+            setSize({ width: window.innerWidth, height: window.innerHeight });
+        }
+        
+        if (typeof window !== 'undefined') {
+            window.addEventListener('resize', updateSize);
+            updateSize();
+        }
+
+        return () => window.removeEventListener('resize', updateSize);
+    }, []);
+
+    return size;
+}
+
 export default function AboutBack() {
+    const { width } = useWindowSize();
+    
+    // Adjust camera position and FOV based on screen size
+    const cameraSettings = useMemo(() => {
+        const isMobile = width < 768;
+        const isTablet = width >= 768 && width < 1024;
+        return {
+            position: isMobile ? [-1, 1, 7] : isTablet ? [-1.5, 1.5, 6.5] : [-2, 2, 6],
+            fov: isMobile ? 70 : 50,
+            near: 1,
+            far: 20
+        };
+    }, [width]);
+
     return (
         <Canvas
             shadows
             dpr={[1, 2]}
-            camera={{ position: [-2, 2, 6], fov: 50, near: 1, far: 20 }}
+            camera={cameraSettings}
             gl={{
                 clearColor: '#11151C',
                 alpha: false,
@@ -43,8 +76,37 @@ export default function AboutBack() {
 }
 
 function Scene() {
+    const { width } = useWindowSize();
     const { nodes, materials } = useGLTF('https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/low_poly_astro.glb')
     const astronautRef = useRef()
+
+    // Calculate scale based on screen size with separate x, y, z scaling
+    const modelScale = useMemo(() => {
+        if (width < 480) {
+            return [0.9, 0.9, 0.9]; // Mobile - smaller overall
+        }
+        if (width < 768) {
+            return [1.1, 1.1, 1.1]; // Tablet - medium size
+        }
+        if (width < 1024) {
+            return [1.3, 1.3, 1.3]; // Small desktop
+        }
+        return [1.5, 1.5, 1.5]; // Large desktop
+    }, [width]);
+
+    // Calculate position based on screen size
+    const modelPosition = useMemo(() => {
+        if (width < 480) {
+            return [0, -2, 0]; // Mobile - centered and higher
+        }
+        if (width < 768) {
+            return [1, -2.5, 0]; // Tablet
+        }
+        if (width < 1024) {
+            return [2, -3, 0]; // Small desktop
+        }
+        return [5, -3.5, 0]; // Large desktop
+    }, [width]);
 
     // Enhanced material with better properties
     const enhancedMaterial = useMemo(() => {
@@ -55,12 +117,16 @@ function Scene() {
         return material
     }, [materials])
 
-    // Floating animation
+    // Floating animation with screen-size-dependent amplitude
     useFrame((state) => {
         if (astronautRef.current) {
-            const t = state.clock.getElapsedTime()
-            astronautRef.current.position.y = -3.5 + Math.sin(t * 0.5) * 0.1
-            astronautRef.current.rotation.z = Math.sin(t * 0.3) * 0.02
+            const t = state.clock.getElapsedTime();
+            const floatAmplitude = width < 768 ? 0.05 : 0.1; // Smaller floating movement on mobile
+            const rotationAmplitude = width < 768 ? 0.01 : 0.02;
+            
+            const baseY = modelPosition[1];
+            astronautRef.current.position.y = baseY + Math.sin(t * 0.5) * floatAmplitude;
+            astronautRef.current.rotation.z = Math.sin(t * 0.3) * rotationAmplitude;
         }
     })
 
@@ -68,7 +134,7 @@ function Scene() {
         <>
             <MovingSpot
                 color="#697D95"
-                position={[5, 4, 3]}
+                position={width < 768 ? [3, 3, 3] : [5, 4, 3]}
                 castShadow
                 intensity={3.5}
                 distance={12}
@@ -80,7 +146,7 @@ function Scene() {
             />
             <MovingSpot
                 color="#0c8cbf"
-                position={[1.5, 4, 1]}
+                position={width < 768 ? [1, 3, 1] : [1.5, 4, 1]}
                 castShadow
                 intensity={3}
                 distance={12}
@@ -94,9 +160,9 @@ function Scene() {
             {/* Astronaut with floating animation */}
             <mesh
                 ref={astronautRef}
-                position={[5, -3.5, 0]}
+                position={modelPosition}
                 rotation={[-0.095, -Math.PI / 2, 0]}
-                scale={1.5}
+                scale={modelScale}
                 castShadow
                 receiveShadow
                 geometry={nodes.char_Cube001.geometry}
