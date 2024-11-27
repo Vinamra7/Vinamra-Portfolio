@@ -122,63 +122,68 @@ export default function ContactMe() {
 
     return (
         <div className={styles.container}>
-            <div className={styles.codeBox}>
-                <div className={styles.tabHeader}>
-                    <button 
-                        className={`${styles.tab} ${activeTab === TABS.EDITOR ? styles.active : ''}`}
-                        onClick={() => setActiveTab(TABS.EDITOR)}
-                    >
-                        Code Editor
-                    </button>
-                    <button 
-                        className={`${styles.tab} ${activeTab === TABS.TERMINAL ? styles.active : ''}`}
-                        onClick={() => setActiveTab(TABS.TERMINAL)}
-                    >
-                        Terminal
-                    </button>
-                </div>
-                <div className={styles.tabContent}>
-                    {activeTab === TABS.EDITOR ? (
-                        <div className={styles.editorContainer}>
-                            <div className={styles.editorWrapper}>
-                                <CodeMirror
-                                    value={code}
-                                    options={{
-                                        mode: 'python',
-                                        theme: 'material',
-                                        lineNumbers: true,
-                                        lineWrapping: true,
-                                        viewportMargin: Infinity,
-                                    }}
-                                    onChange={(editor, data, value) => setCode(value)}
-                                />
-                            </div>
-                            <button 
-                                onClick={handleRunCode} 
-                                className={styles.runButton}
-                                disabled={!skulptLoaded}
-                            >
-                                Run Code
-                            </button>
-                        </div>
-                    ) : (
-                        <div className={styles.terminal}>
-                            <pre className={styles.terminalOutput}>{output}</pre>
-                            {inputState.waiting && (
-                                <div className={styles.terminalInputContainer}>
-                                    <span className={styles.terminalPrompt}>{inputState.prompt}</span>
-                                    <input
-                                        ref={inputRef}
-                                        type="text"
-                                        value={inputState.value}
-                                        onChange={(e) => setInputState(prev => ({ ...prev, value: e.target.value }))}
-                                        onKeyPress={handleInput}
-                                        className={styles.terminalInput}
+            <div className={styles.codeBoxWrapper}>
+                <div className={styles.codeBox}>
+                    <div className={styles.tabHeader}>
+                        <button
+                            className={`${styles.tab} ${activeTab === TABS.EDITOR ? styles.active : ''}`}
+                            onClick={() => setActiveTab(TABS.EDITOR)}
+                        >
+                            Code Editor
+                        </button>
+                        <button
+                            className={`${styles.tab} ${activeTab === TABS.TERMINAL ? styles.active : ''}`}
+                            onClick={() => setActiveTab(TABS.TERMINAL)}
+                        >
+                            Terminal
+                        </button>
+                    </div>
+                    <div className={styles.tabContent}>
+                        {activeTab === TABS.EDITOR ? (
+                            <div className={styles.editorContainer}>
+                                <div className={styles.editorWrapper}>
+                                    <CodeMirror
+                                        value={code}
+                                        options={{
+                                            mode: 'python',
+                                            theme: 'material',
+                                            lineNumbers: true,
+                                            lineWrapping: true,
+                                            viewportMargin: Infinity,
+                                        }}
+                                        onChange={(editor, data, value) => setCode(value)}
                                     />
                                 </div>
-                            )}
-                        </div>
-                    )}
+                            </div>
+                        ) : (
+                            <div className={styles.terminal}>
+                                <pre className={styles.terminalOutput}>{output}</pre>
+                                {inputState.waiting && (
+                                    <div className={styles.terminalInputContainer}>
+                                        <span className={styles.terminalPrompt}>{inputState.prompt}</span>
+                                        <input
+                                            ref={inputRef}
+                                            type="text"
+                                            value={inputState.value}
+                                            onChange={(e) => setInputState(prev => ({ ...prev, value: e.target.value }))}
+                                            onKeyPress={handleInput}
+                                            className={styles.terminalInput}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className={styles.buttonWrapper}>
+                    <div className={styles.buttonShadow}></div>
+                    <button
+                        onClick={handleRunCode}
+                        className={styles.runButton}
+                        disabled={!skulptLoaded}
+                    >
+                        Run Code
+                    </button>
                 </div>
             </div>
         </div>
