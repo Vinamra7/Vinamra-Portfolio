@@ -5,7 +5,6 @@
     min-height: 100vh;
     padding: 2rem;
     background-color: #11151C;
-    /* Added background color */
 }
 
 .codeBoxWrapper {
@@ -16,45 +15,46 @@
 
 .codeBox {
     width: 100%;
-    background: #1e1e1e;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 0;
-    /* Changed border-radius to 0 */
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 1rem;
 }
 
 .tabHeader {
     display: flex;
-    background: #2d2d2d;
-    border-bottom: 1px solid #404040;
+    background: transparent;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .tab {
     padding: 12px 24px;
-    color: #888;
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     border: none;
     background: none;
     font-size: 14px;
     transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
 }
 
 .tab:hover {
     color: #fff;
-    background: #363636;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .tab.active {
     color: #fff;
-    background: #1e1e1e;
-    border-bottom: 2px solid #0078d4;
+    background: transparent;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.8);
 }
 
 .tabContent {
     height: 500px;
     display: flex;
     flex-direction: column;
+    background: rgba(30, 30, 30, 0.5);
 }
 
 .editorContainer {
@@ -78,7 +78,7 @@
 
 .terminal {
     flex: 1;
-    background: #1e1e1e;
+    background: transparent;
     padding: 1rem;
     font-family: 'Consolas', monospace;
     overflow-y: auto;
