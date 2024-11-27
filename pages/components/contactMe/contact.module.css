@@ -4,6 +4,8 @@
     align-items: center;
     min-height: 100vh;
     padding: 2rem;
+    background-color: #11151C;
+    /* Added background color */
 }
 
 .codeBoxWrapper {
@@ -15,7 +17,8 @@
 .codeBox {
     width: 100%;
     background: #1e1e1e;
-    border-radius: 8px;
+    border-radius: 0;
+    /* Changed border-radius to 0 */
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 1rem;

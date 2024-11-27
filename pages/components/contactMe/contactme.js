@@ -8,7 +8,7 @@ const CodeMirror = dynamic(
     async () => {
         await Promise.all([
             import('codemirror/lib/codemirror.css'),
-            import('codemirror/theme/material.css'),
+            import('codemirror/theme/lucario.css'), // Changed theme to abcdef
             import('codemirror/mode/python/python')
         ]);
         const { UnControlled } = await import('react-codemirror2');
@@ -146,7 +146,7 @@ export default function ContactMe() {
                                         value={code}
                                         options={{
                                             mode: 'python',
-                                            theme: 'material',
+                                            theme: 'lucario',
                                             lineNumbers: true,
                                             lineWrapping: true,
                                             viewportMargin: Infinity,
