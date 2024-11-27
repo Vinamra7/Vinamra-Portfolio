@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import styles from './contact.module.css';
-import { INITIAL_PYTHON_CODE } from './constants';
-import { useSkulpt } from './useSkulpt';
+import { INITIAL_PYTHON_CODE } from '../../../utils/constants';
+import { useSkulpt } from '../../../utils/useSkulpt';
 
 const CodeMirror = dynamic(
     async () => {
