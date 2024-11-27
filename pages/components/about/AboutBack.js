@@ -21,7 +21,7 @@ function useWindowSize() {
         function updateSize() {
             setSize({ width: window.innerWidth, height: window.innerHeight });
         }
-        
+
         if (typeof window !== 'undefined') {
             window.addEventListener('resize', updateSize);
             updateSize();
@@ -35,7 +35,7 @@ function useWindowSize() {
 
 export default function AboutBack() {
     const { width } = useWindowSize();
-    
+
     // Adjust camera position and FOV based on screen size
     const cameraSettings = useMemo(() => {
         const isMobile = width < 768;
@@ -123,7 +123,7 @@ function Scene() {
             const t = state.clock.getElapsedTime();
             const floatAmplitude = width < 768 ? 0.05 : 0.1; // Smaller floating movement on mobile
             const rotationAmplitude = width < 768 ? 0.01 : 0.02;
-            
+
             const baseY = modelPosition[1];
             astronautRef.current.position.y = baseY + Math.sin(t * 0.5) * floatAmplitude;
             astronautRef.current.rotation.z = Math.sin(t * 0.3) * rotationAmplitude;
@@ -170,21 +170,6 @@ function Scene() {
                 dispose={null}
             />
 
-            {/* Subtle ground reflection */}
-            {/*<mesh*/}
-            {/*    receiveShadow*/}
-            {/*    position={[5, -3.6, 0]}*/}
-            {/*    rotation-x={-Math.PI / 2}*/}
-            {/*>*/}
-            {/*    <planeGeometry args={[4, 4]} />*/}
-            {/*    <meshStandardMaterial*/}
-            {/*        color="#141923"*/}
-            {/*        roughness={0.8}*/}
-            {/*        metalness={0.2}*/}
-            {/*        transparent*/}
-            {/*        opacity={0.3}*/}
-            {/*    />*/}
-            {/*</mesh>*/}
 
             {/* Particle effect around feet */}
             <Sparkles
