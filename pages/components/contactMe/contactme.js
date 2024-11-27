@@ -8,11 +8,11 @@ const CodeMirror = dynamic(
     async () => {
         await Promise.all([
             import('codemirror/lib/codemirror.css'),
-            import('codemirror/theme/material-ocean.css'), // Changed theme to abcdef
+            import('codemirror/theme/material-ocean.css'),
             import('codemirror/mode/python/python')
         ]);
-        const { UnControlled } = await import('react-codemirror2');
-        return UnControlled;
+        const { Controlled } = await import('react-codemirror2');
+        return Controlled;
     },
     { ssr: false }
 );
@@ -151,7 +151,10 @@ export default function ContactMe() {
                                             lineWrapping: true,
                                             viewportMargin: Infinity,
                                         }}
-                                        onChange={(editor, data, value) => setCode(value)}
+                                        onBeforeChange={(editor, data, value) => {
+                                            setCode(value);
+                                        }}
+                                        preserveScrollPosition={true}
                                     />
                                 </div>
                             </div>
