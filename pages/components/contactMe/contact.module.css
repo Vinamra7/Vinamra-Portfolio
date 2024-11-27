@@ -1,96 +1,136 @@
 .container {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    padding: 2rem;
-    gap: 1rem;
     min-height: 100vh;
-    background-color: #1e1e1e;
-    color: #fff;
+    padding: 2rem;
 }
 
-.editorContainer {
-    width: 100%;
+.codeBox {
+    width: 90%;
     max-width: 800px;
+    background: #1e1e1e;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.loadingEditor {
-    height: 400px;
-    background-color: #2d2d2d;
+.tabHeader {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 1rem;
+    background: #2d2d2d;
+    border-bottom: 1px solid #404040;
 }
 
-.editorContainer :global(.CodeMirror) {
-    height: 400px !important;
-    font-family: 'Fira Code', 'Consolas', monospace;
-    font-size: 14px;
-}
-
-.runButton {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: #0078d4;
-    color: white;
-    border: none;
+.tab {
+    padding: 12px 24px;
+    color: #888;
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: background-color 0.2s;
+    border: none;
+    background: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
 }
 
-.runButton:hover {
-    background-color: #0061a9;
+.tab:hover {
+    color: #fff;
+    background: #363636;
 }
 
-.terminal {
-    width: 100%;
-    max-width: 800px;
-    height: 200px;
-    background-color: #1e1e1e;
-    border-radius: 8px;
-    padding: 1rem;
-    font-family: 'Consolas', 'Monaco', monospace;
-    overflow-y: auto;
-    border: 1px solid #333;
+.tab.active {
+    color: #fff;
+    background: #1e1e1e;
+    border-bottom: 2px solid #0078d4;
+}
+
+.tabContent {
+    height: 500px;
     display: flex;
     flex-direction: column;
 }
 
-.terminalOutput {
-    color: #00ff00;
-    white-space: pre-wrap;
-    margin: 0;
+.editorContainer {
+    flex: 1;
+    position: relative;
+}
+
+.editorWrapper {
+    height: 100%;
+}
+
+.editorWrapper > div {
+    height: 100%;
+}
+
+.editorWrapper :global(.CodeMirror) {
+    height: 100% !important;
+    font-family: 'Consolas', monospace;
     font-size: 14px;
-    flex-grow: 1;
+}
+
+.terminal {
+    flex: 1;
+    background: #1e1e1e;
+    padding: 1rem;
+    font-family: 'Consolas', monospace;
+    overflow-y: auto;
+    color: #fff;
+}
+
+.terminalOutput {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .terminalInputContainer {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    margin-top: 8px;
 }
 
 .terminalPrompt {
-    color: #00ff00;
-    font-size: 14px;
-    white-space: pre;
+    color: #0078d4;
+    margin-right: 8px;
 }
 
 .terminalInput {
+    flex: 1;
     background: transparent;
     border: none;
-    color: #00ff00;
-    font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 14px;
+    color: #fff;
+    font-family: 'Consolas', monospace;
+    font-size: inherit;
     outline: none;
-    flex-grow: 1;
-    padding: 0;
+}
+
+.runButton {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 8px 16px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+    z-index: 10;
+}
+
+.runButton:hover {
+    background: #0086ef;
+}
+
+.runButton:disabled {
+    background: #666;
+    cursor: not-allowed;
+}
+
+.loadingEditor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #888;
 }
