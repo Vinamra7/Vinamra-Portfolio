@@ -59,6 +59,8 @@
     font-family: 'Consolas', 'Monaco', monospace;
     overflow-y: auto;
     border: 1px solid #333;
+    display: flex;
+    flex-direction: column;
 }
 
 .terminalOutput {
@@ -66,4 +68,29 @@
     white-space: pre-wrap;
     margin: 0;
     font-size: 14px;
+    flex-grow: 1;
+}
+
+.terminalInputContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.terminalPrompt {
+    color: #00ff00;
+    font-size: 14px;
+    white-space: pre;
+}
+
+.terminalInput {
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+    outline: none;
+    flex-grow: 1;
+    padding: 0;
 }
