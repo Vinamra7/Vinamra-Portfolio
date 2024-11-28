@@ -60,7 +60,7 @@
 
 .tabHeader {
     display: flex;
-    background: #1E1E1E;
+    background: transparent;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     justify-content: flex-end;
     padding: 8px 16px;
