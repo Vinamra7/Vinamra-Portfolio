@@ -124,6 +124,11 @@ export default function ContactMe() {
         <div className={styles.container}>
             <div className={styles.codeBoxWrapper}>
                 <div className={styles.codeBox}>
+                    <div className={styles.windowControls}>
+                        <div className={`${styles.windowButton} ${styles.closeButton}`}></div>
+                        <div className={`${styles.windowButton} ${styles.minimizeButton}`}></div>
+                        <div className={`${styles.windowButton} ${styles.maximizeButton}`}></div>
+                    </div>
                     <div className={styles.tabHeader}>
                         <button
                             className={`${styles.tab} ${activeTab === TABS.EDITOR ? styles.active : ''}`}

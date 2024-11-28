@@ -17,27 +17,59 @@
     width: 100%;
     background: transparent;
     border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0;
+    border-radius: 0px;
     overflow: hidden;
     margin-bottom: 1rem;
 }
 
+.windowControls {
+    display: flex;
+    gap: 6px;
+    padding: 0;
+    position: absolute;
+    left: 12px;
+    top: 2.5%;
+    z-index: 10;
+}
+
+.windowButton {
+    width: 10px;
+    height: 10px;
+    border-radius: 0%;
+    border: none;
+}
+
+.closeButton {
+    background-color: #FF5F56;
+}
+
+.minimizeButton {
+    background-color: #FFBD2E;
+}
+
+.maximizeButton {
+    background-color: #27C93F;
+}
+
 .tabHeader {
     display: flex;
-    background: transparent;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    background: #1E1E1E;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     justify-content: flex-end;
+    padding: 8px 16px;
+    height: 32px;
+    align-items: center;
+    position: relative;
 }
 
 .tab {
-    padding: 12px 24px;
+    padding: 4px 12px;
     color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     border: none;
     background: none;
-    font-size: 14px;
+    font-size: 13px;
     transition: all 0.3s ease;
-    border-bottom: 2px solid transparent;
 }
 
 .tab:hover {
@@ -47,8 +79,7 @@
 
 .tab.active {
     color: #fff;
-    background: transparent;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 .tabContent {
