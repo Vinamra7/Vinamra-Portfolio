@@ -128,6 +128,7 @@ export default function ContactMe() {
                         <div className={`${styles.windowButton} ${styles.closeButton}`}></div>
                         <div className={`${styles.windowButton} ${styles.minimizeButton}`}></div>
                         <div className={`${styles.windowButton} ${styles.maximizeButton}`}></div>
+                        <span className={styles.windowTitle}>Connect with Me</span>
                     </div>
                     <div className={styles.tabHeader}>
                         <button

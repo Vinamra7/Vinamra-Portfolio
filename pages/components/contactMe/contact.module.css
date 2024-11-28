@@ -28,14 +28,15 @@
     padding: 0;
     position: absolute;
     left: 12px;
-    top: 2.5%;
+    top: 1.7%;
     z-index: 10;
+    align-items: center;
 }
 
 .windowButton {
     width: 10px;
     height: 10px;
-    border-radius: 0%;
+    border-radius: 50%;
     border: none;
 }
 
@@ -51,6 +52,12 @@
     background-color: #27C93F;
 }
 
+.windowTitle {
+    color: rgba(255, 255, 255);
+    font-size: 13px;
+    margin-left: 12px;
+}
+
 .tabHeader {
     display: flex;
     background: #1E1E1E;
@@ -64,7 +71,7 @@
 
 .tab {
     padding: 4px 12px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.4);
     cursor: pointer;
     border: none;
     background: none;
@@ -78,8 +85,8 @@
 }
 
 .tab.active {
-    color: #fff;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .tabContent {
