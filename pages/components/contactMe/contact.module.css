@@ -230,3 +230,17 @@
     height: 100%;
     color: #888;
 }
+
+/* Added styles for tooltips */
+.windowButton[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    background-color: #333333;
+    color: white;
+    padding: 5px 10px;
+    z-index: 100;
+    white-space: nowrap;
+    bottom: 100%;
+    opacity: 1;
+    transition: opacity 0.2s;
+}

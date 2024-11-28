@@ -8,7 +8,10 @@ const CodeMirror = dynamic(
     async () => {
         await Promise.all([
             import('codemirror/lib/codemirror.css'),
-            import('codemirror/theme/material-ocean.css'),
+            import('codemirror/theme/nord.css'),
+            import('codemirror/theme/yeti.css'),
+            import('codemirror/theme/shadowfox.css'),
+            import('codemirror/theme/base16-dark.css'),
             import('codemirror/mode/python/python')
         ]);
         const { Controlled } = await import('react-codemirror2');
@@ -27,6 +30,7 @@ export default function ContactMe() {
     const [output, setOutput] = useState('');
     const [mounted, setMounted] = useState(false);
     const [activeTab, setActiveTab] = useState(TABS.EDITOR);
+    const [editorColor, setEditorColor] = useState('nord');
     const [inputState, setInputState] = useState({
         waiting: false,
         value: '',
@@ -120,14 +124,32 @@ export default function ContactMe() {
         );
     }
 
+    const theme = () => {
+        if (editorColor === 'nord') {
+            setEditorColor('yeti');
+        } else if (editorColor === 'yeti') {
+            setEditorColor('shadowfox');
+        } else if (editorColor === 'shadowfox') {
+            setEditorColor('base16-dark');
+        } else {
+            setEditorColor('nord');
+        }
+    }
+
+    const resetEditor = () => {
+        setCode(INITIAL_PYTHON_CODE)
+        setOutput('')
+        setEditorColor('nord')
+    }
+
     return (
         <div className={styles.container}>
             <div className={styles.codeBoxWrapper}>
                 <div className={styles.codeBox}>
                     <div className={styles.windowControls}>
-                        <div className={`${styles.windowButton} ${styles.closeButton}`}></div>
-                        <div className={`${styles.windowButton} ${styles.minimizeButton}`}></div>
-                        <div className={`${styles.windowButton} ${styles.maximizeButton}`}></div>
+                        <button title='clear' className={`${styles.windowButton} ${styles.closeButton}`} onClick={() => { setCode('') }}></button>
+                        <button title='theme' className={`${styles.windowButton} ${styles.minimizeButton}`} onClick={theme}></button>
+                        <button title='reset' className={`${styles.windowButton} ${styles.maximizeButton}`} onClick={resetEditor}></button>
                         <span className={styles.windowTitle}>Connect with Me</span>
                     </div>
                     <div className={styles.tabHeader}>
@@ -152,7 +174,7 @@ export default function ContactMe() {
                                         value={code}
                                         options={{
                                             mode: 'python',
-                                            theme: 'material-ocean',
+                                            theme: editorColor,
                                             lineNumbers: false,
                                             lineWrapping: true,
                                             viewportMargin: Infinity,
