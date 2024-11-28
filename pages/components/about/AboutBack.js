@@ -8,10 +8,6 @@ import { useGLTF, SpotLight, Sparkles } from '@react-three/drei'
 if (typeof window !== 'undefined') {
     window.mouseX = 0
     window.mouseY = 0
-    window.addEventListener('mousemove', (e) => {
-        window.mouseX = e.clientX
-        window.mouseY = e.clientY
-    })
 }
 
 function useWindowSize() {
@@ -47,6 +43,15 @@ export default function AboutBack() {
             far: 20
         };
     }, [width]);
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            window.mouseX = e.clientX;
+            window.mouseY = e.clientY;
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
 
     return (
         <Canvas
@@ -118,17 +123,19 @@ function Scene() {
     }, [materials])
 
     // Floating animation with screen-size-dependent amplitude
-    useFrame((state) => {
-        if (astronautRef.current) {
-            const t = state.clock.getElapsedTime();
-            const floatAmplitude = width < 768 ? 0.05 : 0.1; // Smaller floating movement on mobile
-            const rotationAmplitude = width < 768 ? 0.01 : 0.02;
+    useFrame(({ clock }) => {
+        if (!document.hidden) {
+            if (astronautRef.current) {
+                const t = clock.getElapsedTime();
+                const floatAmplitude = width < 768 ? 0.05 : 0.1; // Smaller floating movement on mobile
+                const rotationAmplitude = width < 768 ? 0.01 : 0.02;
 
-            const baseY = modelPosition[1];
-            astronautRef.current.position.y = baseY + Math.sin(t * 0.5) * floatAmplitude;
-            astronautRef.current.rotation.z = Math.sin(t * 0.3) * rotationAmplitude;
+                const baseY = modelPosition[1];
+                astronautRef.current.position.y = baseY + Math.sin(t * 0.5) * floatAmplitude;
+                astronautRef.current.rotation.z = Math.sin(t * 0.3) * rotationAmplitude;
+            }
         }
-    })
+    });
 
     return (
         <>
@@ -204,7 +211,7 @@ function MovingSpot({ vec = new Vector3(), ...props }) {
             )
             light.current.target.updateMatrixWorld()
         }
-    })
+    });
 
     return (
         <SpotLight

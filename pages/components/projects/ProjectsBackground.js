@@ -21,7 +21,7 @@ const ProjectsBackground = ({ showContent }) => {
          antialias: true
       });
       renderer.setClearColor(0x11151c); // Dark blue background
-      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio at 2
       renderer.setSize(window.innerWidth, window.innerHeight);
 
       const scene = new THREE.Scene();
@@ -90,7 +90,9 @@ const ProjectsBackground = ({ showContent }) => {
          requestAnimationFrame(animate);
       };
 
-      animate();
+      if (showContent) {
+         animate();
+      }
 
       return () => {
          window.removeEventListener('resize', handleResize);

@@ -26,7 +26,8 @@ const ThreeScene = ({ showContent }) => {
 
         // Set a default background color
         renderer.setClearColor(0x11151c);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio at 2
+        // Cap pixel ratio at 2
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
         renderer.setSize(window.innerWidth, window.innerHeight);
 
         // Create a new Three.js scene
