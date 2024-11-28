@@ -1,18 +1,21 @@
-export const INITIAL_PYTHON_CODE = `# Run this code to connect with me!
+export const INITIAL_PYTHON_CODE = `# 🌟 Run this code to connect with me! 🌟
 import webbrowser
 
-def open_link(choice):
-    links = {
-        1: "mailto:mishravinamra5@gmail.com",
-        2: "https://wa.me/+919173255769",
-        3: "https://www.linkedin.com/in/vinamra-mishra-10597420a/"
-    }
-    webbrowser.open(links.get(choice, "Invalid choice"))
+links = {
+    1: "mailto:mishravinamra5@gmail.com",
+    2: "https://wa.me/+919173255769",
+    3: "https://www.linkedin.com/in/vinamra-mishra-10597420a/"
+}
 
-print("Choose an option:")
-print("1: Open email to mishravinamra5@gmail.com")
-print("2: Open WhatsApp to +919173255769")
-print("3: Open LinkedIn profile of Vinamra Mishra")
+print("\\n✨ How would you like to connect with me? ✨")
+print("🚀 Choose an option:")
+print("1️⃣ Send me an email 📧\\n2️⃣ Message me on WhatsApp 💬\\n3️⃣ Visit my LinkedIn profile 🌐")
 
-choice = int(input("Enter 1, 2, or 3: "))
-open_link(choice)`;
+try:
+    choice = int(input("\\n👉 Enter 1, 2, or 3 and press Enter 😊:"))
+    if choice not in links:
+        print("❌ Invalid choice. Please try again!")
+    else: webbrowser.open(links.get(choice, ""))
+except ValueError:
+    print("❌ Please enter a valid number (1, 2, or 3).")
+`;

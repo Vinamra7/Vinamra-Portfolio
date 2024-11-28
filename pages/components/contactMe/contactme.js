@@ -153,7 +153,7 @@ export default function ContactMe() {
                                         options={{
                                             mode: 'python',
                                             theme: 'material-ocean',
-                                            lineNumbers: true,
+                                            lineNumbers: false,
                                             lineWrapping: true,
                                             viewportMargin: Infinity,
                                         }}
@@ -169,7 +169,7 @@ export default function ContactMe() {
                                 <pre className={styles.terminalOutput}>{output}</pre>
                                 {inputState.waiting && (
                                     <div className={styles.terminalInputContainer}>
-                                        <span className={styles.terminalPrompt}>{inputState.prompt}</span>
+                                        <span className={styles.terminalPrompt}>&gt; {inputState.prompt}</span>
                                         <input
                                             ref={inputRef}
                                             type="text"
