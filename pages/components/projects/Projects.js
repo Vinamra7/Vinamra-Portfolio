@@ -4,19 +4,19 @@ import ProjectsBackground from './ProjectsBackground';
 
 const projects = [
   {
-    title: 'AI-Powered Black Hole Simulator',
-    description: 'An interactive 3D simulation exploring gravitational physics and black hole dynamics using advanced WebGL rendering.',
-    technologies: ['Three.js', 'WebGL', 'Physics Simulation']
+    title: 'Space - Interview Platform',
+    description: 'A collaborative coding platform with integrated development environment, real-time pair programming, and interview capabilities. Features include code compilation, video calling, and interactive problem solving.',
+    technologies: ['React', 'Node.js', 'WebRTC', 'Socket.IO']
   },
   {
-    title: 'Quantum Encryption Platform',
-    description: 'A cutting-edge web application implementing quantum-resistant encryption algorithms for secure communication.',
-    technologies: ['React', 'Node.js', 'Quantum Cryptography']
+    title: 'Distributed Caching System',
+    description: 'An enterprise-grade distributed caching solution featuring real-time data synchronization, user management, and cloud scalability powered by Node.js and Redis.',
+    technologies: ['Node.js', 'Redis', 'MongoDB']
   },
   {
-    title: 'Decentralized Portfolio Tracker',
-    description: 'A blockchain-integrated portfolio management platform with real-time crypto asset tracking and predictive analytics.',
-    technologies: ['Solidity', 'Web3.js', 'React', 'Blockchain']
+    title: 'Personal Portfolio Website',
+    description: 'A modern, dynamic portfolio website built with Next.js featuring smooth scroll animations, interactive project showcases, and a responsive design. Implements dynamic content loading and seamless section transitions for an engaging user experience.',
+    technologies: ['Next.JS', 'Three.js', 'React']
   }
 ];
 
