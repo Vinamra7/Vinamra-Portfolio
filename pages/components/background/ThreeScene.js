@@ -1,6 +1,6 @@
 // components/ThreeScene.js
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
@@ -12,26 +12,38 @@ import AssetLoader from '../../../utils/assetLoader';
 
 const ThreeScene = ({ showContent }) => {
     const canvasRef = useRef(null);
+    const rendererRef = useRef(null);
+    const sceneRef = useRef(null);
+    const cameraRef = useRef(null);
+    const controlsRef = useRef(null);
+    const composerRef = useRef(null);
+    const animationRef = useRef(null);
     const assets = AssetLoader.getLoadedAssets();
 
     useEffect(() => {
         if (typeof window === "undefined" || !showContent) return;
 
+        let animationFrameId;
+        
         // Create a renderer
         const renderer = new THREE.WebGLRenderer({
             canvas: document.getElementById("canvas"),
             antialias: true,
             powerPreference: "high-performance" // Prefer high performance GPU
         });
+        rendererRef.current = renderer;
 
         // Set a default background color
         renderer.setClearColor(0x11151c);
         // Cap pixel ratio at 2
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
         renderer.setSize(window.innerWidth, window.innerHeight);
+        // Enable optimization
+        renderer.info.autoReset = false;
 
         // Create a new Three.js scene
         const scene = new THREE.Scene();
+        sceneRef.current = scene;
 
         // Create a new camera
         const camera = new THREE.PerspectiveCamera(
@@ -40,11 +52,13 @@ const ThreeScene = ({ showContent }) => {
             0.1,
             1000
         );
+        cameraRef.current = camera;
 
         camera.position.set(0, 0, 10);
 
         // Add controls to the camera/orbit controls
         const controls = new OrbitControls(camera, renderer.domElement);
+        controlsRef.current = controls;
         controls.enableDamping = true;
         controls.enabled = true;
         controls.dampingFactor = 1;
@@ -62,7 +76,6 @@ const ThreeScene = ({ showContent }) => {
         hdrEquirect.mapping = THREE.EquirectangularReflectionMapping;
 
         // Add some fog to the scene for moodyness
-        scene.fog = new THREE.Fog(0x11151c, 1, 100);
         scene.fog = new THREE.FogExp2(0x11151c, 0.4);
 
         // Use preloaded texture
@@ -88,6 +101,12 @@ const ThreeScene = ({ showContent }) => {
                 // Optimize geometry
                 if (child.geometry) {
                     child.geometry.computeBoundingSphere();
+                    // Optimize geometries
+                    child.geometry.computeVertexNormals();
+                    // Dispose unnecessary attributes
+                    if (child.geometry.attributes.uv2) {
+                        child.geometry.deleteAttribute('uv2');
+                    }
                 }
             }
         });
@@ -159,6 +178,7 @@ const ThreeScene = ({ showContent }) => {
         displacementPass.uniforms["tileFactor"].value = 2;
 
         const composer = new EffectComposer(renderer);
+        composerRef.current = composer;
         composer.addPass(renderScene);
         composer.addPass(afterimagePass);
         composer.addPass(bloomPass);
@@ -240,6 +260,7 @@ const ThreeScene = ({ showContent }) => {
             transitionProgress = 0;
         });
 
+        // Debounced resize handler
         let resizeTimeout;
         function onWindowResize() {
             if (resizeTimeout) clearTimeout(resizeTimeout);
@@ -249,41 +270,87 @@ const ThreeScene = ({ showContent }) => {
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 composer.setSize(window.innerWidth, window.innerHeight);
-            }, 250);
+            }, 250); // 250ms debounce time
+        }
+
+        function animate(currentTime) {
+            animationFrameId = requestAnimationFrame(animate);
+            
+            // Skip rendering if not visible in the viewport
+            const canvas = renderer.domElement;
+            const rect = canvas.getBoundingClientRect();
+            const isVisible = (
+                rect.bottom > 0 &&
+                rect.right > 0 &&
+                rect.top < (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.left < (window.innerWidth || document.documentElement.clientWidth)
+            );
+            
+            if (!isVisible) return;
+            
+            update(currentTime);
+            controls.update();
+            composer.render();
+            renderer.info.reset();
         }
 
         window.addEventListener("resize", onWindowResize);
+        animate();
 
-        function animate(currentTime) {
-            requestAnimationFrame(animate);
-            controls.update();
-            update(currentTime);
-            composer.render();
-        }
-
-        animate(0);
-
+        // Cleanup function
         return () => {
             window.removeEventListener("resize", onWindowResize);
-            controls.removeEventListener("start", () => { });
-            controls.removeEventListener("end", () => { });
-            if (resizeTimeout) clearTimeout(resizeTimeout);
-            renderer.dispose();
-            composer.dispose();
+            cancelAnimationFrame(animationFrameId);
+            
+            // Dispose resources
+            if (renderer) {
+                renderer.dispose();
+                renderer.forceContextLoss();
+            }
+            
+            if (controls) {
+                controls.dispose();
+            }
+            
+            // Dispose geometries and materials
+            if (scene) {
+                scene.traverse((object) => {
+                    if (object.geometry) {
+                        object.geometry.dispose();
+                    }
+                    
+                    if (object.material) {
+                        if (Array.isArray(object.material)) {
+                            object.material.forEach(material => material.dispose());
+                        } else {
+                            object.material.dispose();
+                        }
+                    }
+                });
+            }
+            
+            // Clean composer passes
+            if (composer) {
+                composer.passes.forEach((pass) => {
+                    if (pass.dispose) {
+                        pass.dispose();
+                    }
+                });
+            }
         };
     }, [showContent]);
 
-    return <canvas id="canvas" ref={canvasRef} style={{
-        width: "100%",
-        height: "100%",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        zIndex: 0,
-        opacity: showContent ? 1 : 0,
-        transition: 'opacity 0.5s ease-in-out',
-        pointerEvents: 'auto'
-    }} />;
+    return (
+        <canvas
+            id="canvas"
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full"
+            style={{
+                opacity: showContent ? 1 : 0,
+                transition: "opacity 1s",
+            }}
+        />
+    );
 };
 
 export default ThreeScene;

@@ -1,16 +1,53 @@
-import { useEffect, useState } from "react";
-import ThreeScene from "./background/ThreeScene";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import dynamic from 'next/dynamic';
 
-// Text Scramble Hook
+// Dynamically import ThreeScene with SSR disabled
+const ThreeScene = dynamic(() => import("./background/ThreeScene"), { ssr: false });
+
+// Text Scramble Hook with optimization
 function useTextScramble(finalText, startAnimation) {
     const [text, setText] = useState({
         content: '',
         colors: new Array(finalText.length).fill('#ffffff')
-    }); // Initialize with proper structure
+    });
 
-    const characters = 'abcdefghijklmnopqrstuvwxyz#@$%&*';
-    // Added yellow to scramble colors
-    const scrambleColors = ['#22d3ee', '#A88E9D', '#697D95'];
+    // Memoize characters and colors to prevent recreating on each render
+    const characters = useMemo(() => 'abcdefghijklmnopqrstuvwxyz#@$%&*', []);
+    const scrambleColors = useMemo(() => ['#22d3ee', '#A88E9D', '#697D95'], []);
+
+    // Memoize the scramble function to prevent recreation on each render
+    const scramble = useCallback((iteration) => {
+        if (iteration >= finalText.length * 4) {
+            setText({
+                content: finalText,
+                colors: new Array(finalText.length).fill('#ffffff')
+            });
+            return null; // Return null to signal completion
+        }
+
+        const newContent = finalText
+            .split('')
+            .map((char, index) => {
+                if (index < iteration / 4) {
+                    return finalText[index];
+                }
+                return characters[Math.floor(Math.random() * characters.length)];
+            })
+            .join('');
+
+        const newColors = finalText.split('').map((_, index) =>
+            index < iteration / 4
+                ? '#ffffff'
+                : scrambleColors[Math.floor(Math.random() * scrambleColors.length)]
+        );
+
+        setText({
+            content: newContent,
+            colors: newColors
+        });
+
+        return iteration + 1; // Return the next iteration
+    }, [finalText, characters, scrambleColors]);
 
     useEffect(() => {
         // Only start animation if startAnimation is true
@@ -25,43 +62,18 @@ function useTextScramble(finalText, startAnimation) {
         let iteration = 0;
         let interval;
 
-        const scramble = () => {
-            if (iteration >= finalText.length * 4) {
-                setText({
-                    content: finalText,
-                    colors: new Array(finalText.length).fill('#ffffff')
-                });
+        const runScramble = () => {
+            const nextIteration = scramble(iteration);
+            if (nextIteration === null) {
                 clearInterval(interval);
-                return;
+            } else {
+                iteration = nextIteration;
             }
-
-            const newContent = finalText
-                .split('')
-                .map((char, index) => {
-                    if (index < iteration / 4) {
-                        return finalText[index];
-                    }
-                    return characters[Math.floor(Math.random() * characters.length)];
-                })
-                .join('');
-
-            const newColors = finalText.split('').map((_, index) =>
-                index < iteration / 4
-                    ? '#ffffff'
-                    : scrambleColors[Math.floor(Math.random() * scrambleColors.length)]
-            );
-
-            setText({
-                content: newContent,
-                colors: newColors
-            });
-
-            iteration += 1;
         };
 
-        interval = setInterval(scramble, 60);
+        interval = setInterval(runScramble, 60);
         return () => clearInterval(interval);
-    }, [finalText, startAnimation]); // Add startAnimation to dependencies
+    }, [finalText, startAnimation, scramble]);
 
     return text;
 }
@@ -69,6 +81,14 @@ function useTextScramble(finalText, startAnimation) {
 export default function HomeSection({ showContent }) {
     const [startAnimation, setStartAnimation] = useState(false);
     const scrambledName = useTextScramble("Vinamra Mishra", startAnimation);
+
+    // Use useCallback for event handlers
+    const handleScrollClick = useCallback(() => {
+        window.scrollTo({
+            top: window.innerHeight,
+            behavior: 'smooth'
+        });
+    }, []);
 
     useEffect(() => {
         if (showContent) {
@@ -80,13 +100,14 @@ export default function HomeSection({ showContent }) {
         }
     }, [showContent]);
 
-    // Add scroll handler
-    const handleScrollClick = () => {
-        window.scrollTo({
-            top: window.innerHeight,
-            behavior: 'smooth'
-        });
-    };
+    // Memoize the character rendering
+    const nameDisplay = useMemo(() => {
+        return scrambledName.content.split('').map((char, index) => (
+            <span key={index} style={{ color: scrambledName.colors[index] }}>
+                {char === ' ' ? '\u00A0' : char}
+            </span>
+        ));
+    }, [scrambledName]);
 
     return <>
         <ThreeScene showContent={showContent} />
@@ -98,11 +119,7 @@ export default function HomeSection({ showContent }) {
                         Hi! I'm&nbsp;
                     </span>
                     <span className="font-mono inline-flex">
-                        {scrambledName.content.split('').map((char, index) => (
-                            <span key={index} style={{ color: scrambledName.colors[index] }}>
-                                {char === ' ' ? '\u00A0' : char}
-                            </span>
-                        ))}
+                        {nameDisplay}
                     </span>
                 </p>
 

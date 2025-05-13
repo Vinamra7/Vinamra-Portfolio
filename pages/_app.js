@@ -1,10 +1,12 @@
 import '../styles/global.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import gsap from 'gsap'
-import CustomCursor from './components/customCursor/CustomCursor'
 import LoadingScreen from './components/loading/LoadingScreen'
 import AssetLoader from '../utils/assetLoader'
 import { Analytics } from '@vercel/analytics/react'
+
+// Lazy load components to improve initial loading performance
+const CustomCursor = lazy(() => import('./components/customCursor/CustomCursor'));
 
 const LOADING_TIMEOUT = 30000; // 30 seconds
 const MOBILE_BREAKPOINT = 768; // Standard tablet/mobile breakpoint
@@ -25,8 +27,16 @@ function MyApp({ Component, pageProps }) {
       // Initial check
       checkMobile();
 
-      // Add resize listener
-      window.addEventListener('resize', checkMobile);
+      // Add resize listener with debounce
+      let resizeTimer;
+      const handleResize = () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          checkMobile();
+        }, 250);
+      };
+      
+      window.addEventListener('resize', handleResize);
 
       const initializeApp = async () => {
         try {
@@ -61,7 +71,7 @@ function MyApp({ Component, pageProps }) {
 
         } catch (error) {
           console.error('Error loading assets:', error);
-          // Handle error appropriately
+          // Handle error gracefully - show content anyway
           setLoading(false);
           setShowContent(true);
         }
@@ -70,7 +80,10 @@ function MyApp({ Component, pageProps }) {
       initializeApp();
 
       // Cleanup resize listener
-      return () => window.removeEventListener('resize', checkMobile);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        clearTimeout(resizeTimer);
+      };
     }
   }, []);
 
@@ -96,7 +109,9 @@ function MyApp({ Component, pageProps }) {
       )}
 
       <div className={`main-content ${showContent ? 'opacity-100' : 'opacity-0'} transition-opacity duration-500`}>
-        <CustomCursor />
+        <Suspense fallback={null}>
+          {showContent && <CustomCursor />}
+        </Suspense>
         <Component {...pageProps} showContent={showContent} />
       </div>
       <Analytics />

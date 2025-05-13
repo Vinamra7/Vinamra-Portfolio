@@ -3,6 +3,9 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
+// Initialize cache for loaded resources
+const CACHE = new Map();
+
 class AssetLoader {
   constructor() {
     this.assets = {
@@ -19,6 +22,12 @@ class AssetLoader {
     this.fbxLoader = new FBXLoader(this.loadingManager);
     this.rgbeLoader = new RGBELoader(this.loadingManager);
     this.gltfLoader = new GLTFLoader(this.loadingManager);
+    
+    // Set compression for textures
+    this.textureLoader.setPath = function(path) {
+      THREE.DefaultLoadingManager.setPath(path);
+      return this;
+    };
   }
 
   getLoadedAssets() {
@@ -52,45 +61,101 @@ class AssetLoader {
       };
 
       // Load HDR
-      this.rgbeLoader.load(
+      this.loadHDR(
         "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/GRADIENT_01_01_comp.hdr",
-        (hdr) => {
-          this.assets.hdrs.gradient = hdr;
-        },
-        undefined,
+        "gradient",
         reject
       );
 
       // Load Textures
-      this.textureLoader.load(
+      this.loadTexture(
         "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/surf_imp_02.jpg",
-        (texture) => {
-          this.assets.textures.surfaceImperfection = texture;
-        },
-        undefined,
+        "surfaceImperfection",
         reject
       );
 
       // Load displacement texture
-      this.textureLoader.load(
+      this.loadTexture(
         "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/ml-dpt-21-1K_normal.jpeg",
-        (texture) => {
-          this.assets.textures.displacement = texture;
-        },
-        undefined,
+        "displacement",
         reject
       );
 
       // Load FBX Model
-      this.fbxLoader.load(
+      this.loadFBX(
         "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/two_hands_01.fbx",
-        (model) => {
-          this.assets.models.hands = model;
-        },
-        undefined,
+        "hands",
         reject
       );
     });
+  }
+
+  loadHDR(url, name, onError) {
+    if (CACHE.has(url)) {
+      this.assets.hdrs[name] = CACHE.get(url);
+      this.updateProgress();
+      return;
+    }
+
+    this.rgbeLoader.load(
+      url,
+      (hdr) => {
+        this.assets.hdrs[name] = hdr;
+        CACHE.set(url, hdr);
+      },
+      undefined,
+      onError
+    );
+  }
+
+  loadTexture(url, name, onError) {
+    if (CACHE.has(url)) {
+      this.assets.textures[name] = CACHE.get(url);
+      this.updateProgress();
+      return;
+    }
+
+    this.textureLoader.load(
+      url,
+      (texture) => {
+        // Apply optimizations to textures
+        texture.generateMipmaps = false;
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.needsUpdate = true;
+        this.assets.textures[name] = texture;
+        CACHE.set(url, texture);
+      },
+      undefined,
+      onError
+    );
+  }
+
+  loadFBX(url, name, onError) {
+    if (CACHE.has(url)) {
+      this.assets.models[name] = CACHE.get(url);
+      this.updateProgress();
+      return;
+    }
+
+    this.fbxLoader.load(
+      url,
+      (model) => {
+        // Apply optimizations to the model
+        model.traverse((child) => {
+          if (child.isMesh) {
+            // Optimize material
+            if (child.material) {
+              child.material.precision = 'mediump';
+            }
+          }
+        });
+        this.assets.models[name] = model;
+        CACHE.set(url, model);
+      },
+      undefined,
+      onError
+    );
   }
 }
 
