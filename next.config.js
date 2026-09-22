@@ -20,4 +20,9 @@ const nextConfig = {
    reactStrictMode: true,
 };
 
-module.exports = nextConfig;
+// Keep the live preview separate from production builds.
+const { PHASE_DEVELOPMENT_SERVER } = require('next/constants');
+module.exports = (phase) => ({
+   ...nextConfig,
+   distDir: phase === PHASE_DEVELOPMENT_SERVER ? '.next-dev' : '.next',
+});

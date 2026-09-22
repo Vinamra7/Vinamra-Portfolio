@@ -82,7 +82,7 @@ export default function AboutBack() {
 
 function Scene() {
     const { width } = useWindowSize();
-    const { nodes, materials } = useGLTF('https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/low_poly_astro.glb')
+    const { nodes, materials } = useGLTF('/Models/low_poly_astro.glb')
     const astronautRef = useRef()
 
     // Calculate scale based on screen size with separate x, y, z scaling
