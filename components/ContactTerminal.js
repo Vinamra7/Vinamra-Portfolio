@@ -116,7 +116,7 @@ export default function ContactTerminal({ paused = false }) {
     <div className={`contact-terminal ${busy ? "terminal-busy" : ""}`}>
       <div className="terminal-bar mono">
         <span>
-          <span className="signal-dot" /> contact / vm
+          <span className="signal-dot" /> vinamra — contact terminal
         </span>
         <button
           aria-label="Reset conversation"
@@ -142,8 +142,8 @@ export default function ContactTerminal({ paused = false }) {
           <span className="terminal-avatar" aria-hidden="true">
             <BotAvatar
               type="ghost"
-              size={68}
-              color="#b9beb8"
+              size={96}
+              color="#bdbdbd"
               shading="smooth"
               state={busy ? "working" : "default"}
               paused={paused}
@@ -151,14 +151,16 @@ export default function ContactTerminal({ paused = false }) {
           </span>
           <div>
             <span className="mono terminal-agent-name">
-              Vinamra’s contact desk
+              VM / CONTACT ASSISTANT
             </span>
             <p>
-              Hey, you made it.
+              Hello, visitor.
               <br />
-              What can I help you find?
+              Where should we connect?
             </p>
-            <span className="terminal-hint">Pick a channel, or ask below.</span>
+            <span className="terminal-hint">
+              Ask for my email, phone, links or résumé.
+            </span>
           </div>
         </div>
         {messages.map((message, i) => (

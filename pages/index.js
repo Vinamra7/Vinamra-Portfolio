@@ -1,25 +1,13 @@
 import Head from "next/head";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-import {
-  FiArrowDown,
-  FiArrowUpRight,
-  FiPlus,
-  FiMinus,
-  FiGithub,
-  FiDownload,
-  FiPause,
-  FiPlay,
-  FiLayers,
-  FiGitPullRequest,
-  FiCommand,
-} from "react-icons/fi";
+import { FiArrowDown, FiArrowUpRight } from "react-icons/fi";
+import ProjectGallery from "../components/ProjectGallery";
+import Mountain from "../components/Mountain";
 import WorkCards from "../components/WorkCards";
 import ContactTerminal from "../components/ContactTerminal";
 import { experience, projects, contact } from "../lib/content";
 const Scene = dynamic(() => import("../components/Scene"), { ssr: false });
-const sections = ["home", "about", "work", "projects", "contact"];
-const projectIcons = [FiLayers, FiGitPullRequest, FiCommand];
 
 function SceneWindow({ variant, paused, ...props }) {
   const ref = useRef(null);
@@ -45,10 +33,8 @@ function SceneWindow({ variant, paused, ...props }) {
 }
 
 export default function Home() {
-  const [active, setActive] = useState("home");
   const [paused, setPaused] = useState(false);
 
-  const [projectFilter, setProjectFilter] = useState("All");
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPaused(reduced.matches);
@@ -59,7 +45,6 @@ export default function Home() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add("is-visible");
-            if (entry.target.id) setActive(entry.target.id);
           }
         });
       },
@@ -82,7 +67,7 @@ export default function Home() {
           content="Backend software engineer at Visa. Building identity services, payment systems, and software that holds up at scale. Bengaluru, India."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#0c0d0e" />
+        <meta name="theme-color" content="#000000" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <a className="skip-link" href="#about">
@@ -94,16 +79,17 @@ export default function Home() {
           className="hero is-visible"
           aria-labelledby="hero-title"
         >
-          <SceneWindow
-            variant="threshold"
-            paused={paused}
-            className="hero-scene"
-            aria-hidden="true"
-          />
-          <div className="hero-shade" />
+          <Mountain paused={paused} />
           <div className="hero-content">
-            <h1 id="hero-title">Vinamra Mishra</h1>
-            <p className="hero-subtitle">Software engineer</p>
+            <p className="hero-hello">Hi, I’m</p>
+            <h1 id="hero-title" aria-label="Vinamra Mishra">
+              <span className="typed-name" aria-hidden="true">
+                Vinamra Mishra
+              </span>
+            </h1>
+            <p className="hero-subtitle">
+              Software developer from Bengaluru, India.
+            </p>
           </div>
           <a href="#about" className="hero-scroll" aria-label="Scroll to about">
             <FiArrowDown />
@@ -159,75 +145,10 @@ export default function Home() {
           aria-labelledby="projects-title"
         >
           <div className="section-heading reveal">
-            <h2 id="projects-title">Side projects & contributions.</h2>
-            <div
-              className="project-filters"
-              role="group"
-              aria-label="Filter projects"
-            >
-              {["All", "Projects", "Open source"].map((filter) => (
-                <button
-                  key={filter}
-                  aria-pressed={projectFilter === filter}
-                  onClick={() => setProjectFilter(filter)}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
+            <h2 id="projects-title">Off the clock.</h2>
+            <span className="mono">PROJECTS & OPEN SOURCE</span>
           </div>
-          <div className="project-list reveal">
-            {projects
-              .filter(
-                (project) =>
-                  projectFilter === "All" || project.category === projectFilter,
-              )
-              .map((project) => {
-                const Icon = projectIcons[projects.indexOf(project)];
-                return (
-                  <a
-                    key={project.name}
-                    className="project"
-                    href={project.url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <div
-                      className={`project-symbol ${project.symbol}`}
-                      aria-hidden="true"
-                    >
-                      <Icon />
-                    </div>
-                    <div className="project-copy">
-                      <span className="mono project-type">
-                        {project.category} / {project.year}
-                      </span>
-                      <h3>{project.name}</h3>
-                      <p>{project.description}</p>
-                      <span className="mono project-stack">
-                        {project.stack}
-                      </span>
-                    </div>
-                    <span className="project-out">
-                      <span className="mono">
-                        {project.category === "Projects"
-                          ? "EXPLORE REPO"
-                          : "VIEW CONTRIBUTION"}
-                      </span>
-                      <FiArrowUpRight />
-                    </span>
-                  </a>
-                );
-              })}
-          </div>
-          <a
-            className="text-link github-link"
-            href={contact.github}
-            target="_blank"
-            rel="noreferrer"
-          >
-            <FiGithub /> More on GitHub <FiArrowUpRight />
-          </a>
+          <ProjectGallery projects={projects} paused={paused} />
         </section>
         <section
           id="contact"
@@ -235,31 +156,9 @@ export default function Home() {
           aria-labelledby="contact-title"
         >
           <div className="contact-grid">
-            <div className="contact-copy reveal">
-              <h2 id="contact-title">
-                Your move<span className="name-period">.</span>
-              </h2>
-              <p>
-                A question, an interesting problem,
-                <br />
-                or just a hello. I’m a message away.
-              </p>
-              <a className="contact-email" href={`mailto:${contact.email}`}>
-                {contact.email}
-                <FiArrowUpRight />
-              </a>
-              <div className="direct-links mono">
-                <a href={contact.linkedin} target="_blank" rel="noreferrer">
-                  LINKEDIN <FiArrowUpRight />
-                </a>
-                <a href={contact.github} target="_blank" rel="noreferrer">
-                  GITHUB <FiArrowUpRight />
-                </a>
-                <a href={contact.resume} download>
-                  RÉSUMÉ <FiDownload />
-                </a>
-              </div>
-            </div>
+            <h2 className="sr-only" id="contact-title">
+              Contact Vinamra
+            </h2>
             <div className="reveal">
               <ContactTerminal paused={paused} />
             </div>
@@ -275,16 +174,6 @@ export default function Home() {
           </footer>
         </section>
       </main>
-
-      <button
-        className="motion-control mono"
-        onClick={() => setPaused(!paused)}
-        aria-label={paused ? "Enable motion" : "Pause motion"}
-        aria-pressed={paused}
-      >
-        {paused ? <FiPlay /> : <FiPause />}
-        <span>MOTION {paused ? "OFF" : "ON"}</span>
-      </button>
     </div>
   );
 }

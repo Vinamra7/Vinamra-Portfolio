@@ -19,31 +19,35 @@ void main(){
    main=main*.38+(sampleAt(uv+vec2(.003,0.))+sampleAt(uv-vec2(.003,0.)))*.19;
    main+=(sampleAt(uv+vec2(0.,.002))+sampleAt(uv-vec2(0.,.002)))*.12;
  }
- vec4 ghost=sampleAt(uv-vec2(.16,.035));
+ vec4 ghost=sampleAt(vec2(1.12-uv.x,uv.y-.025));
  vec4 echo=sampleAt(uv+vec2(.026,-.008));
  vec3 rgb=main.rgb;
  float alpha=main.a;
  if(astronaut>.5){
    float ghostGrey=dot(ghost.rgb,vec3(.299,.587,.114));
-   rgb+=vec3(ghostGrey)*.48*(1.0-alpha*.75);
+   rgb+=vec3(ghostGrey)*.32*(1.0-alpha*.8);
    rgb+=echo.rgb*.05*(1.0-alpha);
-   alpha=max(alpha,ghost.a*.5);
+   alpha=max(alpha,ghost.a*.32);
    float shift=.0023+band*.004;
    rgb.r=mix(rgb.r,sampleAt(uv+vec2(shift,0.)).r,.3+band*.3);
    rgb.b=mix(rgb.b,sampleAt(uv-vec2(shift,0.)).b,.3+band*.3);
    float grey=dot(rgb,vec3(.299,.587,.114));
-   rgb=mix(vec3(grey),rgb,colour);
+   rgb=vec3(grey);
    vec4 trail=sampleAt(vec2(uv.x+tear*.8, max(uv.y,.43)));
    float threads=step(.66,rand(vec2(floor(uv.x*310.),1.)));
-   rgb+=trail.rgb*threads*.12*band;
+   rgb+=vec3(dot(trail.rgb,vec3(.299,.587,.114)))*threads*.12*band;
+   float edge=abs(sampleAt(uv+vec2(.008,0.)).a-sampleAt(uv-vec2(.008,0.)).a);
+   float seam=abs(dot(sampleAt(uv+vec2(.006,0.)).rgb-sampleAt(uv-vec2(.006,0.)).rgb,vec3(.333)));
+   vec3 spectrum=.5+.5*cos(vec3(0.,2.1,4.2)+uv.y*32.+uv.x*18.);
+   rgb+=spectrum*colour*(band*(seam*2.1+threads*.035)+edge*.11);
    rgb*=1.0-band*.38;
    alpha*=smoothstep(.06,.34,vUv.y)*(1.0-smoothstep(.90,1.,vUv.y));
    rgb*=1.0-sin(uv.y*resolution.y*1.3)*.025;
  }
  float grain=(rand(vUv*resolution+floor(time*8.0)*motion)-.5)*.006;
- vec3 background=vec3(.00368,.00402,.00439);
+ vec3 background=vec3(0.0);
  rgb=mix(background,rgb,clamp(alpha,0.,1.));
- rgb+=grain;
+ rgb+=grain*clamp(alpha,0.,1.);
  gl_FragColor=vec4(rgb,1.0);
  #include <colorspace_fragment>
 }`;
@@ -176,7 +180,7 @@ export default function Scene({ variant, paused }) {
             materials.add(material);
             model = new THREE.Mesh(geometry, material);
             model.scale.setScalar(4.0 / size.y);
-            model.rotation.set(0.06, -1.0, -0.08);
+            model.rotation.set(0.06, -1.57, -0.08);
             group.add(model);
             group.position.x = -0.23;
             draw();
@@ -321,7 +325,7 @@ export default function Scene({ variant, paused }) {
       if (astronaut && model) {
         model.rotation.y = THREE.MathUtils.damp(
           model.rotation.y,
-          -1.0 + cursor.x * 0.45,
+          -1.57 + cursor.x * 0.08,
           3,
           delta,
         );
@@ -382,7 +386,7 @@ export default function Scene({ variant, paused }) {
       role={variant === "astronaut" ? "button" : undefined}
       aria-label={
         variant === "astronaut"
-          ? "Explore astronaut: hover, tap or press Enter to reveal colour"
+          ? "Explore astronaut: hover, tap or press Enter to illuminate the glitch in blue"
           : undefined
       }
       aria-pressed={variant === "astronaut" ? colourOn : undefined}
