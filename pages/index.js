@@ -3,7 +3,8 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { FiArrowDown, FiArrowUpRight } from "react-icons/fi";
 import ProjectGallery from "../components/ProjectGallery";
-import Mountain from "../components/Mountain";
+import Galaxy from "../components/Galaxy";
+import DecodingName from "../components/DecodingName";
 import WorkCards from "../components/WorkCards";
 import ContactTerminal from "../components/ContactTerminal";
 import { experience, projects, contact } from "../lib/content";
@@ -73,19 +74,17 @@ export default function Home() {
       <a className="skip-link" href="#about">
         Skip to content
       </a>
+      <Galaxy paused={paused} />
       <main>
         <section
           id="home"
           className="hero is-visible"
           aria-labelledby="hero-title"
         >
-          <Mountain paused={paused} />
           <div className="hero-content">
             <p className="hero-hello">Hi, I’m</p>
             <h1 id="hero-title" aria-label="Vinamra Mishra">
-              <span className="typed-name" aria-hidden="true">
-                Vinamra Mishra
-              </span>
+              <DecodingName paused={paused} />
             </h1>
             <p className="hero-subtitle">
               Software developer from Bengaluru, India.

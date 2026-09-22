@@ -2313,3 +2313,53 @@ a:hover,
     margin-left: 2px;
   }
 }
+/* One galaxy breaks apart into the page-wide starfield. */
+.portfolio {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+.galaxy-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+.portfolio main {
+  position: relative;
+}
+.hero {
+  background: transparent;
+}
+.hero-content {
+  text-shadow: 0 2px 18px #000;
+}
+.contact {
+  background: transparent;
+}
+.typed-name {
+  text-shadow: 0 2px 25px #000;
+}
+.about-copy {
+  position: relative;
+}
+/* The reserved name width prevents movement as each glyph decodes. */
+.decoding-name {
+  display: block;
+  position: relative;
+  white-space: nowrap;
+}
+.name-measure {
+  visibility: hidden;
+}
+.name-live {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: pre;
+}
+.name-decoding-glyph {
+  color: #b9bec4;
+}

@@ -2,6 +2,20 @@
 
 Final result: passed. Subjective art direction remains open to user review.
 
+## Static sky and decoding-name refinement
+
+Added a neutral-white static sky behind the animated galaxy, with density based on viewport area. The layer is cached on resize and composited across the fixed viewport; there is no tinted image rectangle or per-section seam. The astronaut output now preserves transparency so its canvas cannot cover the background stars with a black rectangle.
+
+Replaced the name's CSS wipe with a character-by-character decoder. Samples captured progressing prefixes with changing current glyphs, followed by exactly `Vinamra Mishra`. The animation stops after completion and does not loop. Reduced-motion mode renders the complete name immediately; reserved text dimensions prevent layout movement. Verified no page errors or mobile overflow. Evidence: `starfield-full.png`, `starfield-work.png`, `starfield-mobile.png`; the production build passes.
+
+## Galaxy and colour revision
+
+The prior version was committed as `fc411e3` before implementation. The galaxy replaces the mountain in the active hero; the old component and source image remain available. One viewport-sized, fixed canvas retains its particle identities across the scroll transition. Stars detach in staggered bands, disperse through the lower sections, and reform when scrolling back. Content stays in normal document flow and the canvas cannot intercept pointer events. Reduced motion suppresses rotation, trails and falling; mobile uses fewer particles and wider relative framing.
+
+Project artwork now has colour palettes and a grayscale base layer. Hover/focus crossfades the entire artwork into colour alongside the existing local refraction; leaving returns it to monochrome. A browser pixel check found zero significantly coloured pixels at rest and 97,149 after hover in Cacher's canvas.
+
+Evidence: `artifacts/galaxy-intro.png`, `galaxy-separating.png`, `galaxy-work.png`, `galaxy-contact.png`, `galaxy-mobile.png`, and `project-colour.png`. Browser verification passed the galaxy → starfield → galaxy sequence, found no uncaught errors or horizontal mobile overflow, and verified colour restoration. Desktop/mobile screenshots were inspected for legible text and unobtrusive stars behind the work. Production build passed. This is an original spiral composition, not a reproduction of an external galaxy interface.
+
 ## Latest refinement after screenshot feedback
 
 The intro greeting, name and subtitle now align left. The name has no trailing punctuation and reveals on entry; reduced-motion verification returned no animation and no clipping. The former filled blue circle was removed in favour of scattered image strips. The astronaut rotation is near a side profile with a mirrored ghost facing away, and its hover uses a spectrum along silhouette and glitch edges instead of a blue fill.

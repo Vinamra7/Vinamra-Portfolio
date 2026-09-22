@@ -48,7 +48,7 @@ void main(){
  vec3 background=vec3(0.0);
  rgb=mix(background,rgb,clamp(alpha,0.,1.));
  rgb+=grain*clamp(alpha,0.,1.);
- gl_FragColor=vec4(rgb,1.0);
+ gl_FragColor=vec4(rgb,astronaut>.5?clamp(alpha,0.,1.):1.0);
  #include <colorspace_fragment>
 }`;
 

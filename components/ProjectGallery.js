@@ -25,12 +25,12 @@ function Study({ index, paused }) {
         a.lineTo(0, y + 95);
         a.closePath();
         const g = a.createLinearGradient(-190, y - 90, 190, y + 95);
-        g.addColorStop(0, "#999");
-        g.addColorStop(0.4, "#383838");
-        g.addColorStop(1, "#111");
+        g.addColorStop(0, "#a4e7ff");
+        g.addColorStop(0.4, "#276d9c");
+        g.addColorStop(1, "#091c3c");
         a.fillStyle = g;
         a.fill();
-        a.strokeStyle = "#b1b1b1";
+        a.strokeStyle = "#a5dfff";
         a.lineWidth = 1;
         a.stroke();
         a.beginPath();
@@ -41,12 +41,12 @@ function Study({ index, paused }) {
         a.lineTo(0, y + 112);
         a.lineTo(-190, y + 17);
         a.closePath();
-        a.fillStyle = "#181818";
+        a.fillStyle = "#11253a";
         a.fill();
-        a.strokeStyle = "#444";
+        a.strokeStyle = "#35718e";
         a.stroke();
         for (let n = 0; n < 9; n++) {
-          a.fillStyle = n % 3 === 0 ? "#ddd" : "#555";
+          a.fillStyle = n % 3 === 0 ? "#9ceaff" : "#2c708b";
           a.fillRect(-130 + n * 15, y + 33 + n * 7.5, 3, 3);
         }
       }
@@ -65,14 +65,14 @@ function Study({ index, paused }) {
           y * 0.7,
         );
         a.bezierCurveTo(135, y * 0.15, 170, y + 90, 350, y + 20);
-        a.strokeStyle = `rgba(230,230,230,${0.13 + 0.5 * Math.sin((n / 48) * Math.PI)})`;
+        a.strokeStyle = `hsla(${190 + n * 0.9},95%,72%,${0.13 + 0.5 * Math.sin((n / 48) * Math.PI)})`;
         a.lineWidth = n % 5 === 0 ? 1.4 : 0.7;
         a.stroke();
       }
-      a.strokeStyle = "#777";
+      a.strokeStyle = "#568fab";
       a.lineWidth = 1;
       a.strokeRect(-65, -160, 130, 320);
-      a.fillStyle = "#eeeeee";
+      a.fillStyle = "#a9f0ff";
       a.fillRect(-2, -22, 4, 44);
     } else {
       // A quiet lens for the browser tooling contribution.
@@ -80,13 +80,13 @@ function Study({ index, paused }) {
         const r = 60 + n * 3.5;
         a.beginPath();
         a.ellipse((n - 18) * 1.9, 0, r, r * 1.25, -0.25, 0, Math.PI * 2);
-        a.strokeStyle = `rgba(230,230,230,${0.08 + 0.38 * (1 - n / 37)})`;
+        a.strokeStyle = `hsla(${210 + n * 1.6},90%,78%,${0.08 + 0.38 * (1 - n / 37)})`;
         a.lineWidth = 1.2;
         a.stroke();
       }
       const g = a.createRadialGradient(-20, -60, 4, 0, 0, 120);
-      g.addColorStop(0, "#363636");
-      g.addColorStop(0.65, "#101010");
+      g.addColorStop(0, "#3a528a");
+      g.addColorStop(0.65, "#101523");
       g.addColorStop(1, "#000");
       a.fillStyle = g;
       a.beginPath();
@@ -105,6 +105,12 @@ function Study({ index, paused }) {
       30,
       680,
     );
+    const monochrome = document.createElement("canvas");
+    monochrome.width = 600;
+    monochrome.height = 720;
+    const mono = monochrome.getContext("2d");
+    mono.filter = "grayscale(1)";
+    mono.drawImage(art, 0, 0);
     const fringes = ["#00baff", "#df42ff"].map((color) => {
       const layer = document.createElement("canvas");
       layer.width = 600;
@@ -159,7 +165,10 @@ function Study({ index, paused }) {
       for (let y = 0; y < 720; y += 3) {
         const fall = Math.exp(-Math.pow((y - py * 720) / 170, 2));
         const warp = Math.sin(y * 0.018 + time * 1.4) * fall * amount * 28;
+        ctx.drawImage(monochrome, 0, y, 600, 3, warp, y, 600, 3);
+        ctx.globalAlpha = amount;
         ctx.drawImage(art, 0, y, 600, 3, warp, y, 600, 3);
+        ctx.globalAlpha = 1;
         if (amount > 0.01) {
           ctx.globalCompositeOperation = "screen";
           ctx.globalAlpha = amount * fall * 0.6;
