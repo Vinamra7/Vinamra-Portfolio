@@ -55,3 +55,7 @@ Resolved P2 findings: initial mobile ghost projection extended the viewport by a
 ## Limits
 
 Contact classification is a local preview, not AI. Existing model provenance is unresolved. Canvas effects depend on WebGL; a text fallback exists if the astronaut fails to load. Visual checks used Chromium/Edge, not Safari or Firefox. The preexisting dependency tree reports npm audit findings; this design pass did not perform breaking framework upgrades.
+
+## Typography and palette refinement — September 23
+
+Checkpoint: 2753016. Space Grotesk headings, a tighter intro greeting, larger role subtitle, and near-black work card surfaces were implemented. Subtle coloured stars comprise 12% of both star layers; the remainder stay neutral. Desktop hero/work and mobile screenshots were visually inspected: artifacts/starfield-full.png, starfield-work.png, and starfield-mobile.png. The name fits at 390px width with no horizontal overflow. Production build passed; decoding progression, exact completed name, reduced-motion immediate text, and no browser page errors were verified. These refinements remain uncommitted.

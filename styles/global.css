@@ -2363,3 +2363,86 @@ a:hover,
 .name-decoding-glyph {
   color: #b9bec4;
 }
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/fonts/portfolio/SpaceGrotesk.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
+h1,
+h2,
+h3,
+.work-face strong {
+  font-family: "Space Grotesk", var(--sans);
+}
+.hero h1 {
+  font-size: clamp(44px, 7.4vw, 112px);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  line-height: 1.04;
+}
+.hero-hello {
+  font-family: "Space Grotesk", var(--sans);
+  font-size: clamp(19px, 1.8vw, 25px);
+  line-height: 1.3;
+  margin: 0 0 8px 3px;
+  color: #c9c9c9;
+}
+.hero-subtitle {
+  font-size: clamp(15px, 1.5vw, 21px);
+  line-height: 1.5;
+  margin: 21px 0 0 3px;
+  color: #b5b5b5;
+}
+.work-cover {
+  background: #000;
+  border-color: #242424;
+  border-radius: 18px;
+}
+.work-face,
+.work-card:nth-child(2) .work-face {
+  background: #020202;
+}
+.work-face strong {
+  color: #dedede;
+  font-weight: 450;
+}
+.work-date {
+  color: #8f8f8f;
+  font-size: 9px;
+}
+.work-card-bottom {
+  color: #aaa;
+  font-size: 12px;
+}
+.work-team {
+  color: #888;
+  font-size: 11px;
+}
+.work-cover:hover {
+  box-shadow: 0 0 24px #008cff0a;
+  border-color: #3a3a3a;
+}
+@media (max-width: 650px) {
+  .hero h1 {
+    font-size: clamp(32px, 8.4vw, 55px);
+  }
+  .hero-hello {
+    font-size: 18px;
+    margin-bottom: 7px;
+    margin-left: 1px;
+  }
+  .hero-subtitle {
+    font-size: 15px;
+    max-width: 290px;
+    margin-top: 16px;
+    margin-left: 1px;
+  }
+  .work-card-bottom {
+    font-size: 10px;
+  }
+  .work-date {
+    font-size: 8px;
+  }
+}

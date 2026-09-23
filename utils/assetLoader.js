@@ -41,121 +41,111 @@ class AssetLoader {
   }
 
   async loadAssets(onProgress) {
+    // Resolve when every asset has settled, instead of relying on the THREE
+    // LoadingManager's onLoad callback (which may fire before the callbacks
+    // that populate `this.assets` have run).
+    const results = await Promise.allSettled([
+      this.loadHDR("/Models/GRADIENT_01_01_comp.hdr", "gradient", onProgress),
+      this.loadTexture("/Models/surf_imp_02.jpg", "surfaceImperfection", onProgress),
+      this.loadTexture("/Models/ml-dpt-21-1K_normal.jpeg", "displacement", onProgress),
+      this.loadFBX("/Models/two_hands_01.fbx", "hands", onProgress),
+    ]);
+
+    const failed = results
+      .filter((result) => result.status === "rejected")
+      .map((result) => result.reason);
+
+    failed.forEach((error) => console.error("Error loading asset:", error));
+
+    // Only fail hard when nothing usable loaded; otherwise render with what we have.
+    if (failed.length === results.length) {
+      throw new Error(`Failed to load assets: ${failed[0]}`);
+    }
+
+    return this.assets;
+  }
+
+  loadHDR(url, name, onProgress) {
     return new Promise((resolve, reject) => {
-      // Set up loading manager callbacks first
-      this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-        const progress = (itemsLoaded / itemsTotal) * 100;
-        if (onProgress) onProgress(progress);
-      };
+      if (CACHE.has(url)) {
+        this.assets.hdrs[name] = CACHE.get(url);
+        this.updateProgress(onProgress);
+        resolve(this.assets.hdrs[name]);
+        return;
+      }
 
-      this.loadingManager.onLoad = () => {
-        // Add a small delay to ensure everything is properly initialized
-        setTimeout(() => {
-          resolve(this.assets);
-        }, 100);
-      };
-
-      this.loadingManager.onError = (url) => {
-        console.error('Error loading:', url);
-        reject(new Error(`Failed to load ${url}`));
-      };
-
-      // Load HDR
-      this.loadHDR(
-        "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/GRADIENT_01_01_comp.hdr",
-        "gradient",
-        reject
-      );
-
-      // Load Textures
-      this.loadTexture(
-        "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/surf_imp_02.jpg",
-        "surfaceImperfection",
-        reject
-      );
-
-      // Load displacement texture
-      this.loadTexture(
-        "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/ml-dpt-21-1K_normal.jpeg",
-        "displacement",
-        reject
-      );
-
-      // Load FBX Model
-      this.loadFBX(
-        "https://lmiwzoiohfrsxaidpyfb.supabase.co/storage/v1/object/public/Models/two_hands_01.fbx",
-        "hands",
+      this.rgbeLoader.load(
+        url,
+        (hdr) => {
+          this.assets.hdrs[name] = hdr;
+          CACHE.set(url, hdr);
+          this.updateProgress(onProgress);
+          resolve(hdr);
+        },
+        undefined,
         reject
       );
     });
   }
 
-  loadHDR(url, name, onError) {
-    if (CACHE.has(url)) {
-      this.assets.hdrs[name] = CACHE.get(url);
-      this.updateProgress();
-      return;
-    }
+  loadTexture(url, name, onProgress) {
+    return new Promise((resolve, reject) => {
+      if (CACHE.has(url)) {
+        this.assets.textures[name] = CACHE.get(url);
+        this.updateProgress(onProgress);
+        resolve(this.assets.textures[name]);
+        return;
+      }
 
-    this.rgbeLoader.load(
-      url,
-      (hdr) => {
-        this.assets.hdrs[name] = hdr;
-        CACHE.set(url, hdr);
-      },
-      undefined,
-      onError
-    );
+      this.textureLoader.load(
+        url,
+        (texture) => {
+          // Apply optimizations to textures
+          texture.generateMipmaps = false;
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          texture.needsUpdate = true;
+          this.assets.textures[name] = texture;
+          CACHE.set(url, texture);
+          this.updateProgress(onProgress);
+          resolve(texture);
+        },
+        undefined,
+        reject
+      );
+    });
   }
 
-  loadTexture(url, name, onError) {
-    if (CACHE.has(url)) {
-      this.assets.textures[name] = CACHE.get(url);
-      this.updateProgress();
-      return;
-    }
+  loadFBX(url, name, onProgress) {
+    return new Promise((resolve, reject) => {
+      if (CACHE.has(url)) {
+        this.assets.models[name] = CACHE.get(url);
+        this.updateProgress(onProgress);
+        resolve(this.assets.models[name]);
+        return;
+      }
 
-    this.textureLoader.load(
-      url,
-      (texture) => {
-        // Apply optimizations to textures
-        texture.generateMipmaps = false;
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.needsUpdate = true;
-        this.assets.textures[name] = texture;
-        CACHE.set(url, texture);
-      },
-      undefined,
-      onError
-    );
-  }
-
-  loadFBX(url, name, onError) {
-    if (CACHE.has(url)) {
-      this.assets.models[name] = CACHE.get(url);
-      this.updateProgress();
-      return;
-    }
-
-    this.fbxLoader.load(
-      url,
-      (model) => {
-        // Apply optimizations to the model
-        model.traverse((child) => {
-          if (child.isMesh) {
-            // Optimize material
-            if (child.material) {
-              child.material.precision = 'mediump';
+      this.fbxLoader.load(
+        url,
+        (model) => {
+          // Apply optimizations to the model
+          model.traverse((child) => {
+            if (child.isMesh) {
+              // Optimize material
+              if (child.material) {
+                child.material.precision = 'mediump';
+              }
             }
-          }
-        });
-        this.assets.models[name] = model;
-        CACHE.set(url, model);
-      },
-      undefined,
-      onError
-    );
+          });
+          this.assets.models[name] = model;
+          CACHE.set(url, model);
+          this.updateProgress(onProgress);
+          resolve(model);
+        },
+        undefined,
+        reject
+      );
+    });
   }
 }
 

@@ -1,6 +1,17 @@
 import { useEffect, useRef } from "react";
 
 const clamp = (v) => Math.max(0, Math.min(1, v));
+// Most stars remain neutral; a few have a quiet stellar colour temperature.
+const starTone = (index) => {
+  const tone = index % 100;
+  return tone < 6
+    ? "136,188,255"
+    : tone < 10
+      ? "255,222,145"
+      : tone < 12
+        ? "255,148,137"
+        : "235,235,235";
+};
 const smooth = (v) => {
   const t = clamp(v);
   return t * t * (3 - 2 * t);
@@ -39,7 +50,7 @@ export default function Galaxy({ paused }) {
         angle,
         spread: (random() - 0.5) * 0.065,
         size: 0.35 + Math.pow(random(), 5) * 1.6,
-        light: 0.2 + random() * 0.7,
+        light: 0.5 + random() * 0.7,
         x: random(),
         y: random(),
         speed: 0.14 + random() * 0.6,
@@ -68,12 +79,12 @@ export default function Galaxy({ paused }) {
           y = starRandom() * h;
         const bright = starRandom(),
           size = 0.25 + starRandom() * 0.65;
-        sky.fillStyle = `rgba(235,235,235,${0.12 + bright * 0.4})`;
+        sky.fillStyle = `rgba(${starTone(i)},${0.12 + bright * 0.4})`;
         sky.beginPath();
         sky.arc(x, y, size, 0, Math.PI * 2);
         sky.fill();
         if (bright > 0.98) {
-          sky.fillStyle = "rgba(235,235,235,.045)";
+          sky.fillStyle = `rgba(${starTone(i)},.045)`;
           sky.beginPath();
           sky.arc(x, y, size * 3, 0, Math.PI * 2);
           sky.fill();
@@ -152,7 +163,7 @@ export default function Galaxy({ paused }) {
         const twinkle = paused
           ? 1
           : 0.85 + 0.15 * Math.sin(now * 0.0007 + p.phase);
-        ctx.fillStyle = `rgba(236,241,248,${opacity * twinkle})`;
+        ctx.fillStyle = `rgba(${starTone(i)},${opacity * twinkle})`;
         if (release > 0.2 && velocity > 1 && !paused) {
           ctx.strokeStyle = `rgba(196,219,250,${opacity * 0.25})`;
           ctx.lineWidth = 0.65;
@@ -165,7 +176,7 @@ export default function Galaxy({ paused }) {
         ctx.arc(x, y, p.size * (1 - release * 0.22), 0, Math.PI * 2);
         ctx.fill();
         if (p.size > 1.6 && i % 3 === 0) {
-          ctx.fillStyle = `rgba(220,235,255,${opacity * 0.06})`;
+          ctx.fillStyle = `rgba(${starTone(i)},${opacity * 0.06})`;
           ctx.beginPath();
           ctx.arc(x, y, p.size * 3.5, 0, Math.PI * 2);
           ctx.fill();
