@@ -39,3 +39,6 @@ videos/*
 public/_next-video
 
 .aider**
+
+# Local editor metadata
+.idea/

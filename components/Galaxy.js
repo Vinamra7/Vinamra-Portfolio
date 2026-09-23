@@ -49,7 +49,7 @@ export default function Galaxy({ paused }) {
         radius,
         angle,
         spread: (random() - 0.5) * 0.065,
-        size: 0.35 + Math.pow(random(), 5) * 1.6,
+        size: 0.55 + Math.pow(random(), 5) * 1.65,
         light: 0.5 + random() * 0.7,
         x: random(),
         y: random(),
@@ -78,13 +78,13 @@ export default function Galaxy({ paused }) {
         const x = starRandom() * w,
           y = starRandom() * h;
         const bright = starRandom(),
-          size = 0.25 + starRandom() * 0.65;
-        sky.fillStyle = `rgba(${starTone(i)},${0.12 + bright * 0.4})`;
+          size = 0.45 + starRandom() * 0.7;
+        sky.fillStyle = `rgba(${starTone(i)},${0.32 + bright * 0.53})`;
         sky.beginPath();
         sky.arc(x, y, size, 0, Math.PI * 2);
         sky.fill();
         if (bright > 0.98) {
-          sky.fillStyle = `rgba(${starTone(i)},.045)`;
+          sky.fillStyle = `rgba(${starTone(i)},.09)`;
           sky.beginPath();
           sky.arc(x, y, size * 3, 0, Math.PI * 2);
           sky.fill();
@@ -157,9 +157,9 @@ export default function Galaxy({ paused }) {
           80;
         const x = gx + (fx - gx) * release,
           y = gy + (fy - gy) * release;
-        const sparse = i % 5 === 0 ? 1 : 0.14;
+        const sparse = i % 5 === 0 ? 1 : 0.38;
         const opacity =
-          p.light * ((1 - release) * 0.82 + release * 0.46 * sparse);
+          Math.min(1, p.light * ((1 - release) * 1.15 + release * 0.78 * sparse));
         const twinkle = paused
           ? 1
           : 0.85 + 0.15 * Math.sin(now * 0.0007 + p.phase);
@@ -176,7 +176,7 @@ export default function Galaxy({ paused }) {
         ctx.arc(x, y, p.size * (1 - release * 0.22), 0, Math.PI * 2);
         ctx.fill();
         if (p.size > 1.6 && i % 3 === 0) {
-          ctx.fillStyle = `rgba(${starTone(i)},${opacity * 0.06})`;
+          ctx.fillStyle = `rgba(${starTone(i)},${opacity * 0.1})`;
           ctx.beginPath();
           ctx.arc(x, y, p.size * 3.5, 0, Math.PI * 2);
           ctx.fill();

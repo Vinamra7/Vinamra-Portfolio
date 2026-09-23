@@ -190,53 +190,6 @@ export default function Scene({ variant, paused }) {
             if (!disposed) setFailed(true);
           },
         );
-      } else {
-        camera.position.set(5.7, 2.7, 13);
-        camera.lookAt(1, 2.0, -13);
-        scene.fog = new THREE.FogExp2(0x0c0d0e, 0.036);
-        scene.background = new THREE.Color(0x0c0d0e);
-        scene.add(new THREE.HemisphereLight(0x87938f, 0x181c1c, 1.2));
-        const light = new THREE.PointLight(0xcdd6ca, 90, 40, 1.3);
-        light.position.set(1, 5, -15);
-        scene.add(light);
-        const matte = new THREE.MeshStandardMaterial({
-          color: 0x343939,
-          roughness: 1,
-          metalness: 0,
-        });
-        const dark = new THREE.MeshStandardMaterial({
-          color: 0x151919,
-          roughness: 1,
-        });
-        const lit = new THREE.MeshBasicMaterial({ color: 0x8b9690 });
-        function box(w, h, d, x, y, z, mat) {
-          const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-          mesh.position.set(x, y, z);
-          group.add(mesh);
-        }
-        box(40, 0.3, 60, 0, -0.25, -10, dark);
-        // A quiet architectural passage, made from simple geometry, not a stock model.
-        for (let i = 0; i < 8; i++) {
-          const z = -i * 3.2;
-          box(0.48, 8, 0.8, -3.2, 3.8, z, matte);
-          box(0.48, 8, 0.8, 4.2, 3.8, z, matte);
-          box(7.9, 0.4, 0.8, 0.5, 7.7, z, matte);
-        }
-        box(2.25, 5.2, 0.1, 0.5, 2.6, -23.1, lit);
-        box(0.18, 5.55, 0.5, -0.76, 2.7, -22.9, dark);
-        box(0.18, 5.55, 0.5, 1.76, 2.7, -22.9, dark);
-        for (let i = 0; i < 7; i++)
-          box(
-            3.4,
-            0.13 + i * 0.08,
-            1.0,
-            0.5,
-            -0.15 + i * 0.04,
-            -14 - i * 1.25,
-            matte,
-          );
-        group.position.x = 3.5;
-        track(group);
       }
     } catch {
       setFailed(true);
@@ -338,20 +291,6 @@ export default function Scene({ variant, paused }) {
         model.position.y = pauseRef.current
           ? 0
           : Math.sin(elapsed * 0.65) * 0.06;
-      } else if (!astronaut) {
-        camera.position.x = THREE.MathUtils.damp(
-          camera.position.x,
-          5.7 + cursor.x * 0.7,
-          2,
-          delta,
-        );
-        camera.position.y = THREE.MathUtils.damp(
-          camera.position.y,
-          2.7 - cursor.y * 0.3,
-          2,
-          delta,
-        );
-        camera.lookAt(1, 2, -13);
       }
       draw();
     }

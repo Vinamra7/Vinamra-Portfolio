@@ -50,6 +50,25 @@ export default function WorkCards({ jobs, paused }) {
               ))}
             </div>
             <div className="work-face">
+              <svg className="work-engraving" viewBox="0 0 460 270" fill="none" aria-hidden="true">
+                {i === 0 ? (
+                  <g transform="translate(260 125) rotate(-24)">
+                    {Array.from({ length: 9 }, (_, n) => (
+                      <ellipse key={n} rx={38 + n * 13} ry={80} />
+                    ))}
+                    <ellipse rx="142" ry="28" />
+                    <ellipse rx="142" ry="56" />
+                    <circle r="5" fill="currentColor" stroke="none" />
+                  </g>
+                ) : (
+                  <g>
+                    {Array.from({ length: 15 }, (_, n) => (
+                      <path key={n} d={`M 40 ${50+n*8} C 150 ${-50+n*12}, 210 ${300-n*9}, 450 ${50+n*8}`} />
+                    ))}
+                    <circle cx="340" cy="123" r="36" strokeDasharray="2 7" />
+                  </g>
+                )}
+              </svg>
               <span className="work-date mono">{job.dates}</span>
               <strong className={i === 0 ? "visa-name" : "openreach-name"}>
                 {job.company}
