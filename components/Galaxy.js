@@ -25,6 +25,17 @@ export default function Galaxy({ paused }) {
     if (!ctx) return;
     // Render the quiet, seamless far-star layer only when the viewport changes.
     const distant = document.createElement("canvas");
+    const daylight = document.createElement("canvas");
+    let lightTheme = document.documentElement.dataset.theme === "light";
+    let themeMix = lightTheme ? 1 : 0;
+    let themeFrom = themeMix;
+    let themeStarted = performance.now();
+    const themeObserver = new MutationObserver(() => {
+      themeFrom = themeMix;
+      themeStarted = performance.now();
+      lightTheme = document.documentElement.dataset.theme === "light";
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     let w = 0,
       h = 0,
       raf,
@@ -90,7 +101,16 @@ export default function Galaxy({ paused }) {
           sky.fill();
         }
       }
+      daylight.width = distant.width;
+      daylight.height = distant.height;
+      const blueSky = daylight.getContext("2d");
+      blueSky.drawImage(distant, 0, 0);
+      blueSky.globalCompositeOperation = "source-in";
+      blueSky.fillStyle = "#176a91";
+      blueSky.fillRect(0, 0, daylight.width, daylight.height);
     }
+    const starColours = Array.from({ length: 100 }, (_, i) => starTone(i).split(",").map(Number));
+    const daylightTone = [23, 106, 145]; // Same muted blue as links and project hover.
     const onScroll = () => {
       target = window.scrollY;
     };
@@ -105,6 +125,9 @@ export default function Galaxy({ paused }) {
       raf = requestAnimationFrame(draw);
       if (!visible || now - last < 32) return;
       last = now;
+      const themeProgress = paused ? 1 : smooth((now - themeStarted) / 1400);
+      themeMix = themeFrom + ((lightTheme ? 1 : 0) - themeFrom) * themeProgress;
+      const tones = starColours.map(rgb => rgb.map((channel, i) => Math.round(channel + (daylightTone[i] - channel) * themeMix)).join(","));
       scroll = paused ? target : scroll + (target - scroll) * 0.16;
       const velocity = Math.min(16, Math.abs(scroll - previous));
       previous = scroll;
@@ -118,7 +141,11 @@ export default function Galaxy({ paused }) {
             ? "separating"
             : "starfield";
       ctx.clearRect(0, 0, w, h);
+      ctx.globalAlpha = 1 - themeMix;
       ctx.drawImage(distant, 0, 0, w, h);
+      ctx.globalAlpha = themeMix * .6;
+      ctx.drawImage(daylight, 0, 0, w, h);
+      ctx.globalAlpha = 1;
       const cx = w * 0.5,
         cy = h * 0.48 - scroll * 0.22 * (1 - breakup),
         scale = Math.min(w * (w < 600 ? 0.78 : 0.47), h * 0.72);
@@ -128,8 +155,8 @@ export default function Galaxy({ paused }) {
         ctx.rotate(-0.28);
         ctx.scale(1, 0.42);
         const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, scale * 0.85);
-        halo.addColorStop(0, `rgba(224,233,245,${0.14 * (1 - breakup)})`);
-        halo.addColorStop(0.2, `rgba(210,221,235,${0.045 * (1 - breakup)})`);
+        halo.addColorStop(0, `rgba(224,233,245,${0.14 * (1 - breakup) * (1 - themeMix)})`);
+        halo.addColorStop(0.2, `rgba(210,221,235,${0.045 * (1 - breakup) * (1 - themeMix)})`);
         halo.addColorStop(1, "rgba(255,255,255,0)");
         ctx.fillStyle = halo;
         ctx.fillRect(-scale, -scale, scale * 2, scale * 2);
@@ -159,13 +186,13 @@ export default function Galaxy({ paused }) {
           y = gy + (fy - gy) * release;
         const sparse = i % 5 === 0 ? 1 : 0.38;
         const opacity =
-          Math.min(1, p.light * ((1 - release) * 1.15 + release * 0.78 * sparse));
+          Math.min(1, p.light * ((1 - release) * 1.15 + release * 0.78 * sparse)) * (1 - themeMix * .35);
         const twinkle = paused
           ? 1
           : 0.85 + 0.15 * Math.sin(now * 0.0007 + p.phase);
-        ctx.fillStyle = `rgba(${starTone(i)},${opacity * twinkle})`;
+        ctx.fillStyle = `rgba(${tones[i % 100]},${opacity * twinkle})`;
         if (release > 0.2 && velocity > 1 && !paused) {
-          ctx.strokeStyle = `rgba(196,219,250,${opacity * 0.25})`;
+          ctx.strokeStyle = `rgba(${tones[i % 100]},${opacity * 0.25})`;
           ctx.lineWidth = 0.65;
           ctx.beginPath();
           ctx.moveTo(x, y);
@@ -176,7 +203,7 @@ export default function Galaxy({ paused }) {
         ctx.arc(x, y, p.size * (1 - release * 0.22), 0, Math.PI * 2);
         ctx.fill();
         if (p.size > 1.6 && i % 3 === 0) {
-          ctx.fillStyle = `rgba(${starTone(i)},${opacity * 0.1})`;
+          ctx.fillStyle = `rgba(${tones[i % 100]},${opacity * 0.1 * (1 - themeMix * .8)})`;
           ctx.beginPath();
           ctx.arc(x, y, p.size * 3.5, 0, Math.PI * 2);
           ctx.fill();
@@ -186,6 +213,7 @@ export default function Galaxy({ paused }) {
     raf = requestAnimationFrame(draw);
     return () => {
       cancelAnimationFrame(raf);
+      themeObserver.disconnect();
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);

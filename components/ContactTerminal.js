@@ -71,6 +71,14 @@ export function resolveContactIntent(input) {
     .map(([key]) => key);
 }
 export default function ContactTerminal({ paused = false }) {
+  const [light, setLight] = useState(false);
+  useEffect(() => {
+    const sync = () => setLight(document.documentElement.dataset.theme === "light");
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
   const [input, setInput] = useState(""),
     [messages, setMessages] = useState([]),
     [busy, setBusy] = useState(false),
@@ -101,7 +109,7 @@ export default function ContactTerminal({ paused = false }) {
         setMessages((old) => [...old, { text: answer, choices }]);
         setBusy(false);
       },
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 380,
+      1200,
     );
   }
   async function copy(value) {
@@ -143,7 +151,7 @@ export default function ContactTerminal({ paused = false }) {
             <BotAvatar
               type="ghost"
               size={96}
-              color="#bdbdbd"
+              color={light ? "#657178" : "#bdbdbd"}
               shading="smooth"
               state={busy ? "working" : "default"}
               paused={paused}
@@ -214,7 +222,7 @@ export default function ContactTerminal({ paused = false }) {
         ))}
         {busy && (
           <p className="terminal-thinking mono">
-            <ThinkingOrb state="searching" size={20} dark paused={paused} />
+            <ThinkingOrb state="searching" size={20} dark={!light} paused={paused} />
             <span>
               Finding your channel<span className="blink">_</span>
             </span>

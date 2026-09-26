@@ -1,8 +1,16 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
 
 function Study({ index, paused }) {
   const ref = useRef(null);
+  const [light, setLight] = useState(false);
+  useEffect(() => {
+    const sync = () => setLight(document.documentElement.dataset.theme === "light");
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
   useEffect(() => {
     const canvas = ref.current,
       ctx = canvas.getContext("2d");
@@ -10,8 +18,7 @@ function Study({ index, paused }) {
     art.width = 600;
     art.height = 720;
     const a = art.getContext("2d");
-    a.fillStyle = "#080808";
-    a.fillRect(0, 0, 600, 720);
+
     a.save();
     a.translate(300, 350);
     if (index === 0) {
@@ -65,14 +72,14 @@ function Study({ index, paused }) {
           y * 0.7,
         );
         a.bezierCurveTo(135, y * 0.15, 170, y + 90, 350, y + 20);
-        a.strokeStyle = `hsla(${190 + n * 0.9},95%,72%,${0.13 + 0.5 * Math.sin((n / 48) * Math.PI)})`;
+        a.strokeStyle = `hsla(${190 + n * 0.9},70%,${light ? 36 : 72}%,${0.13 + 0.5 * Math.sin((n / 48) * Math.PI)})`;
         a.lineWidth = n % 5 === 0 ? 1.4 : 0.7;
         a.stroke();
       }
       a.strokeStyle = "#568fab";
       a.lineWidth = 1;
       a.strokeRect(-65, -160, 130, 320);
-      a.fillStyle = "#a9f0ff";
+      a.fillStyle = light ? "#176a91" : "#a9f0ff";
       a.fillRect(-2, -22, 4, 44);
     } else {
       // A quiet lens for the browser tooling contribution.
@@ -80,7 +87,7 @@ function Study({ index, paused }) {
         const r = 60 + n * 3.5;
         a.beginPath();
         a.ellipse((n - 18) * 1.9, 0, r, r * 1.25, -0.25, 0, Math.PI * 2);
-        a.strokeStyle = `hsla(${210 + n * 1.6},90%,78%,${0.08 + 0.38 * (1 - n / 37)})`;
+        a.strokeStyle = `hsla(${210 + n * 1.6},60%,${light ? 38 : 78}%,${0.08 + 0.38 * (1 - n / 37)})`;
         a.lineWidth = 1.2;
         a.stroke();
       }
@@ -111,13 +118,13 @@ function Study({ index, paused }) {
     const mono = monochrome.getContext("2d");
     mono.filter = "grayscale(1)";
     mono.drawImage(art, 0, 0);
-    const fringes = ["#00baff", "#df42ff"].map((color) => {
+    const fringes = ["#176a91", "#367c9e"].map((color) => {
       const layer = document.createElement("canvas");
       layer.width = 600;
       layer.height = 720;
       const l = layer.getContext("2d");
       l.drawImage(art, 0, 0);
-      l.globalCompositeOperation = "multiply";
+      l.globalCompositeOperation = "source-in";
       l.fillStyle = color;
       l.fillRect(0, 0, 600, 720);
       return layer;
@@ -160,8 +167,7 @@ function Study({ index, paused }) {
       if (!paused) time = now * 0.001;
       amount += (target - amount) * 0.1;
       ctx.clearRect(0, 0, 600, 720);
-      ctx.fillStyle = "#080808";
-      ctx.fillRect(0, 0, 600, 720);
+
       for (let y = 0; y < 720; y += 3) {
         const fall = Math.exp(-Math.pow((y - py * 720) / 170, 2));
         const warp = Math.sin(y * 0.018 + time * 1.4) * fall * amount * 28;
@@ -170,7 +176,7 @@ function Study({ index, paused }) {
         ctx.drawImage(art, 0, y, 600, 3, warp, y, 600, 3);
         ctx.globalAlpha = 1;
         if (amount > 0.01) {
-          ctx.globalCompositeOperation = "screen";
+          ctx.globalCompositeOperation = light ? "source-over" : "screen";
           ctx.globalAlpha = amount * fall * 0.6;
           ctx.drawImage(fringes[0], 0, y, 600, 3, warp + 9 * amount, y, 600, 3);
           ctx.drawImage(fringes[1], 0, y, 600, 3, warp - 9 * amount, y, 600, 3);
@@ -189,7 +195,7 @@ function Study({ index, paused }) {
       card.removeEventListener("focus", enter);
       card.removeEventListener("blur", leave);
     };
-  }, [index, paused]);
+  }, [index, paused, light]);
   return <canvas ref={ref} aria-hidden="true" />;
 }
 

@@ -236,10 +236,14 @@ export default function Scene({ variant, paused }) {
       hovered = false;
       cursor.set(0, 0);
       setColourOn(false);
+      colour = 0;
+      post.uniforms.colour.value = 0;
+      draw();
     }
     function toggle() {
       hovered = !hovered;
       setColourOn(hovered);
+      if (!hovered) leave();
     }
     el.addEventListener("pointermove", move);
     el.addEventListener("pointerenter", enter);
