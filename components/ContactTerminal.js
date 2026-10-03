@@ -10,6 +10,24 @@ import {
   FiAperture,
 } from "react-icons/fi";
 import { contact } from "../lib/content";
+import ChatVerification, { TURNSTILE_SITE_KEY } from "./ChatVerification";
+const MAX_MESSAGE_LENGTH = 500;
+const MAX_MESSAGE_WORDS = 80;
+const MAX_MESSAGE_LINES = 5;
+
+function messageTooLong(text) {
+  return text.length > MAX_MESSAGE_LENGTH || (text.match(/\S+/g) || []).length > MAX_MESSAGE_WORDS || text.split("\n").length > MAX_MESSAGE_LINES;
+}
+function measureComposer(element) {
+  const style = window.getComputedStyle(element);
+  const padding = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+  const maximum = parseFloat(style.lineHeight) * MAX_MESSAGE_LINES + padding;
+  const previous = element.style.height;
+  element.style.height = "0px";
+  const height = element.scrollHeight;
+  element.style.height = previous;
+  return { height, maximum, tooTall: height > Math.ceil(maximum) + 1 };
+}
 const actions = {
   email: {
     label: "Email",
@@ -71,6 +89,11 @@ export function resolveContactIntent(input) {
     .map(([key]) => key);
 }
 export default function ContactTerminal({ paused = false }) {
+  const [verificationActive, setVerificationActive] = useState(false);
+  const [verificationReset, setVerificationReset] = useState(0);
+  const [verified, setVerified] = useState(false);
+  const verificationRequired = Boolean(TURNSTILE_SITE_KEY);
+  const inputLocked = verificationRequired && !verified;
   const [light, setLight] = useState(false);
   useEffect(() => {
     const sync = () => setLight(document.documentElement.dataset.theme === "light");
@@ -80,19 +103,57 @@ export default function ContactTerminal({ paused = false }) {
     return () => observer.disconnect();
   }, []);
   const [input, setInput] = useState(""),
+    [inputError, setInputError] = useState(false),
     [messages, setMessages] = useState([]),
     [busy, setBusy] = useState(false),
     [copied, setCopied] = useState("");
   const history = useRef(null),
+    composer = useRef(null),
     timer = useRef(null),
+    errorTimer = useRef(null),
     replyIndex = useRef(0);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
+  useEffect(() => () => {
+    window.clearTimeout(timer.current);
+    window.clearTimeout(errorTimer.current);
+  }, []);
   useEffect(() => {
     if (history.current)
       history.current.scrollTop = history.current.scrollHeight;
   }, [messages, busy]);
+  useEffect(() => {
+    if (!composer.current) return;
+    const resize = () => {
+      const element = composer.current;
+      const measured = measureComposer(element);
+      if (measured.tooTall && element.value) {
+        rejectLongMessage();
+        return;
+      }
+      element.style.height = `${Math.min(measured.height, measured.maximum)}px`;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, [input]);
+  function rejectLongMessage() {
+    setInput("");
+    setInputError(true);
+    window.clearTimeout(errorTimer.current);
+    errorTimer.current = window.setTimeout(() => setInputError(false), 2500);
+  }
+  function changeInput(text, element) {
+    if (messageTooLong(text) || measureComposer(element).tooTall) {
+      rejectLongMessage();
+      return;
+    }
+    setInput(text);
+  }
   function ask(text, direct) {
-    if (!text.trim() || busy) return;
+    if (messageTooLong(text) || (!direct && composer.current && measureComposer(composer.current).tooTall)) {
+      rejectLongMessage();
+      return;
+    }
+    if (!text.trim() || busy || (!direct && inputLocked)) return;
     const choices = direct ? [direct] : resolveContactIntent(text);
     setInput("");
     setBusy(true);
@@ -131,9 +192,14 @@ export default function ContactTerminal({ paused = false }) {
           title="Reset conversation"
           onClick={() => {
             window.clearTimeout(timer.current);
+            window.clearTimeout(errorTimer.current);
+            setInputError(false);
+            setInput("");
             setMessages([]);
             setBusy(false);
             setCopied("");
+            setVerified(false);
+            setVerificationReset((value) => value + 1);
           }}
         >
           <FiRefreshCw />
@@ -242,7 +308,9 @@ export default function ContactTerminal({ paused = false }) {
           </button>
         ))}
       </div>
+      <ChatVerification active={verificationActive} resetKey={verificationReset} onVerified={setVerified} />
       <form
+        id="contact-form"
         className="terminal-input"
         onSubmit={(e) => {
           e.preventDefault();
@@ -253,28 +321,52 @@ export default function ContactTerminal({ paused = false }) {
         <label className="sr-only" htmlFor="contact-input">
           Ask for a contact method or résumé
         </label>
-        <input
+        <textarea
           id="contact-input"
+          ref={composer}
+          rows={1}
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Try “can I get your résumé?”"
-          maxLength={200}
+          onChange={(e) => changeInput(e.target.value, e.target)}
+          readOnly={inputLocked || busy}
+          aria-describedby={inputError ? "message-length-error" : inputLocked && verificationActive ? "verification-hint" : undefined}
+          onFocus={() => setVerificationActive(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+              e.preventDefault();
+              ask(input);
+            }
+          }}
+          placeholder={inputLocked && verificationActive ? "Complete verification above to chat" : "Try “can I get your résumé?”"}
           autoComplete="off"
+          spellCheck={false}
+          autoCorrect="off"
         />
         <button
           type="submit"
-          disabled={!input.trim() || busy}
+          disabled={!input.trim() || busy || inputLocked}
           aria-label="Send request"
         >
           <FiArrowUp />
         </button>
       </form>
+      {inputError && <p id="message-length-error" className="terminal-input-error mono" role="alert">Message too long</p>}
+      {inputLocked && verificationActive && <p id="verification-hint" className="verification-hint">Chat unlocks after verification. Contact shortcuts are always available.</p>}
       <div className="terminal-status mono">
         <span>
           <span className="status-square" /> {busy ? "ROUTING" : "READY"}
         </span>
         <span>CONTACT SHORTCUTS</span>
       </div>
+      <details className="terminal-privacy">
+        <summary>Privacy</summary>
+        <p>
+          Cloudflare Turnstile helps keep this chat free of bots. It checks browser
+          and connection information. Learn more in the{" "}
+          <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank" rel="noreferrer">
+            Cloudflare Turnstile Privacy Addendum
+          </a>.
+        </p>
+      </details>
     </div>
   );
 }
