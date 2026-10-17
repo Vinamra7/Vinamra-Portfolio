@@ -62,11 +62,7 @@ export default function Home() {
   return (
     <div className={paused ? "portfolio motion-paused" : "portfolio"}>
       <Head>
-        <title>Vinamra Mishra — Software Engineer</title>
-        <meta
-          name="description"
-          content="Backend software engineer at Visa. Building identity services, payment systems, and software that holds up at scale. Bengaluru, India."
-        />
+        {/* Title, description, canonical and social tags are owned by pages/index.js */}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
         <link rel="icon" href="/favicon.ico" />

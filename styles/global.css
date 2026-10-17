@@ -2661,3 +2661,70 @@ html[data-theme="light"] .terminal-bar button:hover { color: var(--interaction-b
 @media (prefers-reduced-motion: reduce) {
   .contact-terminal, .contact-terminal * { transition: none; }
 }
+
+/* Plain server-rendered storefront: delivered to crawlers, validators and
+   no-JavaScript visitors. Token-based, so both themes colour it correctly. */
+.plainfolio {
+  min-height: 100svh;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 14vh 28px 72px;
+  background: var(--bg);
+  color: var(--text);
+}
+.plainfolio .kicker { margin: 0 0 26px; color: var(--muted); }
+.plainfolio h1 {
+  font-size: clamp(34px, 8vw, 54px);
+  line-height: 1.12;
+  margin: 0 0 18px;
+  font-weight: 600;
+}
+.plainfolio .lead { font-size: 18px; color: var(--text); }
+.plainfolio p { color: var(--muted); line-height: 1.85; margin: 0 0 16px; }
+.plainfolio .lead { margin: 0 0 16px; }
+.plainfolio .links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 30px;
+  margin: 26px 0 0;
+}
+.plainfolio .links a,
+.plainfolio section a {
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 3px;
+  font-size: 13px;
+  letter-spacing: .04em;
+}
+.plainfolio .links a:hover,
+.plainfolio section a:hover { color: var(--interaction-blue); border-color: var(--interaction-blue); }
+.plainfolio section {
+  border-top: 1px solid var(--line);
+  margin-top: 76px;
+  padding-top: 34px;
+}
+.plainfolio h2 {
+  font-size: clamp(24px, 5vw, 32px);
+  font-weight: 600;
+  margin: 0 0 20px;
+}
+.plainfolio h3 { font-size: 16px; font-weight: 600; margin: 26px 0 0; color: var(--text); }
+.plainfolio section article:first-of-type h3 { margin-top: 0; }
+.plainfolio .entry-meta { color: var(--subtle); margin: 8px 0 12px; }
+.plainfolio ul { padding-left: 18px; margin: 4px 0 14px; }
+.plainfolio li { color: var(--muted); line-height: 1.8; font-size: 14.5px; margin: 0 0 4px; }
+.plainfolio .stack { color: var(--subtle); }
+.plainfolio footer {
+  border-top: 1px solid var(--line);
+  margin-top: 84px;
+  padding-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.plainfolio footer .mono { color: var(--subtle); }
+.plainfolio footer a { color: var(--muted); text-decoration: none; }
+.plainfolio footer a:hover { color: var(--interaction-blue); }
