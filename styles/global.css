@@ -2728,3 +2728,56 @@ html[data-theme="light"] .terminal-bar button:hover { color: var(--interaction-b
 .plainfolio footer .mono { color: var(--subtle); }
 .plainfolio footer a { color: var(--muted); text-decoration: none; }
 .plainfolio footer a:hover { color: var(--interaction-blue); }
+
+/* Real assistant chat: plain-text replies, a typing cursor and session lines. */
+.terminal-message p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.terminal-message.is-streaming {
+  cursor: pointer;
+}
+.terminal-cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 0.18em;
+  background: currentColor;
+  vertical-align: text-bottom;
+  animation: blink 1s steps(2) infinite;
+}
+.system-message p {
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+}
+html[data-theme="light"] .system-message p {
+  border-color: #aab7b4;
+  color: #56656c;
+}
+.terminal-session-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 0 34px 14px;
+  padding-left: 10px;
+  border-left: 2px solid var(--interaction-blue);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.terminal-session-status button {
+  padding: 2px 0;
+  color: var(--interaction-blue);
+  border-bottom: 1px solid currentColor;
+  font-size: inherit;
+}
+html[data-theme="light"] .terminal-session-status {
+  color: #273238;
+}
+@media (prefers-reduced-motion: reduce) {
+  .terminal-cursor {
+    animation: none;
+  }
+}

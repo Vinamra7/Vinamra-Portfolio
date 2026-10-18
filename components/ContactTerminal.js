@@ -7,13 +7,26 @@ import {
   FiCopy,
   FiDownload,
   FiRefreshCw,
-  FiAperture,
 } from "react-icons/fi";
 import { contact } from "../lib/content";
+import { typeOut } from "../lib/fakeStream";
+import {
+  ApiError,
+  clearSession,
+  createSession,
+  getStoredSession,
+  sendChat,
+} from "../lib/inscope";
 import ChatVerification, { TURNSTILE_SITE_KEY } from "./ChatVerification";
 const MAX_MESSAGE_LENGTH = 500;
 const MAX_MESSAGE_WORDS = 80;
 const MAX_MESSAGE_LINES = 5;
+const MAX_HISTORY_ENTRIES = 20;
+const MAX_ASSISTANT_HISTORY_WORDS = 300;
+const MAX_ASSISTANT_HISTORY_BYTES = 3000;
+const MAX_STORED_EXCHANGES = 40;
+const SESSION_RETRY_DELAY_MS = 60000;
+const CONTACT_CHOICES = ["email", "linkedin", "github", "resume", "whatsapp", "phone"];
 
 function messageTooLong(text) {
   return text.length > MAX_MESSAGE_LENGTH || (text.match(/\S+/g) || []).length > MAX_MESSAGE_WORDS || text.split("\n").length > MAX_MESSAGE_LINES;
@@ -27,6 +40,32 @@ function measureComposer(element) {
   const height = element.scrollHeight;
   element.style.height = previous;
   return { height, maximum, tooTall: height > Math.ceil(maximum) + 1 };
+}
+function byteLength(value) {
+  return new TextEncoder().encode(value).length;
+}
+// The Worker caps assistant history at 300 words / 3072 bytes. Trim with room
+// to spare without touching the full reply kept in memory.
+function trimAssistantContent(content) {
+  let text = typeof content === "string" ? content : "";
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length > MAX_ASSISTANT_HISTORY_WORDS) {
+    text = words.slice(0, MAX_ASSISTANT_HISTORY_WORDS).join(" ");
+  }
+  if (byteLength(text) > MAX_ASSISTANT_HISTORY_BYTES) {
+    let low = 0;
+    let high = text.length;
+    while (low < high) {
+      const middle = Math.ceil((low + high) / 2);
+      if (byteLength(text.slice(0, middle)) <= MAX_ASSISTANT_HISTORY_BYTES) {
+        low = middle;
+      } else {
+        high = middle - 1;
+      }
+    }
+    text = text.slice(0, low);
+  }
+  return text;
 }
 const actions = {
   email: {
@@ -63,12 +102,7 @@ const actions = {
     href: "tel:+919173255769",
   },
 };
-const replies = [
-  "That channel isn’t available. Try one of the options below.",
-  "A little outside my orbit. I can help with contact details or a résumé.",
-  "No signal on that one. Email, LinkedIn, GitHub, WhatsApp, phone, or résumé?",
-];
-// Local preview only. A future server-side Jev adapter can return these keys.
+// Local shortcuts only. General questions go to the InScope Worker.
 export function resolveContactIntent(input) {
   const text = input
     .trim()
@@ -92,8 +126,10 @@ export default function ContactTerminal({ paused = false }) {
   const [verificationActive, setVerificationActive] = useState(false);
   const [verificationReset, setVerificationReset] = useState(0);
   const [verified, setVerified] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState(null);
+  const [limitLocked, setLimitLocked] = useState(false);
   const verificationRequired = Boolean(TURNSTILE_SITE_KEY);
-  const inputLocked = verificationRequired && !verified;
+  const inputLocked = (verificationRequired && !verified) || limitLocked;
   const [light, setLight] = useState(false);
   useEffect(() => {
     const sync = () => setLight(document.documentElement.dataset.theme === "light");
@@ -111,14 +147,41 @@ export default function ContactTerminal({ paused = false }) {
     composer = useRef(null),
     timer = useRef(null),
     errorTimer = useRef(null),
-    replyIndex = useRef(0);
-  useEffect(() => () => {
-    window.clearTimeout(timer.current);
-    window.clearTimeout(errorTimer.current);
+    sessionTimer = useRef(null);
+  const apiHistory = useRef([]);
+  const session = useRef(null);
+  const stream = useRef(null);
+  const nearBottom = useRef(true);
+  const mounted = useRef(true);
+  const pendingRetry = useRef(null);
+  const retriedAuth = useRef(false);
+  const badRequestStreak = useRef(0);
+  const lastToken = useRef("");
+  const nextMessageId = useRef(0);
+  const sendRef = useRef(null);
+
+  useEffect(() => {
+    const stored = getStoredSession();
+    if (stored) {
+      session.current = stored;
+      setVerified(true);
+    }
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      window.clearTimeout(timer.current);
+      window.clearTimeout(errorTimer.current);
+      window.clearTimeout(sessionTimer.current);
+      if (stream.current) {
+        stream.current();
+        stream.current = null;
+      }
+    };
   }, []);
   useEffect(() => {
-    if (history.current)
+    if (history.current && nearBottom.current) {
       history.current.scrollTop = history.current.scrollHeight;
+    }
   }, [messages, busy]);
   useEffect(() => {
     if (!composer.current) return;
@@ -148,6 +211,191 @@ export default function ContactTerminal({ paused = false }) {
     }
     setInput(text);
   }
+  function addMessage(message) {
+    const id = (nextMessageId.current += 1);
+    setMessages((old) => [...old, { id, ...message }]);
+  }
+  function addSystemMessage(text, extra) {
+    addMessage({ system: true, text, ...extra });
+  }
+  function restoreInput(text) {
+    setInput(text);
+    setInputError(false);
+  }
+  function cancelStream() {
+    if (!stream.current) return;
+    const cancel = stream.current;
+    stream.current = null;
+    cancel();
+  }
+  function startStream(id, fullText) {
+    cancelStream();
+    const cancel = typeOut(
+      fullText,
+      (partial) => {
+        setMessages((old) =>
+          old.map((message) => (message.id === id ? { ...message, text: partial } : message)),
+        );
+      },
+      () => {
+        stream.current = null;
+        setMessages((old) =>
+          old.map((message) => (message.id === id ? { ...message, streaming: false } : message)),
+        );
+      },
+    );
+    stream.current = cancel;
+  }
+  function beginReverification(text) {
+    clearSession();
+    session.current = null;
+    setVerified(false);
+    setVerificationActive(true);
+    setSessionStatus(null);
+    setVerificationReset((value) => value + 1);
+    if (text) {
+      pendingRetry.current = text;
+      retriedAuth.current = true;
+      addSystemMessage("Session expired — re-verifying…");
+    }
+  }
+  async function startSession(token) {
+    if (!token || token === lastToken.current) return;
+    lastToken.current = token;
+    setSessionStatus({ text: "Securing session…" });
+    try {
+      const next = await createSession(token);
+      if (!mounted.current) return;
+      session.current = next;
+      setVerified(true);
+      setVerificationActive(false);
+      setSessionStatus(null);
+      window.clearTimeout(sessionTimer.current);
+      composer.current?.focus();
+      const queued = pendingRetry.current;
+      pendingRetry.current = null;
+      if (queued) sendRef.current?.(queued);
+    } catch (error) {
+      if (!mounted.current) return;
+      lastToken.current = "";
+      const status = error instanceof ApiError ? error.status : 0;
+      if (status === 429) {
+        setSessionStatus({ text: "Too many attempts. Try again in a minute." });
+        window.clearTimeout(sessionTimer.current);
+        sessionTimer.current = window.setTimeout(() => {
+          if (!mounted.current) return;
+          setSessionStatus(null);
+          setVerificationReset((value) => value + 1);
+        }, SESSION_RETRY_DELAY_MS);
+        return;
+      }
+      if (status === 403) {
+        setSessionStatus({ text: "Verification failed. Please refresh the page." });
+        return;
+      }
+      setSessionStatus({ text: "Couldn't start a session. Retry", retry: true });
+    }
+  }
+  function retrySession() {
+    lastToken.current = "";
+    setVerificationActive(true);
+    setSessionStatus(null);
+    setVerificationReset((value) => value + 1);
+  }
+  function handleChatError(error, text) {
+    const status = error instanceof ApiError ? error.status : 0;
+    if (status === 401) {
+      if (!retriedAuth.current) {
+        beginReverification(text);
+      } else {
+        clearSession();
+        session.current = null;
+        setVerified(false);
+        setVerificationActive(true);
+        setSessionStatus(null);
+        setVerificationReset((value) => value + 1);
+        retriedAuth.current = false;
+        pendingRetry.current = null;
+        addSystemMessage("Couldn't reach the assistant. Try again.");
+        restoreInput(text);
+      }
+      return;
+    }
+    if (status === 400) {
+      badRequestStreak.current += 1;
+      addSystemMessage("That message couldn't be processed. Try rephrasing it.");
+      if (badRequestStreak.current >= 2) {
+        apiHistory.current = [];
+        badRequestStreak.current = 0;
+        addSystemMessage("Conversation history cleared, so we can start fresh.");
+      }
+      return;
+    }
+    if (status === 403) {
+      addSystemMessage("Request blocked. If you're on Tor or a strict VPN, try a normal connection.");
+      return;
+    }
+    if (status === 429) {
+      addSystemMessage("You've reached today's message limit. You can still reach me directly:", {
+        choices: CONTACT_CHOICES,
+      });
+      setLimitLocked(true);
+      return;
+    }
+    if (status === 503) {
+      addSystemMessage("The assistant is resting for today. Reach me directly:", {
+        choices: CONTACT_CHOICES,
+      });
+      setLimitLocked(true);
+      return;
+    }
+    addSystemMessage("Couldn't reach the assistant. Try again.");
+    restoreInput(text);
+  }
+  async function sendBackend(text) {
+    const current = session.current || getStoredSession();
+    if (!current) {
+      pendingRetry.current = text;
+      retriedAuth.current = true;
+      setBusy(false);
+      setVerified(false);
+      setVerificationActive(true);
+      setSessionStatus(null);
+      setVerificationReset((value) => value + 1);
+      addSystemMessage("Session expired — re-verifying…");
+      return;
+    }
+    session.current = current;
+    setBusy(true);
+    const prepared = apiHistory.current
+      .slice(-MAX_HISTORY_ENTRIES)
+      .map((entry) =>
+        entry.role === "assistant"
+          ? { role: "assistant", content: trimAssistantContent(entry.content) }
+          : { role: "user", content: entry.content },
+      );
+    while (prepared.length && prepared[0].role !== "user") prepared.shift();
+    try {
+      const { reply } = await sendChat(prepared, text, current.token);
+      if (!mounted.current) return;
+      apiHistory.current = [
+        ...apiHistory.current,
+        { role: "user", content: text },
+        { role: "assistant", content: reply },
+      ].slice(-MAX_STORED_EXCHANGES);
+      badRequestStreak.current = 0;
+      retriedAuth.current = false;
+      pendingRetry.current = null;
+      setBusy(false);
+      const id = (nextMessageId.current += 1);
+      setMessages((old) => [...old, { id, text: "", streaming: true }]);
+      startStream(id, reply);
+    } catch (error) {
+      if (!mounted.current) return;
+      setBusy(false);
+      handleChatError(error, text);
+    }
+  }
   function ask(text, direct) {
     if (messageTooLong(text) || (!direct && composer.current && measureComposer(composer.current).tooTall)) {
       rejectLongMessage();
@@ -155,23 +403,33 @@ export default function ContactTerminal({ paused = false }) {
     }
     if (!text.trim() || busy || (!direct && inputLocked)) return;
     const choices = direct ? [direct] : resolveContactIntent(text);
+    const words = (text.match(/\S+/g) || []).length;
+    const local = Boolean(direct) || (choices.length > 0 && words <= 6);
+    cancelStream();
     setInput("");
-    setBusy(true);
     setCopied("");
-    setMessages((old) => [...old.slice(-10), { user: true, text }]);
-    timer.current = window.setTimeout(
-      () => {
-        const answer =
-          choices.length === 1
-            ? actions[choices[0]].text
-            : choices.length > 1
-              ? "A couple of ways to connect. Take your pick."
-              : replies[replyIndex.current++ % replies.length];
-        setMessages((old) => [...old, { text: answer, choices }]);
-        setBusy(false);
-      },
-      1200,
-    );
+    retriedAuth.current = false;
+    pendingRetry.current = null;
+    const id = (nextMessageId.current += 1);
+    setMessages((old) => [...old.slice(-10), { id, user: true, text, local }]);
+    if (local) {
+      setBusy(true);
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(
+        () => {
+          const answer =
+            choices.length === 1
+              ? actions[choices[0]].text
+              : "A couple of ways to connect. Take your pick.";
+          addMessage({ text: answer, choices, local: true });
+          setBusy(false);
+        },
+        1200,
+      );
+      return;
+    }
+    setBusy(true);
+    sendBackend(text);
   }
   async function copy(value) {
     try {
@@ -181,6 +439,8 @@ export default function ContactTerminal({ paused = false }) {
       setCopied("Copy unavailable — select the address above.");
     }
   }
+  sendRef.current = sendBackend;
+  const streaming = messages.some((message) => message.streaming);
   return (
     <div className={`contact-terminal ${busy ? "terminal-busy" : ""}`}>
       <div className="terminal-bar mono">
@@ -193,13 +453,18 @@ export default function ContactTerminal({ paused = false }) {
           onClick={() => {
             window.clearTimeout(timer.current);
             window.clearTimeout(errorTimer.current);
+            window.clearTimeout(sessionTimer.current);
+            cancelStream();
+            apiHistory.current = [];
+            pendingRetry.current = null;
+            retriedAuth.current = false;
+            badRequestStreak.current = 0;
             setInputError(false);
             setInput("");
             setMessages([]);
             setBusy(false);
             setCopied("");
-            setVerified(false);
-            setVerificationReset((value) => value + 1);
+            setSessionStatus(null);
           }}
         >
           <FiRefreshCw />
@@ -211,6 +476,12 @@ export default function ContactTerminal({ paused = false }) {
         role="log"
         aria-live="polite"
         aria-label="Contact conversation"
+        onScroll={() => {
+          const element = history.current;
+          if (!element) return;
+          nearBottom.current =
+            element.scrollHeight - element.scrollTop - element.clientHeight < 72;
+        }}
       >
         <div className="terminal-greeting">
           <span className="terminal-avatar" aria-hidden="true">
@@ -233,24 +504,31 @@ export default function ContactTerminal({ paused = false }) {
               Where should we connect?
             </p>
             <span className="terminal-hint">
-              Ask for my email, phone, links or résumé.
+              Ask about my work, or for my email, phone, links or résumé.
             </span>
           </div>
         </div>
-        {messages.map((message, i) => (
+        {messages.map((message) => (
           <div
-            key={i}
+            key={message.id}
             className={
               message.user
                 ? "terminal-message user-message"
-                : "terminal-message"
+                : message.system
+                  ? "terminal-message system-message"
+                  : `terminal-message${message.streaming ? " is-streaming" : ""}`
             }
+            onClick={message.streaming ? cancelStream : undefined}
+            title={message.streaming ? "Click to show the full reply" : undefined}
           >
             <span className="mono message-prefix">
-              {message.user ? "YOU" : "VM"}
+              {message.user ? "YOU" : message.system ? "SYS" : "VM"}
             </span>
             <div>
-              <p>{message.text}</p>
+              <p aria-busy={message.streaming ? "true" : undefined}>
+                {message.text}
+                {message.streaming && <span className="terminal-cursor" aria-hidden="true" />}
+              </p>
               {message.choices?.map((key) => (
                 <div className="terminal-result" key={key}>
                   {actions[key].value && <span>{actions[key].value}</span>}
@@ -276,7 +554,10 @@ export default function ContactTerminal({ paused = false }) {
                   {actions[key].value && (
                     <button
                       aria-label={`Copy ${actions[key].label}`}
-                      onClick={() => copy(actions[key].value)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        copy(actions[key].value);
+                      }}
                     >
                       {copied === actions[key].value ? "Copied" : <FiCopy />}
                     </button>
@@ -290,7 +571,7 @@ export default function ContactTerminal({ paused = false }) {
           <p className="terminal-thinking mono">
             <ThinkingOrb state="searching" size={20} dark={!light} paused={paused} />
             <span>
-              Finding your channel<span className="blink">_</span>
+              Thinking<span className="blink">_</span>
             </span>
           </p>
         )}
@@ -308,7 +589,25 @@ export default function ContactTerminal({ paused = false }) {
           </button>
         ))}
       </div>
-      <ChatVerification active={verificationActive} resetKey={verificationReset} onVerified={setVerified} />
+      <ChatVerification
+        active={verificationActive}
+        resetKey={verificationReset}
+        onVerify={(token) => {
+          if (!token) return;
+          if (getStoredSession() && !pendingRetry.current) return;
+          startSession(token);
+        }}
+      />
+      {sessionStatus && (
+        <p className="terminal-session-status mono" role="status">
+          {sessionStatus.text}
+          {sessionStatus.retry && (
+            <button type="button" onClick={retrySession}>
+              Retry
+            </button>
+          )}
+        </p>
+      )}
       <form
         id="contact-form"
         className="terminal-input"
@@ -328,15 +627,31 @@ export default function ContactTerminal({ paused = false }) {
           value={input}
           onChange={(e) => changeInput(e.target.value, e.target)}
           readOnly={inputLocked || busy}
-          aria-describedby={inputError ? "message-length-error" : inputLocked && verificationActive ? "verification-hint" : undefined}
-          onFocus={() => setVerificationActive(true)}
+          aria-describedby={
+            inputError
+              ? "message-length-error"
+              : limitLocked
+                ? "limit-hint"
+                : inputLocked && verificationActive
+                  ? "verification-hint"
+                  : undefined
+          }
+          onFocus={() => {
+            if (!verified) setVerificationActive(true);
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
               e.preventDefault();
               ask(input);
             }
           }}
-          placeholder={inputLocked && verificationActive ? "Complete verification above to chat" : "Try “can I get your résumé?”"}
+          placeholder={
+            limitLocked
+              ? "Free-text paused — use a contact shortcut"
+              : inputLocked && verificationActive
+                ? "Complete verification above to chat"
+                : "Try “can I get your résumé?”"
+          }
           autoComplete="off"
           spellCheck={false}
           autoCorrect="off"
@@ -350,10 +665,11 @@ export default function ContactTerminal({ paused = false }) {
         </button>
       </form>
       {inputError && <p id="message-length-error" className="terminal-input-error mono" role="alert">Message too long</p>}
-      {inputLocked && verificationActive && <p id="verification-hint" className="verification-hint">Chat unlocks after verification. Contact shortcuts are always available.</p>}
+      {inputLocked && verificationActive && !limitLocked && <p id="verification-hint" className="verification-hint">Chat unlocks after verification. Contact shortcuts are always available.</p>}
+      {limitLocked && <p id="limit-hint" className="verification-hint">Free-text chat is paused. Contact shortcuts still work.</p>}
       <div className="terminal-status mono">
         <span>
-          <span className="status-square" /> {busy ? "ROUTING" : "READY"}
+          <span className="status-square" /> {busy ? "ROUTING" : streaming ? "TYPING" : "READY"}
         </span>
         <span>CONTACT SHORTCUTS</span>
       </div>
@@ -361,7 +677,8 @@ export default function ContactTerminal({ paused = false }) {
         <summary>Privacy</summary>
         <p>
           Cloudflare Turnstile helps keep this chat free of bots. It checks browser
-          and connection information. Learn more in the{" "}
+          and connection information. A device identifier, time zone and browser
+          language are used to rate-limit sessions. Learn more in the{" "}
           <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank" rel="noreferrer">
             Cloudflare Turnstile Privacy Addendum
           </a>.

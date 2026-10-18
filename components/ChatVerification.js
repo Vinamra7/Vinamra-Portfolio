@@ -9,8 +9,12 @@ if (process.env.NODE_ENV === "production" && /^[123]x/.test(siteKey)) {
 }
 
 // Frontend token acquisition only. InScope must redeem the token at Siteverify.
-export default function ChatVerification({ active, resetKey, onVerified }) {
+// Tokens are single-use, so the parent bumps `resetKey` to obtain a fresh one
+// after a failed /api/session or an expired chat session.
+export default function ChatVerification({ active, resetKey, onVerify }) {
   const container = useRef(null);
+  const verifyRef = useRef(onVerify);
+  verifyRef.current = onVerify;
   const [ready, setReady] = useState(false);
   const [token, setToken] = useState("");
   const [failed, setFailed] = useState(false);
@@ -22,17 +26,17 @@ export default function ChatVerification({ active, resetKey, onVerified }) {
     let mounted = true;
     let widgetId;
     setToken("");
-    onVerified(false);
     setFailed(false);
     setInteractive(false);
     try {
       widgetId = window.turnstile.render(container.current, {
         sitekey: siteKey,
-        action: "chat",
+        action: "session",
         appearance: "interaction-only",
         theme: document.documentElement.dataset.theme === "light" ? "light" : "dark",
         size: "normal",
         "response-field": false,
+        "refresh-expired": "never",
         "before-interactive-callback": () => {
           if (mounted) setInteractive(true);
         },
@@ -40,43 +44,36 @@ export default function ChatVerification({ active, resetKey, onVerified }) {
           if (mounted) setInteractive(false);
         },
         callback: (value) => {
-          if (mounted) {
-            setToken(value);
-            onVerified(true);
-            setFailed(false);
-            setInteractive(false);
-          }
+          if (!mounted) return;
+          setToken(value);
+          setFailed(false);
+          setInteractive(false);
+          verifyRef.current?.(value);
         },
         "expired-callback": () => {
-          if (mounted) {
-            setToken("");
-            onVerified(false);
-          }
+          if (mounted) setToken("");
         },
         "error-callback": () => {
           if (mounted) {
             setToken("");
-            onVerified(false);
             setFailed(true);
           }
         },
         "timeout-callback": () => {
           if (mounted) {
             setToken("");
-            onVerified(false);
             setFailed(true);
           }
         },
       });
     } catch {
-      onVerified(false);
       setFailed(true);
     }
     return () => {
       mounted = false;
       if (widgetId !== undefined) window.turnstile?.remove(widgetId);
     };
-  }, [active, ready, resetKey, retry, onVerified]);
+  }, [active, ready, resetKey, retry]);
 
   if (!siteKey || !active) return null;
   return (
@@ -86,13 +83,12 @@ export default function ChatVerification({ active, resetKey, onVerified }) {
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
         onReady={() => { setReady(true); setFailed(false); }}
-        onError={() => { setToken(""); onVerified(false); setFailed(true); }}
+        onError={() => { setToken(""); setFailed(true); }}
       />
       <p className="verification-heading mono" role="status">
         {failed ? "VERIFICATION UNAVAILABLE" : interactive ? "VERIFY TO CHAT" : "VERIFYING BROWSER…"}
       </p>
       <div ref={container} />
-      <input type="hidden" form="contact-form" name="cf-turnstile-response" value={token} />
       {failed && (
         <p role="status">
           Verification unavailable. Contact shortcuts still work.{" "}
