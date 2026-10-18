@@ -24,7 +24,7 @@ const MAX_MESSAGE_LINES = 5;
 const MAX_HISTORY_ENTRIES = 20;
 const MAX_ASSISTANT_HISTORY_WORDS = 300;
 const MAX_ASSISTANT_HISTORY_BYTES = 3000;
-const MAX_STORED_EXCHANGES = 40;
+const MAX_STORED_EXCHANGES = 20;
 const SESSION_RETRY_DELAY_MS = 60000;
 const CONTACT_CHOICES = ["email", "linkedin", "github", "resume", "whatsapp", "phone"];
 
@@ -159,6 +159,9 @@ export default function ContactTerminal({ paused = false }) {
   const lastToken = useRef("");
   const nextMessageId = useRef(0);
   const sendRef = useRef(null);
+  const chatVersion = useRef(0);
+  const chatAbort = useRef(null);
+  const sessionAbort = useRef(null);
 
   useEffect(() => {
     const stored = getStoredSession();
@@ -169,6 +172,9 @@ export default function ContactTerminal({ paused = false }) {
     mounted.current = true;
     return () => {
       mounted.current = false;
+      chatVersion.current += 1;
+      chatAbort.current?.abort();
+      sessionAbort.current?.abort();
       window.clearTimeout(timer.current);
       window.clearTimeout(errorTimer.current);
       window.clearTimeout(sessionTimer.current);
@@ -199,7 +205,6 @@ export default function ContactTerminal({ paused = false }) {
     return () => window.removeEventListener("resize", resize);
   }, [input]);
   function rejectLongMessage() {
-    setInput("");
     setInputError(true);
     window.clearTimeout(errorTimer.current);
     errorTimer.current = window.setTimeout(() => setInputError(false), 2500);
@@ -233,11 +238,13 @@ export default function ContactTerminal({ paused = false }) {
     const cancel = typeOut(
       fullText,
       (partial) => {
+        if (!mounted.current) return;
         setMessages((old) =>
           old.map((message) => (message.id === id ? { ...message, text: partial } : message)),
         );
       },
       () => {
+        if (!mounted.current) return;
         stream.current = null;
         setMessages((old) =>
           old.map((message) => (message.id === id ? { ...message, streaming: false } : message)),
@@ -260,12 +267,14 @@ export default function ContactTerminal({ paused = false }) {
     }
   }
   async function startSession(token) {
-    if (!token || token === lastToken.current) return;
+    if (!token || token === lastToken.current || sessionAbort.current) return;
     lastToken.current = token;
+    const controller = new AbortController();
+    sessionAbort.current = controller;
     setSessionStatus({ text: "Securing session…" });
     try {
-      const next = await createSession(token);
-      if (!mounted.current) return;
+      const next = await createSession(token, { signal: controller.signal });
+      if (!mounted.current || controller.signal.aborted) return;
       session.current = next;
       setVerified(true);
       setVerificationActive(false);
@@ -276,7 +285,7 @@ export default function ContactTerminal({ paused = false }) {
       pendingRetry.current = null;
       if (queued) sendRef.current?.(queued);
     } catch (error) {
-      if (!mounted.current) return;
+      if (!mounted.current || controller.signal.aborted) return;
       lastToken.current = "";
       const status = error instanceof ApiError ? error.status : 0;
       if (status === 429) {
@@ -294,6 +303,8 @@ export default function ContactTerminal({ paused = false }) {
         return;
       }
       setSessionStatus({ text: "Couldn't start a session. Retry", retry: true });
+    } finally {
+      if (sessionAbort.current === controller) sessionAbort.current = null;
     }
   }
   function retrySession() {
@@ -353,8 +364,11 @@ export default function ContactTerminal({ paused = false }) {
     restoreInput(text);
   }
   async function sendBackend(text) {
-    const current = session.current || getStoredSession();
+    const current = session.current?.expires_at > Math.floor(Date.now() / 1000) + 60
+      ? session.current : getStoredSession();
     if (!current) {
+      clearSession();
+      session.current = null;
       pendingRetry.current = text;
       retriedAuth.current = true;
       setBusy(false);
@@ -375,9 +389,12 @@ export default function ContactTerminal({ paused = false }) {
           : { role: "user", content: entry.content },
       );
     while (prepared.length && prepared[0].role !== "user") prepared.shift();
+    const version = ++chatVersion.current;
+    const controller = new AbortController();
+    chatAbort.current = controller;
     try {
-      const { reply } = await sendChat(prepared, text, current.token);
-      if (!mounted.current) return;
+      const { reply } = await sendChat(prepared, text, current.token, { signal: controller.signal, model: "llm-1" });
+      if (!mounted.current || version !== chatVersion.current) return;
       apiHistory.current = [
         ...apiHistory.current,
         { role: "user", content: text },
@@ -391,9 +408,11 @@ export default function ContactTerminal({ paused = false }) {
       setMessages((old) => [...old, { id, text: "", streaming: true }]);
       startStream(id, reply);
     } catch (error) {
-      if (!mounted.current) return;
+      if (!mounted.current || version !== chatVersion.current) return;
       setBusy(false);
       handleChatError(error, text);
+    } finally {
+      if (chatAbort.current === controller) chatAbort.current = null;
     }
   }
   function ask(text, direct) {
@@ -408,8 +427,10 @@ export default function ContactTerminal({ paused = false }) {
     cancelStream();
     setInput("");
     setCopied("");
-    retriedAuth.current = false;
-    pendingRetry.current = null;
+    if (!local) {
+      retriedAuth.current = false;
+      pendingRetry.current = null;
+    }
     const id = (nextMessageId.current += 1);
     setMessages((old) => [...old.slice(-10), { id, user: true, text, local }]);
     if (local) {
@@ -422,7 +443,7 @@ export default function ContactTerminal({ paused = false }) {
               ? actions[choices[0]].text
               : "A couple of ways to connect. Take your pick.";
           addMessage({ text: answer, choices, local: true });
-          setBusy(false);
+          if (!chatAbort.current) setBusy(false);
         },
         1200,
       );
@@ -451,9 +472,11 @@ export default function ContactTerminal({ paused = false }) {
           aria-label="Reset conversation"
           title="Reset conversation"
           onClick={() => {
+            chatVersion.current += 1;
+            chatAbort.current?.abort();
+            chatAbort.current = null;
             window.clearTimeout(timer.current);
             window.clearTimeout(errorTimer.current);
-            window.clearTimeout(sessionTimer.current);
             cancelStream();
             apiHistory.current = [];
             pendingRetry.current = null;
@@ -464,7 +487,6 @@ export default function ContactTerminal({ paused = false }) {
             setMessages([]);
             setBusy(false);
             setCopied("");
-            setSessionStatus(null);
           }}
         >
           <FiRefreshCw />
@@ -637,7 +659,7 @@ export default function ContactTerminal({ paused = false }) {
                   : undefined
           }
           onFocus={() => {
-            if (!verified) setVerificationActive(true);
+            if (!verified && !session.current) setVerificationActive(true);
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -682,6 +704,8 @@ export default function ContactTerminal({ paused = false }) {
           <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank" rel="noreferrer">
             Cloudflare Turnstile Privacy Addendum
           </a>.
+          {" "}Chat messages and recent conversation history are sent to OpenCode to generate replies.
+          A device identifier and daily usage counts are stored for rate limiting.
         </p>
       </details>
     </div>
