@@ -501,7 +501,7 @@ export default function ContactTerminal({ paused = false }) {
     <div className={`contact-terminal ${busy ? "terminal-busy" : ""}`}>
       <div className="terminal-bar mono">
         <span>
-          <span className="signal-dot" /> vinamra — contact terminal
+          <span className="signal-dot" /> vinamra — terminal
         </span>
         <button
           aria-label="Reset conversation"
@@ -532,7 +532,7 @@ export default function ContactTerminal({ paused = false }) {
         ref={history}
         role="log"
         aria-live="polite"
-        aria-label="Contact conversation"
+        aria-label="Portfolio AI conversation"
         onScroll={() => {
           const element = history.current;
           if (!element) return;
@@ -553,15 +553,15 @@ export default function ContactTerminal({ paused = false }) {
           </span>
           <div>
             <span className="mono terminal-agent-name">
-              VM / CONTACT ASSISTANT
+              VM / AI ASSISTANT
             </span>
             <p>
               Hello, visitor.
               <br />
-              Where should we connect?
+              What would you like to know?
             </p>
             <span className="terminal-hint">
-              Ask about my work, or for my email, phone, links or résumé.
+              Ask about my work, projects, experience or how to reach me.
             </span>
           </div>
         </div>
