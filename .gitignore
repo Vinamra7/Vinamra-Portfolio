@@ -42,3 +42,4 @@ public/_next-video
 
 # Local editor metadata
 .idea/
+*.md

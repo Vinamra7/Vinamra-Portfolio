@@ -112,3 +112,43 @@ test("session validates expiry and does not save a cancelled request", async () 
   await assert.rejects(api.createSession("turnstile-token", { signal: controller.signal }), { code: "timeout" });
   assert.equal(api.getStoredSession(), null);
 });
+
+test("session lifetime is capped at 24 hours and never extended by reads", (context) => {
+  const start = 1800000000000;
+  context.mock.timers.enable({ apis: ["Date"], now: start });
+  const saved = api.saveSession({ token: "signed-token", expires_at: start / 1000 + 7 * 86400 });
+  assert.equal(saved.expires_at, start / 1000 + 86400);
+  context.mock.timers.tick(12 * 60 * 60 * 1000);
+  assert.deepEqual(api.getStoredSession(), saved);
+  context.mock.timers.tick((12 * 60 * 60 - 60) * 1000);
+  assert.equal(api.getStoredSession(), null);
+  assert.equal(window.sessionStorage.getItem("inscope.session"), null);
+});
+
+test("earlier server expiry wins and malformed sessions are removed", (context) => {
+  const start = 1800000000000;
+  context.mock.timers.enable({ apis: ["Date"], now: start });
+  const saved = api.saveSession({ token: "signed-token", expires_at: start / 1000 + 3600 });
+  assert.equal(saved.expires_at, start / 1000 + 3600);
+  context.mock.timers.tick(3540 * 1000);
+  assert.equal(api.getStoredSession(), null);
+  window.sessionStorage.setItem("inscope.session", "invalid json");
+  assert.equal(api.getStoredSession(), null);
+  assert.equal(window.sessionStorage.getItem("inscope.session"), null);
+});
+
+test("legacy oversized expiry is capped once and storage failure preserves memory", (context) => {
+  const start = 1800000000000;
+  context.mock.timers.enable({ apis: ["Date"], now: start });
+  window.sessionStorage.setItem("inscope.session", JSON.stringify({
+    token: "signed-token", expires_at: start / 1000 + 7 * 86400,
+  }));
+  const session = api.getStoredSession();
+  assert.equal(session.expires_at, start / 1000 + 86400);
+  context.mock.timers.tick(3600 * 1000);
+  assert.deepEqual(api.getStoredSession(), session);
+  window.sessionStorage.setItem = () => { throw new Error("Storage unavailable"); };
+  const memory = api.saveSession({ token: "memory-token", expires_at: start / 1000 + 7 * 86400 });
+  assert.equal(memory.token, "memory-token");
+  assert.equal(memory.expires_at, start / 1000 + 3600 + 86400);
+});

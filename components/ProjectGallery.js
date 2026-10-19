@@ -105,7 +105,7 @@ function Study({ index, paused }) {
     a.font = "10px monospace";
     a.fillText(
       [
-        "01 / DISTRIBUTED MEMORY",
+        "01 / IN-SCOPE INTELLIGENCE",
         "02 / STREAM PROCESSING",
         "03 / NATIVE BUILD SYSTEMS",
       ][index],

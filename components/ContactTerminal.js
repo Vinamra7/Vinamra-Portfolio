@@ -126,6 +126,7 @@ export default function ContactTerminal({ paused = false }) {
   const [verificationActive, setVerificationActive] = useState(false);
   const [verificationReset, setVerificationReset] = useState(0);
   const [verified, setVerified] = useState(false);
+  const [sessionExpiresAt, setSessionExpiresAt] = useState(0);
   const [sessionStatus, setSessionStatus] = useState(null);
   const [limitLocked, setLimitLocked] = useState(false);
   const verificationRequired = Boolean(TURNSTILE_SITE_KEY);
@@ -167,6 +168,7 @@ export default function ContactTerminal({ paused = false }) {
     const stored = getStoredSession();
     if (stored) {
       session.current = stored;
+      setSessionExpiresAt(stored.expires_at);
       setVerified(true);
     }
     mounted.current = true;
@@ -184,6 +186,27 @@ export default function ContactTerminal({ paused = false }) {
       }
     };
   }, []);
+  useEffect(() => {
+    if (!sessionExpiresAt) return;
+    const expire = () => {
+      if (session.current?.expires_at !== sessionExpiresAt) return;
+      if (sessionExpiresAt > Math.floor(Date.now() / 1000) + 60) return;
+      clearSession();
+      session.current = null;
+      setSessionExpiresAt(0);
+      setVerified(false);
+      setVerificationActive(false);
+    };
+    const expiryTimer = window.setTimeout(
+      expire,
+      Math.max(0, (sessionExpiresAt - 60) * 1000 - Date.now()),
+    );
+    document.addEventListener("visibilitychange", expire);
+    return () => {
+      window.clearTimeout(expiryTimer);
+      document.removeEventListener("visibilitychange", expire);
+    };
+  }, [sessionExpiresAt]);
   useEffect(() => {
     if (history.current && nearBottom.current) {
       history.current.scrollTop = history.current.scrollHeight;
@@ -256,6 +279,7 @@ export default function ContactTerminal({ paused = false }) {
   function beginReverification(text) {
     clearSession();
     session.current = null;
+    setSessionExpiresAt(0);
     setVerified(false);
     setVerificationActive(true);
     setSessionStatus(null);
@@ -276,6 +300,7 @@ export default function ContactTerminal({ paused = false }) {
       const next = await createSession(token, { signal: controller.signal });
       if (!mounted.current || controller.signal.aborted) return;
       session.current = next;
+      setSessionExpiresAt(next.expires_at);
       setVerified(true);
       setVerificationActive(false);
       setSessionStatus(null);
@@ -321,6 +346,7 @@ export default function ContactTerminal({ paused = false }) {
       } else {
         clearSession();
         session.current = null;
+        setSessionExpiresAt(0);
         setVerified(false);
         setVerificationActive(true);
         setSessionStatus(null);
@@ -369,6 +395,7 @@ export default function ContactTerminal({ paused = false }) {
     if (!current) {
       clearSession();
       session.current = null;
+      setSessionExpiresAt(0);
       pendingRetry.current = text;
       retriedAuth.current = true;
       setBusy(false);
