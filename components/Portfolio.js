@@ -7,7 +7,7 @@ import Galaxy from "./Galaxy";
 import DecodingName from "./DecodingName";
 import WorkCards from "./WorkCards";
 import ContactTerminal from "./ContactTerminal";
-import { experience, projects, contact } from "../lib/content";
+import { about, experience, projects, contact } from "../lib/content";
 const Scene = dynamic(() => import("./Scene"), { ssr: false });
 
 function SceneWindow({ variant, paused, ...props }) {
@@ -80,11 +80,14 @@ export default function Home() {
           <div className="hero-content">
             <p className="hero-hello">Hi, I’m</p>
             <h1 id="hero-title" aria-label="Vinamra Mishra">
-              <DecodingName paused={paused} />
+              <DecodingName paused={paused} delay={650} />
             </h1>
             <p className="hero-subtitle">
               Software developer from Bengaluru, India.
             </p>
+            <a className="hero-contact" href="#contact">
+              Contact me <FiArrowUpRight aria-hidden="true" />
+            </a>
           </div>
           <a href="#about" className="hero-scroll" aria-label="Scroll to about">
             <FiArrowDown />
@@ -98,15 +101,7 @@ export default function Home() {
           <div className="about-grid">
             <div className="about-copy reveal">
               <h2 id="about-title">A little about me.</h2>
-              <p>
-                I’m Vinamra, a backend engineer in Bengaluru. Currently building
-                identity and merchant services at Visa. Before that, serverless
-                systems at Openreach.
-              </p>
-              <p>
-                I got into this through competitive programming. I’ve stayed for
-                the problems that don’t come with a time limit.
-              </p>
+              {about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
               <a className="text-link" href={contact.resume} download>
                 The longer version <FiArrowUpRight />
               </a>

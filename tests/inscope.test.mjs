@@ -122,6 +122,7 @@ test("session lifetime is capped at 24 hours and never extended by reads", (cont
   assert.deepEqual(api.getStoredSession(), saved);
   context.mock.timers.tick((12 * 60 * 60 - 60) * 1000);
   assert.equal(api.getStoredSession(), null);
+  assert.equal(window.localStorage.getItem("inscope.session"), null);
   assert.equal(window.sessionStorage.getItem("inscope.session"), null);
 });
 
@@ -132,8 +133,9 @@ test("earlier server expiry wins and malformed sessions are removed", (context) 
   assert.equal(saved.expires_at, start / 1000 + 3600);
   context.mock.timers.tick(3540 * 1000);
   assert.equal(api.getStoredSession(), null);
-  window.sessionStorage.setItem("inscope.session", "invalid json");
+  window.localStorage.setItem("inscope.session", "invalid json");
   assert.equal(api.getStoredSession(), null);
+  assert.equal(window.localStorage.getItem("inscope.session"), null);
   assert.equal(window.sessionStorage.getItem("inscope.session"), null);
 });
 
@@ -145,10 +147,33 @@ test("legacy oversized expiry is capped once and storage failure preserves memor
   }));
   const session = api.getStoredSession();
   assert.equal(session.expires_at, start / 1000 + 86400);
+  assert.equal(window.sessionStorage.getItem("inscope.session"), null);
+  assert.equal(JSON.parse(window.localStorage.getItem("inscope.session")).expires_at, session.expires_at);
   context.mock.timers.tick(3600 * 1000);
   assert.deepEqual(api.getStoredSession(), session);
   window.sessionStorage.setItem = () => { throw new Error("Storage unavailable"); };
+  window.localStorage.setItem = () => { throw new Error("Storage unavailable"); };
   const memory = api.saveSession({ token: "memory-token", expires_at: start / 1000 + 7 * 86400 });
   assert.equal(memory.token, "memory-token");
   assert.equal(memory.expires_at, start / 1000 + 3600 + 86400);
+});
+
+test("closing and reopening a tab preserves the original persistent session expiry", (context) => {
+  const start = 1800000000000;
+  context.mock.timers.enable({ apis: ["Date"], now: start });
+  const session = api.saveSession({ token: "original-token", expires_at: start / 1000 + 86400 });
+  window.sessionStorage = storage();
+  context.mock.timers.tick(6 * 60 * 60 * 1000);
+  assert.deepEqual(api.getStoredSession(), session);
+  api.clearSession();
+  assert.equal(window.localStorage.getItem("inscope.session"), null);
+  assert.equal(window.sessionStorage.getItem("inscope.session"), null);
+});
+
+test("tab storage remains a fallback when persistent storage is blocked", (context) => {
+  context.mock.timers.enable({ apis: ["Date"], now: 1800000000000 });
+  window.localStorage.getItem = () => { throw new Error("Storage blocked"); };
+  window.localStorage.setItem = () => { throw new Error("Storage blocked"); };
+  const session = api.saveSession({ token: "tab-token", expires_at: 1800003600 });
+  assert.deepEqual(api.getStoredSession(), session);
 });

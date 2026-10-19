@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 const NAME = "Vinamra Mishra";
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/%<>";
 
-export default function DecodingName({ paused }) {
+export default function DecodingName({ paused, delay = 0 }) {
   const [text, setText] = useState({ settled: "", current: "" });
   const finished = useRef(false);
   useEffect(() => {
@@ -21,11 +21,15 @@ export default function DecodingName({ paused }) {
       lastFrame = -1;
     const tick = (now) => {
       if (start === undefined) start = now;
-      const elapsed = now - start;
+      const elapsed = now - start - delay;
+      if (elapsed < 0) {
+        frame = requestAnimationFrame(tick);
+        return;
+      }
       let remaining = elapsed,
         index = 0;
       while (index < NAME.length) {
-        const duration = NAME[index] === " " ? 55 : 210;
+        const duration = NAME[index] === " " ? 40 : 110;
         if (remaining < duration) break;
         remaining -= duration;
         index++;
@@ -39,7 +43,7 @@ export default function DecodingName({ paused }) {
       if (step !== lastFrame) {
         lastFrame = step;
         const current =
-          NAME[index] === " " || remaining > 140
+          NAME[index] === " " || remaining > 70
             ? NAME[index]
             : GLYPHS[
                 (index * 11 + Math.floor(remaining / 35) * 7) % GLYPHS.length
@@ -50,7 +54,7 @@ export default function DecodingName({ paused }) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [paused]);
+  }, [paused, delay]);
   return (
     <span className="decoding-name" aria-hidden="true">
       <span className="name-measure">{NAME}</span>

@@ -18,6 +18,7 @@ import {
   sendChat,
 } from "../lib/inscope";
 import ChatVerification, { TURNSTILE_SITE_KEY } from "./ChatVerification";
+import ChatReply from "./ChatReply";
 const MAX_MESSAGE_LENGTH = 500;
 const MAX_MESSAGE_WORDS = 80;
 const MAX_MESSAGE_LINES = 5;
@@ -191,6 +192,13 @@ export default function ContactTerminal({ paused = false }) {
     const expire = () => {
       if (session.current?.expires_at !== sessionExpiresAt) return;
       if (sessionExpiresAt > Math.floor(Date.now() / 1000) + 60) return;
+      const stored = getStoredSession();
+      if (stored) {
+        session.current = stored;
+        setSessionExpiresAt(stored.expires_at);
+        setVerified(true);
+        return;
+      }
       clearSession();
       session.current = null;
       setSessionExpiresAt(0);
@@ -574,10 +582,11 @@ export default function ContactTerminal({ paused = false }) {
               {message.user ? "YOU" : message.system ? "SYS" : "VM"}
             </span>
             <div>
-              <p aria-busy={message.streaming ? "true" : undefined}>
-                {message.text}
-                {message.streaming && <span className="terminal-cursor" aria-hidden="true" />}
-              </p>
+              {message.user || message.system || message.local ? (
+                <p>{message.text}</p>
+              ) : (
+                <ChatReply text={message.text} streaming={message.streaming} />
+              )}
               {message.choices?.map((key) => (
                 <div className="terminal-result" key={key}>
                   {actions[key].value && <span>{actions[key].value}</span>}
@@ -733,6 +742,7 @@ export default function ContactTerminal({ paused = false }) {
           </a>.
           {" "}Chat messages and recent conversation history are sent to OpenCode to generate replies.
           A device identifier and daily usage counts are stored for rate limiting.
+          Your browser keeps the signed session for up to 24 hours, including across visits.
         </p>
       </details>
     </div>

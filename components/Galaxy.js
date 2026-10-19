@@ -19,10 +19,13 @@ const smooth = (v) => {
 
 export default function Galaxy({ paused }) {
   const ref = useRef(null);
+  const introStarted = useRef(null);
   useEffect(() => {
     const canvas = ref.current,
       ctx = canvas.getContext("2d");
     if (!ctx) return;
+    if (introStarted.current === null) introStarted.current = performance.now();
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     // Render the quiet, seamless far-star layer only when the viewport changes.
     const distant = document.createElement("canvas");
     const daylight = document.createElement("canvas");
@@ -125,6 +128,10 @@ export default function Galaxy({ paused }) {
       raf = requestAnimationFrame(draw);
       if (!visible || now - last < 32) return;
       last = now;
+      const elapsed = now - introStarted.current;
+      const skipIntro = paused || reducedMotion || target > h * 0.5;
+      const starsIn = skipIntro ? 1 : smooth(elapsed / 600);
+      const formation = skipIntro ? 1 : smooth((elapsed - 180) / 850);
       const themeProgress = paused ? 1 : smooth((now - themeStarted) / 1400);
       themeMix = themeFrom + ((lightTheme ? 1 : 0) - themeFrom) * themeProgress;
       const tones = starColours.map(rgb => rgb.map((channel, i) => Math.round(channel + (daylightTone[i] - channel) * themeMix)).join(","));
@@ -141,9 +148,9 @@ export default function Galaxy({ paused }) {
             ? "separating"
             : "starfield";
       ctx.clearRect(0, 0, w, h);
-      ctx.globalAlpha = 1 - themeMix;
+      ctx.globalAlpha = (1 - themeMix) * starsIn;
       ctx.drawImage(distant, 0, 0, w, h);
-      ctx.globalAlpha = themeMix * .6;
+      ctx.globalAlpha = themeMix * .6 * starsIn;
       ctx.drawImage(daylight, 0, 0, w, h);
       ctx.globalAlpha = 1;
       const cx = w * 0.5,
@@ -154,6 +161,7 @@ export default function Galaxy({ paused }) {
         ctx.translate(cx, cy);
         ctx.rotate(-0.28);
         ctx.scale(1, 0.42);
+        ctx.globalAlpha = formation;
         const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, scale * 0.85);
         halo.addColorStop(0, `rgba(224,233,245,${0.14 * (1 - breakup) * (1 - themeMix)})`);
         halo.addColorStop(0.2, `rgba(210,221,235,${0.045 * (1 - breakup) * (1 - themeMix)})`);
@@ -165,8 +173,8 @@ export default function Galaxy({ paused }) {
       const count = w < 600 ? 1400 : particles.length;
       for (let i = 0; i < count; i++) {
         const p = particles[i],
-          a = p.angle + time * (1 - breakup),
-          r = p.radius * scale;
+          a = p.angle + time * (1 - breakup) + (1 - formation) * 0.3,
+          r = p.radius * scale * (1 + (1 - formation) * 0.45);
         const sx = Math.cos(a) * r,
           sy = Math.sin(a) * r * 0.43 + p.spread * scale;
         const gx = cx + sx * 0.96 - sy * -0.276,
@@ -186,7 +194,7 @@ export default function Galaxy({ paused }) {
           y = gy + (fy - gy) * release;
         const sparse = i % 5 === 0 ? 1 : 0.38;
         const opacity =
-          Math.min(1, p.light * ((1 - release) * 1.15 + release * 0.78 * sparse)) * (1 - themeMix * .35);
+          Math.min(1, p.light * ((1 - release) * 1.15 + release * 0.78 * sparse)) * (1 - themeMix * .35) * formation;
         const twinkle = paused
           ? 1
           : 0.85 + 0.15 * Math.sin(now * 0.0007 + p.phase);

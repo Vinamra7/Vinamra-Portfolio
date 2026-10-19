@@ -1,9 +1,13 @@
 import Head from "next/head";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { experience, projects, contact } from "../lib/content";
+import { about, experience, projects, contact } from "../lib/content";
+import Startup from "../components/Startup";
 
-const Portfolio = dynamic(() => import("../components/Portfolio"), { ssr: false });
+const Portfolio = dynamic(() => import("../components/Portfolio"), {
+  ssr: false,
+  loading: () => <Startup />,
+});
 
 const SITE_URL = "https://www.vinamramishra.dev";
 const PAGE_TITLE = "Vinamra Mishra — Software Engineer";
@@ -52,15 +56,7 @@ function Plainfolio() {
 
       <section id="about" aria-labelledby="about-title">
         <h2 id="about-title">About</h2>
-        <p>
-          I’m Vinamra, a backend engineer in Bengaluru. Currently building
-          identity and merchant services at Visa. Before that, serverless
-          order-processing systems at Openreach (BT Group).
-        </p>
-        <p>
-          I got into this through competitive programming. I’ve stayed for the
-          problems that don’t come with a time limit.
-        </p>
+        {about.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
       </section>
 
       <section id="work" aria-labelledby="work-title">
@@ -159,7 +155,15 @@ export default function Home() {
     ? <Portfolio />
     : device === "phone"
       ? <PhoneNotice />
-      : <Plainfolio />;
+      : (
+        <>
+          <Startup />
+          <div className="site-fallback"><Plainfolio /></div>
+          <noscript>
+            <style>{`.site-startup { display: none; } .site-fallback { display: block; }`}</style>
+          </noscript>
+        </>
+      );
 
   return (
     <>
@@ -170,6 +174,7 @@ export default function Home() {
         <link rel="canonical" href={SITE_URL + "/"} />
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preload" href="/fonts/portfolio/SpaceGrotesk.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <meta name="theme-color" content="#000000" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Vinamra Mishra" />
