@@ -708,7 +708,7 @@ export default function ContactTerminal({ paused = false }) {
               ? "Free-text paused — use a contact shortcut"
               : inputLocked && verificationActive
                 ? "Complete verification above to chat"
-                : "Try “can I get your résumé?”"
+                : "Ask anything about me"
           }
           autoComplete="off"
           spellCheck={false}
