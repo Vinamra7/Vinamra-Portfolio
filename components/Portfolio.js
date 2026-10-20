@@ -1,7 +1,7 @@
 import Head from "next/head";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-import { FiArrowDown, FiArrowUpRight } from "react-icons/fi";
+import { FiArrowUpRight } from "react-icons/fi";
 import ProjectGallery from "./ProjectGallery";
 import Galaxy from "./Galaxy";
 import DecodingName from "./DecodingName";
@@ -90,7 +90,10 @@ export default function Home() {
             </a>
           </div>
           <a href="#about" className="hero-scroll" aria-label="Scroll to about">
-            <FiArrowDown />
+            <span className="hero-scroll-mouse" aria-hidden="true">
+              <span className="hero-scroll-wheel" />
+            </span>
+            <span className="mono hero-scroll-label" aria-hidden="true">SCROLL</span>
           </a>
         </section>
         <section

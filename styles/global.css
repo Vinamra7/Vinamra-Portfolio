@@ -1548,17 +1548,48 @@ html {
 }
 .hero-scroll {
   position: absolute;
-  bottom: 48px;
-  left: calc(50% - 20px);
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  color: #929292;
+  z-index: 2;
+  bottom: clamp(28px, 5svh, 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 64px;
+  min-height: 76px;
+  color: var(--text);
+  transition: color .2s ease;
 }
-.hero-scroll:hover {
-  color: #fff;
-  transform: translateY(4px);
+.hero-scroll:hover, .hero-scroll:focus-visible {
+  color: var(--interaction-blue);
+}
+.hero-scroll-mouse {
+  position: relative;
+  width: 26px;
+  height: 42px;
+  border: 1.5px solid currentColor;
+  border-radius: 14px;
+}
+.hero-scroll-wheel {
+  position: absolute;
+  top: 8px;
+  left: calc(50% - 1.5px);
+  width: 3px;
+  height: 7px;
+  border-radius: 2px;
+  background: currentColor;
+  animation: scroll-wheel 2.2s ease-in-out infinite;
+}
+.hero-scroll-label {
+  line-height: 1;
+  letter-spacing: .18em;
+}
+@keyframes scroll-wheel {
+  0% { opacity: 0; transform: translateY(0); }
+  15%, 30% { opacity: 1; transform: translateY(0); }
+  75%, 100% { opacity: 0; transform: translateY(10px); }
 }
 .section {
   padding: 110px 10%;
@@ -2570,8 +2601,7 @@ html[data-theme="light"] .desktop-notice a { color: #22282b; }
 html[data-theme="light"] .study-meta,
 html[data-theme="light"] .astronaut-caption,
 html[data-theme="light"] .work-detail .mono,
-html[data-theme="light"] footer > .mono,
-html[data-theme="light"] .hero-scroll { color: #5c696e; }
+html[data-theme="light"] footer > .mono { color: #5c696e; }
 html[data-theme="light"] .work-detail { border-color: #abb7b7; }
 html[data-theme="light"] .work-cover,
 html[data-theme="light"] .contact-terminal { color: #e7e7e7; }
@@ -2854,10 +2884,10 @@ html[data-theme="light"] .terminal-session-status {
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .startup-stars, .hero-hello, .hero h1, .hero-subtitle, .hero-contact, .hero-scroll {
+  .startup-stars, .hero-hello, .hero h1, .hero-subtitle, .hero-contact, .hero-scroll, .hero-scroll-wheel {
     animation: none;
   }
-  .hero-contact, .hero-contact svg { transition: none; }
+  .hero-contact, .hero-contact svg, .hero-scroll { transition: none; }
 }
 
 .contact-grid, .contact footer { max-width: 1360px; }
