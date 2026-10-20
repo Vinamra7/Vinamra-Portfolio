@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
 
-function Study({ index, paused }) {
+function Study({ index, symbol, paused }) {
   const ref = useRef(null);
   const [light, setLight] = useState(false);
   useEffect(() => {
@@ -21,7 +21,7 @@ function Study({ index, paused }) {
 
     a.save();
     a.translate(300, 350);
-    if (index === 0) {
+    if (symbol === "inscope-symbol") {
       // An original exploded cache sculpture: three layers of stored data.
       for (let layer = 2; layer >= 0; layer--) {
         const y = layer * 77 - 110;
@@ -57,7 +57,7 @@ function Study({ index, paused }) {
           a.fillRect(-130 + n * 15, y + 33 + n * 7.5, 3, 3);
         }
       }
-    } else if (index === 1) {
+    } else if (symbol === "arroyo-symbol") {
       // Parallel streams converge through one processing surface.
       for (let n = 0; n < 48; n++) {
         a.beginPath();
@@ -103,12 +103,13 @@ function Study({ index, paused }) {
     a.restore();
     a.fillStyle = "#757575";
     a.font = "10px monospace";
+    const captions = {
+      "inscope-symbol": "IN-SCOPE INTELLIGENCE",
+      "arroyo-symbol": "STREAM PROCESSING",
+      "zen-symbol": "NATIVE BUILD SYSTEMS",
+    };
     a.fillText(
-      [
-        "01 / IN-SCOPE INTELLIGENCE",
-        "02 / STREAM PROCESSING",
-        "03 / NATIVE BUILD SYSTEMS",
-      ][index],
+      `${String(index + 1).padStart(2, "0")} / ${captions[symbol]}`,
       30,
       680,
     );
@@ -195,7 +196,7 @@ function Study({ index, paused }) {
       card.removeEventListener("focus", enter);
       card.removeEventListener("blur", leave);
     };
-  }, [index, paused, light]);
+  }, [index, symbol, paused, light]);
   return <canvas ref={ref} aria-hidden="true" />;
 }
 
@@ -211,7 +212,7 @@ export default function ProjectGallery({ projects, paused }) {
           rel="noreferrer"
         >
           <div className="study-image">
-            <Study index={index} paused={paused} />
+            <Study index={index} symbol={project.symbol} paused={paused} />
             <span className="study-action">
               <FiArrowUpRight />
             </span>

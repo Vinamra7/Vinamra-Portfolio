@@ -1787,6 +1787,10 @@ html {
 .projects {
   min-height: auto;
 }
+.projects .section-heading > .mono {
+  font-size: 12px;
+  line-height: 1.5;
+}
 .contact-grid {
   gap: 9%;
 }
