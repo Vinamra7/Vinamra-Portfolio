@@ -467,7 +467,7 @@ export default function ContactTerminal({ paused = false }) {
       pendingRetry.current = null;
     }
     const id = (nextMessageId.current += 1);
-    setMessages((old) => [...old.slice(-10), { id, user: true, text, local }]);
+    setMessages((old) => [...old, { id, user: true, text, local }]);
     if (local) {
       setBusy(true);
       window.clearTimeout(timer.current);
