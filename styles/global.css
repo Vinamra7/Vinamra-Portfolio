@@ -3035,6 +3035,9 @@ html[data-theme="light"] .chat-reply { color: #273238; }
   .hero-scroll-label.hero-scroll-mobile {
     display: inline;
   }
+  .contact-terminal.terminal-has-messages .terminal-options {
+    display: none !important;
+  }
 }
 
 @media (max-width: 800px) {
@@ -3257,6 +3260,42 @@ html[data-theme="light"] .chat-reply { color: #273238; }
     line-height: 1.45;
     margin: 6px 0;
   }
+  .terminal-message {
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .message-prefix {
+    font-size: 8px;
+    min-width: 24px;
+    padding-top: 3px;
+  }
+  .terminal-message p,
+  .chat-reply,
+  .chat-reply p,
+  .chat-reply li {
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .chat-reply h1,
+  .chat-reply h2,
+  .chat-reply h3,
+  .chat-reply h4,
+  .chat-reply h5,
+  .chat-reply h6 {
+    font-size: 13px;
+    margin: 14px 0 6px;
+  }
+  .terminal-result {
+    font-size: 11px;
+  }
+  .terminal-thinking {
+    font-size: 11px;
+  }
+  .user-message {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 10px 16px;
+  }
   .terminal-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -3282,10 +3321,13 @@ html[data-theme="light"] .chat-reply { color: #273238; }
   }
   .terminal-input {
     margin: 6px 16px 18px;
-    padding: 11px 13px;
+    padding: 10px 12px;
+  }
+  .terminal-input > span {
+    font-size: 18px;
   }
   .terminal-input textarea {
-    font-size: 16px;
+    font-size: 12px;
   }
   .terminal-privacy {
     margin: 10px 16px 20px;

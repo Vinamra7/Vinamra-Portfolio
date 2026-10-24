@@ -498,7 +498,7 @@ export default function ContactTerminal({ paused = false }) {
   sendRef.current = sendBackend;
   const streaming = messages.some((message) => message.streaming);
   return (
-    <div className={`contact-terminal ${busy ? "terminal-busy" : ""}`}>
+    <div className={`contact-terminal${busy ? " terminal-busy" : ""}${messages.length > 0 ? " terminal-has-messages" : ""}`}>
       <div className="terminal-bar mono">
         <span>
           <span className="signal-dot" /> vinamra — terminal
