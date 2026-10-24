@@ -1,6 +1,5 @@
 import Head from "next/head";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
 import { about, experience, projects, contact } from "../lib/content";
 import Startup from "../components/Startup";
 
@@ -113,58 +112,7 @@ function Plainfolio() {
   );
 }
 
-/** Deliberate small-screen notice; kept minimal on purpose. */
-function PhoneNotice() {
-  return (
-    <main className="desktop-notice">
-      <p className="mono">VINAMRA MISHRA</p>
-      <h1>Best explored on desktop.</h1>
-      <p>
-        This portfolio is built for a larger screen and a mouse. Open it on your
-        laptop or desktop to explore.
-      </p>
-      <nav aria-label="Contact and résumé">
-        <a href={contact.resume} download>Download résumé ↗</a>
-        <a href={`mailto:${contact.email}`}>Email me ↗</a>
-        <a href={contact.linkedin}>LinkedIn ↗</a>
-      </nav>
-    </main>
-  );
-}
-
 export default function Home() {
-  const [device, setDevice] = useState("checking");
-  useEffect(() => {
-    // Include landscape phones; do not block a desktop just for a narrow window.
-    const coarse = window.matchMedia("(pointer: coarse)");
-    const evaluate = () => {
-      const phone = /iPhone|iPod|Android.*Mobile|Windows Phone/i.test(navigator.userAgent)
-        || (coarse.matches && Math.min(screen.width, screen.height) < 600);
-      setDevice(phone ? "phone" : "desktop");
-    };
-    evaluate();
-    coarse.addEventListener("change", evaluate);
-    window.addEventListener("resize", evaluate);
-    return () => {
-      coarse.removeEventListener("change", evaluate);
-      window.removeEventListener("resize", evaluate);
-    };
-  }, []);
-
-  const view = device === "desktop"
-    ? <Portfolio />
-    : device === "phone"
-      ? <PhoneNotice />
-      : (
-        <>
-          <Startup />
-          <div className="site-fallback"><Plainfolio /></div>
-          <noscript>
-            <style>{`.site-startup { display: none; } .site-fallback { display: block; }`}</style>
-          </noscript>
-        </>
-      );
-
   return (
     <>
       <Head>
@@ -190,7 +138,11 @@ export default function Home() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
         />
       </Head>
-      {view}
+      <Portfolio />
+      <div className="site-fallback"><Plainfolio /></div>
+      <noscript>
+        <style>{`.site-startup { display: none; } .site-fallback { display: block; }`}</style>
+      </noscript>
     </>
   );
 }

@@ -1,8 +1,73 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiArrowUpRight, FiX } from "react-icons/fi";
 
 export default function WorkCards({ jobs, paused }) {
   const [selected, setSelected] = useState(null);
+  const coverRefs = useRef([]);
+  const touchState = useRef({});
+
+  useEffect(() => {
+    const coarse = window.matchMedia("(pointer: coarse)");
+    let raf = null;
+
+    const updateMobileScan = () => {
+      raf = null;
+      const isMobile = coarse.matches || window.innerWidth <= 800;
+      coverRefs.current.forEach((el, i) => {
+        if (!el) return;
+        if (!isMobile) {
+          if (!el.matches(":hover") && !el.matches(":focus-visible")) {
+            el.style.setProperty("--scan", "100%");
+            delete el.dataset.scanning;
+          }
+          return;
+        }
+        if (touchState.current[i]?.scrubbing) return;
+        const rect = el.getBoundingClientRect();
+        const vh = window.innerHeight || 1;
+        if (rect.bottom < 0 || rect.top > vh) {
+          el.style.setProperty("--scan", "100%");
+          delete el.dataset.scanning;
+          return;
+        }
+        if (paused) {
+          const openScan = selected === i ? 64 : 74;
+          el.style.setProperty("--scan", `${openScan}%`);
+          el.dataset.scanning = "true";
+          return;
+        }
+        // As the card travels from the bottom of the screen through the reading zone,
+        // sweep the X-ray scanner beam across the right third of the card face.
+        const center = rect.top + rect.height * 0.5;
+        const norm = 1 - Math.max(0, Math.min(1, (center - vh * 0.18) / (vh * 0.72)));
+        const curve = Math.sin(norm * Math.PI);
+        const baseScan = selected === i ? 56 : 92 - curve * 34;
+        const scan = Math.max(54, Math.min(94, baseScan));
+        el.style.setProperty("--scan", `${scan.toFixed(1)}%`);
+        if (scan < 92) {
+          el.dataset.scanning = "true";
+        } else {
+          delete el.dataset.scanning;
+        }
+      });
+    };
+
+    const schedule = () => {
+      if (raf === null) raf = requestAnimationFrame(updateMobileScan);
+    };
+
+    updateMobileScan();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    coarse.addEventListener("change", schedule);
+    return () => {
+      if (raf !== null) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      coarse.removeEventListener("change", schedule);
+    };
+  }, [paused, selected]);
+
   return (
     <div className="work-pair reveal">
       {jobs.map((job, i) => (
@@ -11,21 +76,69 @@ export default function WorkCards({ jobs, paused }) {
           key={job.company}
         >
           <button
+            ref={(el) => {
+              coverRefs.current[i] = el;
+            }}
             className="work-cover"
             aria-expanded={selected === i}
             aria-controls={`work-details-${i}`}
-            onClick={() => setSelected(selected === i ? null : i)}
+            onClick={() => {
+              if (touchState.current[i]?.SuppressClick) {
+                touchState.current[i].SuppressClick = false;
+                return;
+              }
+              setSelected(selected === i ? null : i);
+            }}
+            onPointerDown={(e) => {
+              if (e.pointerType !== "touch") return;
+              touchState.current[i] = {
+                startX: e.clientX,
+                startY: e.clientY,
+                scrubbing: false,
+                SuppressClick: false,
+              };
+            }}
             onPointerMove={(e) => {
-              if (paused || e.pointerType === "touch") return;
+              if (paused) return;
               const r = e.currentTarget.getBoundingClientRect();
+              if (!r.width) return;
+              if (e.pointerType === "touch") {
+                const st = touchState.current[i];
+                if (!st) return;
+                const dx = Math.abs(e.clientX - st.startX);
+                const dy = Math.abs(e.clientY - st.startY);
+                if (!st.scrubbing && dx > 10 && dx > dy * 1.2) {
+                  st.scrubbing = true;
+                  st.SuppressClick = true;
+                }
+                if (!st.scrubbing) return;
+                const pct = Math.max(12, Math.min(94, ((e.clientX - r.left) / r.width) * 100));
+                e.currentTarget.style.setProperty("--scan", `${pct}%`);
+                e.currentTarget.dataset.scanning = "true";
+                return;
+              }
               e.currentTarget.style.setProperty(
                 "--scan",
                 `${Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100))}%`,
               );
             }}
-            onPointerLeave={(e) =>
-              e.currentTarget.style.setProperty("--scan", "100%")
-            }
+            onPointerUp={(e) => {
+              if (e.pointerType === "touch" && touchState.current[i]) {
+                touchState.current[i].scrubbing = false;
+              }
+            }}
+            onPointerCancel={(e) => {
+              if (e.pointerType === "touch" && touchState.current[i]) {
+                touchState.current[i].scrubbing = false;
+              }
+            }}
+            onPointerLeave={(e) => {
+              if (e.pointerType === "touch") return;
+              if (window.innerWidth > 800 && !window.matchMedia("(pointer: coarse)").matches) {
+                e.currentTarget.style.setProperty("--scan", "100%");
+                delete e.currentTarget.dataset.scanning;
+              }
+            }}
           >
             <div className="work-code" aria-hidden="true">
               {Array.from({ length: 12 }, (_, n) => (

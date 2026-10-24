@@ -72,8 +72,12 @@ export default function Galaxy({ paused }) {
       };
     });
     function resize() {
-      w = innerWidth;
-      h = innerHeight;
+      const nextW = innerWidth;
+      const nextH = innerHeight;
+      // Ignore minor mobile address-bar height collapses during scroll so stars never jump.
+      if (w > 0 && nextW === w && Math.abs(nextH - h) < 150) return;
+      w = nextW;
+      h = nextH;
       const d = Math.min(devicePixelRatio, 1.5);
       canvas.width = w * d;
       canvas.height = h * d;
@@ -153,14 +157,21 @@ export default function Galaxy({ paused }) {
       ctx.globalAlpha = themeMix * .6 * starsIn;
       ctx.drawImage(daylight, 0, 0, w, h);
       ctx.globalAlpha = 1;
+      const portrait = w < 650 && h > w;
+      const tilt = portrait ? -0.56 : -0.28;
+      const cosT = Math.cos(tilt);
+      const sinT = Math.sin(tilt);
+      const squash = portrait ? 0.46 : 0.43;
       const cx = w * 0.5,
-        cy = h * 0.48 - scroll * 0.22 * (1 - breakup),
-        scale = Math.min(w * (w < 600 ? 0.78 : 0.47), h * 0.72);
+        cy = h * (portrait ? 0.45 : 0.48) - scroll * 0.22 * (1 - breakup),
+        scale = portrait
+          ? Math.min(w * 0.56, h * 0.44)
+          : Math.min(w * (w < 600 ? 0.62 : 0.47), h * 0.72);
       if (breakup < 0.98) {
         ctx.save();
         ctx.translate(cx, cy);
-        ctx.rotate(-0.28);
-        ctx.scale(1, 0.42);
+        ctx.rotate(tilt);
+        ctx.scale(1, squash);
         ctx.globalAlpha = formation;
         const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, scale * 0.85);
         halo.addColorStop(0, `rgba(224,233,245,${0.14 * (1 - breakup) * (1 - themeMix)})`);
@@ -170,15 +181,15 @@ export default function Galaxy({ paused }) {
         ctx.fillRect(-scale, -scale, scale * 2, scale * 2);
         ctx.restore();
       }
-      const count = w < 600 ? 1400 : particles.length;
+      const count = w < 600 ? 1500 : particles.length;
       for (let i = 0; i < count; i++) {
         const p = particles[i],
           a = p.angle + time * (1 - breakup) + (1 - formation) * 0.3,
           r = p.radius * scale * (1 + (1 - formation) * 0.45);
         const sx = Math.cos(a) * r,
-          sy = Math.sin(a) * r * 0.43 + p.spread * scale;
-        const gx = cx + sx * 0.96 - sy * -0.276,
-          gy = cy + sx * -0.276 + sy * 0.96;
+          sy = Math.sin(a) * r * squash + p.spread * scale;
+        const gx = cx + sx * cosT - sy * sinT,
+          gy = cy + sx * sinT + sy * cosT;
         // Release the upper rows first, keeping each star's identity throughout.
         const delay = (gy / h) * 0.21;
         const release = paused

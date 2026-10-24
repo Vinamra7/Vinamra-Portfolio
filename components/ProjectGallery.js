@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { FiArrowUpRight } from "react-icons/fi";
 
-function Study({ index, symbol, paused }) {
+function Study({ index, symbol, paused, mobileActive }) {
   const ref = useRef(null);
+  const mobileActiveRef = useRef(mobileActive);
+  mobileActiveRef.current = mobileActive;
   const [light, setLight] = useState(false);
   useEffect(() => {
     const sync = () => setLight(document.documentElement.dataset.theme === "light");
@@ -133,26 +135,40 @@ function Study({ index, symbol, paused }) {
     let raf,
       last = 0,
       amount = 0,
-      target = 0,
+      hovered = false,
+      touchTracking = false,
       visible = false,
       px = 0.5,
       py = 0.5,
       time = 0;
+    const coarseQuery = window.matchMedia("(pointer: coarse)");
     const card = canvas.closest("a");
-    const enter = () => {
-        target = 1;
+    const enter = (e) => {
+        if (e?.pointerType === "touch") return;
+        hovered = true;
       },
-      leave = () => {
-        target = 0;
+      leave = (e) => {
+        if (e?.pointerType === "touch") {
+          touchTracking = false;
+          return;
+        }
+        hovered = false;
       };
     const move = (e) => {
       const r = canvas.getBoundingClientRect();
-      px = (e.clientX - r.left) / r.width;
-      py = (e.clientY - r.top) / r.height;
+      if (!r.width || !r.height) return;
+      px = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      py = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+      if (e.pointerType === "touch") touchTracking = true;
+    };
+    const pointerEnd = (e) => {
+      if (e.pointerType === "touch") touchTracking = false;
     };
     card.addEventListener("pointerenter", enter);
     card.addEventListener("pointerleave", leave);
     card.addEventListener("pointermove", move);
+    card.addEventListener("pointerup", pointerEnd);
+    card.addEventListener("pointercancel", pointerEnd);
     card.addEventListener("focus", enter);
     card.addEventListener("blur", leave);
     const io = new IntersectionObserver(([e]) => {
@@ -166,12 +182,17 @@ function Study({ index, symbol, paused }) {
       if (!visible || document.hidden || now - last < 40) return;
       last = now;
       if (!paused) time = now * 0.001;
+      const isMobile = coarseQuery.matches || window.innerWidth <= 800;
+      const target = hovered || (isMobile && mobileActiveRef.current) ? 1 : 0;
+      if (isMobile && mobileActiveRef.current && !touchTracking && !paused) {
+        py = 0.5 + 0.28 * Math.sin(time * 0.9 + index * 1.1);
+      }
       amount += (target - amount) * 0.1;
       ctx.clearRect(0, 0, 600, 720);
 
       for (let y = 0; y < 720; y += 3) {
         const fall = Math.exp(-Math.pow((y - py * 720) / 170, 2));
-        const warp = Math.sin(y * 0.018 + time * 1.4) * fall * amount * 28;
+        const warp = paused ? 0 : Math.sin(y * 0.018 + time * 1.4) * fall * amount * 28;
         ctx.drawImage(monochrome, 0, y, 600, 3, warp, y, 600, 3);
         ctx.globalAlpha = amount;
         ctx.drawImage(art, 0, y, 600, 3, warp, y, 600, 3);
@@ -193,6 +214,8 @@ function Study({ index, symbol, paused }) {
       card.removeEventListener("pointerenter", enter);
       card.removeEventListener("pointerleave", leave);
       card.removeEventListener("pointermove", move);
+      card.removeEventListener("pointerup", pointerEnd);
+      card.removeEventListener("pointercancel", pointerEnd);
       card.removeEventListener("focus", enter);
       card.removeEventListener("blur", leave);
     };
@@ -201,30 +224,104 @@ function Study({ index, symbol, paused }) {
 }
 
 export default function ProjectGallery({ projects, paused }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const galleryRef = useRef(null);
+  const cardRefs = useRef([]);
+
+  useEffect(() => {
+    const gallery = galleryRef.current;
+    if (!gallery) return;
+    let raf = null;
+    const onScroll = () => {
+      if (raf !== null) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        if (window.innerWidth > 800) return;
+        const galleryRect = gallery.getBoundingClientRect();
+        const galleryCenter = galleryRect.left + galleryRect.width * 0.5;
+        let closest = 0;
+        let minDistance = Infinity;
+        cardRefs.current.forEach((card, idx) => {
+          if (!card) return;
+          const r = card.getBoundingClientRect();
+          const cardCenter = r.left + r.width * 0.5;
+          const dist = Math.abs(cardCenter - galleryCenter);
+          if (dist < minDistance) {
+            minDistance = dist;
+            closest = idx;
+          }
+        });
+        setActiveIndex(closest);
+      });
+    };
+    gallery.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      if (raf !== null) cancelAnimationFrame(raf);
+      gallery.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  const scrollToProject = (index) => {
+    setActiveIndex(index);
+    const card = cardRefs.current[index];
+    const gallery = galleryRef.current;
+    if (!card || !gallery) return;
+    const left = card.offsetLeft - (gallery.clientWidth - card.clientWidth) * 0.5;
+    gallery.scrollTo({
+      left: Math.max(0, left),
+      behavior: paused ? "auto" : "smooth",
+    });
+  };
+
   return (
-    <div className="project-gallery reveal">
-      {projects.map((project, index) => (
-        <a
-          className="study"
-          key={project.name}
-          href={project.url}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <div className="study-image">
-            <Study index={index} symbol={project.symbol} paused={paused} />
-            <span className="study-action">
-              <FiArrowUpRight />
-            </span>
-          </div>
-          <div className="study-meta mono">
-            <span>{project.category}</span>
-            <span>{project.year}</span>
-          </div>
-          <h3>{project.name}</h3>
-          <p>{project.description}</p>
-        </a>
-      ))}
+    <div className="project-showcase reveal">
+      <div className="project-mobile-rail mono" role="tablist" aria-label="Select project study">
+        {projects.map((project, index) => (
+          <button
+            key={project.name}
+            type="button"
+            role="tab"
+            aria-selected={activeIndex === index}
+            className={activeIndex === index ? "active" : ""}
+            onClick={() => scrollToProject(index)}
+          >
+            <span className="project-rail-num">{String(index + 1).padStart(2, "0")}</span>
+            <span>{project.name}</span>
+          </button>
+        ))}
+      </div>
+      <div className="project-gallery" ref={galleryRef}>
+        {projects.map((project, index) => (
+          <a
+            ref={(el) => {
+              cardRefs.current[index] = el;
+            }}
+            className={`study ${activeIndex === index ? "study-mobile-active" : ""}`}
+            key={project.name}
+            href={project.url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <div className="study-image">
+              <Study
+                index={index}
+                symbol={project.symbol}
+                paused={paused}
+                mobileActive={activeIndex === index}
+              />
+              <span className="study-action">
+                <FiArrowUpRight />
+              </span>
+            </div>
+            <div className="study-meta mono">
+              <span>{project.category}</span>
+              <span>{project.year}</span>
+            </div>
+            <h3>{project.name}</h3>
+            <p>{project.description}</p>
+          </a>
+        ))}
+      </div>
     </div>
   );
 }

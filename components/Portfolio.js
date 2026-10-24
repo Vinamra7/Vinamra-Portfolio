@@ -49,7 +49,7 @@ export default function Home() {
           }
         });
       },
-      { rootMargin: "-20% 0px -35% 0px", threshold: 0 },
+      { rootMargin: "-15% 0px -25% 0px", threshold: 0 },
     );
     document
       .querySelectorAll("main > section")
@@ -90,10 +90,18 @@ export default function Home() {
             </a>
           </div>
           <a href="#about" className="hero-scroll" aria-label="Scroll to about">
-            <span className="hero-scroll-mouse" aria-hidden="true">
+            <span className="hero-scroll-mouse hero-scroll-desktop" aria-hidden="true">
               <span className="hero-scroll-wheel" />
             </span>
-            <span className="mono hero-scroll-label" aria-hidden="true">SCROLL</span>
+            <span className="hero-swipe hero-scroll-mobile" aria-hidden="true">
+              <span className="hero-swipe-chevron" />
+              <span className="hero-swipe-chevron hero-swipe-chevron-2" />
+              <span className="hero-swipe-line">
+                <span className="hero-swipe-dot" />
+              </span>
+            </span>
+            <span className="mono hero-scroll-label hero-scroll-desktop" aria-hidden="true">SCROLL</span>
+            <span className="mono hero-scroll-label hero-scroll-mobile" aria-hidden="true">SWIPE</span>
           </a>
         </section>
         <section
@@ -116,7 +124,8 @@ export default function Home() {
                 className="astronaut-window"
               />
               <span className="astronaut-caption mono">
-                Hover to find colour
+                <span className="caption-desktop">Hover to find colour</span>
+                <span className="caption-mobile">Touch to find colour</span>
               </span>
             </div>
           </div>

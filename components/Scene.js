@@ -67,6 +67,8 @@ export default function Scene({ variant, paused }) {
       raf,
       visible = false,
       hovered = false,
+      downX = 0,
+      downY = 0,
       colour = 0,
       model;
     let previous = 0,
@@ -105,6 +107,14 @@ export default function Scene({ variant, paused }) {
     postScene.add(new THREE.Mesh(quadGeometry, post));
     const group = new THREE.Group();
     scene.add(group);
+    function applyFraming(aspect) {
+      if (!astronaut) return;
+      // Keep horizontal UV span constant when aspect < 1.18 so the reflected ghost (1.12 - uv.x) never clips on the right.
+      const fit = Math.min(1, aspect / 1.18);
+      group.scale.setScalar(fit);
+      group.position.x = -0.23 * fit;
+      group.position.y = 0.65 * (1 - fit);
+    }
     function track(object) {
       object.traverse((child) => {
         if (child.geometry) geometries.add(child.geometry);
@@ -182,7 +192,7 @@ export default function Scene({ variant, paused }) {
             model.scale.setScalar(4.0 / size.y);
             model.rotation.set(0.06, -1.57, -0.08);
             group.add(model);
-            group.position.x = -0.23;
+            applyFraming(el.clientWidth / (el.clientHeight || 1));
             draw();
           },
           undefined,
@@ -202,6 +212,7 @@ export default function Scene({ variant, paused }) {
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      applyFraming(w / h);
       target.setSize(
         Math.round(w * Math.min(window.devicePixelRatio, 1.5)),
         Math.round(h * Math.min(window.devicePixelRatio, 1.5)),
@@ -221,6 +232,7 @@ export default function Scene({ variant, paused }) {
     );
     observer.observe(el);
     function move(e) {
+      if (e.pointerType === "touch") return;
       const r = el.getBoundingClientRect();
       cursor.set(
         (e.clientX - r.left) / r.width - 0.5,
@@ -232,7 +244,8 @@ export default function Scene({ variant, paused }) {
       hovered = true;
       setColourOn(true);
     }
-    function leave() {
+    function leave(e) {
+      if (e?.pointerType === "touch") return;
       hovered = false;
       cursor.set(0, 0);
       setColourOn(false);
@@ -243,22 +256,36 @@ export default function Scene({ variant, paused }) {
     function toggle() {
       hovered = !hovered;
       setColourOn(hovered);
-      if (!hovered) leave();
+      if (!hovered) {
+        cursor.set(0, 0);
+        colour = 0;
+        post.uniforms.colour.value = 0;
+        draw();
+      }
     }
-    el.addEventListener("pointermove", move);
-    el.addEventListener("pointerenter", enter);
-    el.addEventListener("pointerleave", leave);
-    el.addEventListener("focus", enter);
-    el.addEventListener("blur", leave);
+    function pointerDown(e) {
+      if (e.pointerType !== "touch") return;
+      downX = e.clientX;
+      downY = e.clientY;
+    }
+    function touch(e) {
+      if (e.pointerType !== "touch") return;
+      if (Math.hypot(e.clientX - downX, e.clientY - downY) < 16) {
+        toggle();
+      }
+    }
     function key(e) {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         toggle();
       }
     }
-    function touch(e) {
-      if (e.pointerType === "touch") toggle();
-    }
+    el.addEventListener("pointerdown", pointerDown);
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerenter", enter);
+    el.addEventListener("pointerleave", leave);
+    el.addEventListener("focus", enter);
+    el.addEventListener("blur", leave);
     el.addEventListener("keydown", key);
     el.addEventListener("pointerup", touch);
     function frame(now) {
@@ -304,6 +331,7 @@ export default function Scene({ variant, paused }) {
       cancelAnimationFrame(raf);
       observer.disconnect();
       resizeObserver.disconnect();
+      el.removeEventListener("pointerdown", pointerDown);
       el.removeEventListener("pointermove", move);
       el.removeEventListener("pointerenter", enter);
       el.removeEventListener("pointerleave", leave);

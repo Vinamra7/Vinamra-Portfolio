@@ -34,7 +34,7 @@ export default function ChatVerification({ active, resetKey, onVerify }) {
         action: "session",
         appearance: "interaction-only",
         theme: document.documentElement.dataset.theme === "light" ? "light" : "dark",
-        size: "normal",
+        size: window.innerWidth < 380 ? "compact" : "normal",
         "response-field": false,
         "refresh-expired": "never",
         "before-interactive-callback": () => {
