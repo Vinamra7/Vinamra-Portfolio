@@ -3337,3 +3337,175 @@ html[data-theme="light"] .chat-reply { color: #273238; }
     padding: 22px 0 36px;
   }
 }
+
+
+/* Mobile chat terminal: roomier conversation area, stacked message rows, touch-sized controls.
+   Scoped to phones only so the desktop terminal is untouched. */
+@media (max-width: 650px) {
+  .terminal-bar {
+    padding: 12px 14px;
+    font-size: 10px;
+  }
+  .terminal-bar button {
+    padding: 10px;
+    margin: -6px -6px -6px 0;
+    font-size: 16px;
+  }
+  .terminal-body {
+    height: clamp(380px, 62svh, 580px);
+    padding: 16px 14px 20px;
+  }
+  .terminal-greeting {
+    gap: 12px;
+    align-items: center;
+  }
+  /* The avatar canvas carries inline negative margins and padding for its glow; pin them. */
+  .terminal-avatar {
+    width: 52px;
+    height: 52px;
+    padding-top: 0;
+    display: grid;
+    place-items: center;
+    overflow: visible;
+  }
+  .terminal-avatar canvas,
+  .terminal-avatar svg {
+    width: 80px !important;
+    height: 80px !important;
+    max-width: none;
+    max-height: none;
+    margin: -14px !important;
+  }
+  .terminal-agent-name {
+    font-size: 9px;
+  }
+  .terminal-greeting p {
+    font-size: 16px;
+    line-height: 1.4;
+    margin: 4px 0 6px;
+  }
+  .terminal-hint {
+    display: block;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  /* Once the conversation starts, shrink the greeting to a slim header so replies get the room. */
+  .contact-terminal.terminal-has-messages .terminal-greeting {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #262626;
+  }
+  html[data-theme="light"] .contact-terminal.terminal-has-messages .terminal-greeting {
+    border-color: #bac3c1;
+  }
+  .contact-terminal.terminal-has-messages .terminal-greeting p,
+  .contact-terminal.terminal-has-messages .terminal-hint {
+    display: none;
+  }
+  .contact-terminal.terminal-has-messages .terminal-avatar {
+    width: 36px;
+    height: 36px;
+  }
+  .contact-terminal.terminal-has-messages .terminal-avatar canvas,
+  .contact-terminal.terminal-has-messages .terminal-avatar svg {
+    width: 64px !important;
+    height: 64px !important;
+    margin: -14px !important;
+  }
+  /* Chat rows: label on its own line, text uses the full width. */
+  .terminal-message {
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 16px;
+  }
+  .message-prefix {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    min-width: 0;
+    padding-top: 0;
+  }
+  .terminal-message > div {
+    width: 100%;
+  }
+  .terminal-message p,
+  .chat-reply,
+  .chat-reply p,
+  .chat-reply li {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .chat-reply ul,
+  .chat-reply ol {
+    padding-left: 18px;
+    margin: 8px 0;
+  }
+  .chat-reply li {
+    margin: 5px 0;
+  }
+  .chat-reply pre {
+    font-size: 12px;
+  }
+  .system-message p {
+    font-size: 13px;
+  }
+  .user-message {
+    margin-left: -14px;
+    margin-right: -14px;
+    padding: 10px 14px;
+  }
+  .terminal-result {
+    font-size: 12px;
+    gap: 8px;
+  }
+  .terminal-result a {
+    padding: 8px 0;
+  }
+  .terminal-result button {
+    padding: 10px;
+  }
+  .terminal-thinking {
+    font-size: 12px;
+    margin-top: 16px;
+  }
+  .terminal-options {
+    padding: 12px 14px 4px;
+    gap: 8px;
+  }
+  .terminal-options button {
+    min-height: 44px;
+    justify-content: center;
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+  .terminal-options button svg {
+    display: none;
+  }
+  .terminal-input {
+    margin: 10px 14px 12px;
+    padding: 6px 6px 6px 12px;
+    gap: 8px;
+  }
+  .terminal-input textarea {
+    font-size: 16px;
+    min-height: 44px;
+    padding: 10px 0;
+  }
+  .terminal-input button {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+  .chat-verification,
+  .verification-hint,
+  .terminal-input-error,
+  .terminal-session-status {
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+  .terminal-privacy {
+    margin: 4px 14px 16px;
+  }
+  .terminal-privacy summary {
+    padding: 8px 0;
+  }
+}
